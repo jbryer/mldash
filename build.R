@@ -33,7 +33,7 @@ unlink('data-raw/*.rds')
 # * Shiny application
 # * add testthat tests
 # * add an example using OpenML package
-#
+# * check for package dependencies from the model files.
 
 ##### Run models
 

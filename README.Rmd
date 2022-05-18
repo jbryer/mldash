@@ -59,6 +59,22 @@ ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 ml_results
 ```
 
+## Available Datasets
+
+```{r, echo = FALSE, results = 'asis'}
+for(i in seq_len(nrow(ml_datasets))) {
+	cat(paste0('* [', ml_datasets[i,]$name, '](inst/datasets/', row.names(ml_datasets)[i], ') - ', ml_datasets[i,]$description, '\n'))
+}
+```
+
+## Available Models
+
+```{r, echo = FALSE, results = 'asis'}
+for(i in seq_len(nrow(ml_models))) {
+	cat(paste0('* [', ml_models[i,]$name, '](inst/models/', row.names(ml_models)[i], ') - ', ml_models[i,]$description, '\n'))
+}
+```
+
 
 ## Creating Datasets
 

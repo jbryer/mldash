@@ -84,14 +84,31 @@ ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 #>    [2 / 2] Running randomForest model...
 ml_results
 #>   dataset            model           type base_accuracy time_user time_system
-#> 1 abalone           lm.dcf     regression            NA     0.003       0.001
-#> 2 titanic     logistic.dcf classification          0.61     0.003       0.001
-#> 3 titanic randomForest.dcf classification          0.61     0.428       0.014
+#> 1 abalone           lm.dcf     regression            NA     0.003       0.000
+#> 2 titanic     logistic.dcf classification          0.65     0.003       0.000
+#> 3 titanic randomForest.dcf classification          0.65     0.432       0.015
 #>   time_elapsed accuracy kappa sensitivity specificity roc_auc r_squared rmse
-#> 1        0.003       NA    NA          NA          NA      NA      0.34  2.6
-#> 2        0.004     0.80  0.58        0.85        0.72    0.13        NA   NA
-#> 3        0.442     0.81  0.59        0.89        0.68    0.13        NA   NA
+#> 1        0.003       NA    NA          NA          NA      NA      0.33  2.5
+#> 2        0.003     0.80  0.55        0.85         0.7    0.14        NA   NA
+#> 3        0.449     0.84  0.64        0.92         0.7    0.13        NA   NA
 ```
+
+## Available Datasets
+
+-   [abalone](inst/datasets/abalone.dcf) - Predicting the age of abalone
+    from physical measurements.
+-   [titanic](inst/datasets/titanic.dcf) - The original Titanic dataset,
+    describing the survival status of individual passengers on the
+    Titanic.
+
+## Available Models
+
+-   [lm](inst/models/lm.dcf) - Linear regression using the stats::lm
+    function.
+-   [logistic](inst/models/logistic.dcf) - Logistic regression using the
+    stats::glm function.
+-   [randomForest](inst/models/randomForest.dcf) - Random forest
+    prediction model usign the randomForest R package.
 
 ## Creating Datasets
 
