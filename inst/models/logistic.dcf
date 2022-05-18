@@ -1,0 +1,9 @@
+name: logistic
+type: classification
+description: Logistic regression using the stats::glm function.
+train: function(formula, data) {
+		glm(formula = formula, data = data, family = binomial(link = 'logit'))
+	}
+predict: function(model, newdata) {
+		predict.glm(model, newdata = newdata, type = 'response')
+	}

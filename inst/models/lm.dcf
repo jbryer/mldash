@@ -1,0 +1,10 @@
+name: lm
+type: regression
+description: Linear regression using the stats::lm function.
+train: function(formula, data) {
+		lm(formula = formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.lm(model, newdata = newdata)
+	}
+notes: Performs basic ordinary least squares regression.

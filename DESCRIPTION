@@ -1,0 +1,25 @@
+Package: mldash
+Title: Evaluating Machine Learning Models Across Many Datasets
+Version: 0.1.0
+Authors@R: 
+    person("Jason", "Bryer", , "jason@bryer.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2454-0402"))
+Maintainer: Jason Bryer <jason@bryer.org>
+Description: Framework for evaluating predictive models across many
+    datasets. Datasets and models are defined in debian control files.
+    Data can be retrieved from many sources and the package will execute
+    and evaluate predictive models using a hold-out validation dataset
+    using common metrics defined in the yardstick package.
+License: GPL (>= 3)
+URL: https://jbryer.github.io/mldash/
+BugReports: https://github.com/jbryer/mldash/issues
+Imports: 
+    dplyr,
+    ggplot2,
+    randomForest,
+    RWeka,
+    shiny,
+    yardstick
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
