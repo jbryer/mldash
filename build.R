@@ -35,6 +35,11 @@ unlink('data-raw/*.rds')
 # * add an example using OpenML package
 # * check for package dependencies from the model files.
 
+
+adult <- mldash::get_data(dataname = 'adult', dir = 'inst/datasets')
+
+
+
 ##### Run models
 
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',

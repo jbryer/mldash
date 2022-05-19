@@ -67,6 +67,7 @@ run_models <- function(
 			tmp <- attr(data_models, 'functions')
 			train_fun <- tmp[[modelname]]$train
 			predict_fun <- tmp[[modelname]]$predict
+			results <- data.frame()
 			tryCatch({
 				if(!is.null(data_models[m,]$packages) &
 				   !is.na(data_models[m,]$packages)) {
@@ -142,12 +143,27 @@ run_models <- function(
 					warning("Unknown predictive modeling type!")
 				}
 
-				ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
 			},
 			error = function(e) {
 				message(paste0('   Error running ', modelname,' model'))
 				print(e)
+				results <- data.frame(
+					dataset = datasets[d,]$name,
+					model = modelname,
+					type = type,
+					base_accuracy = NA,
+					time_user = NA,
+					time_system = NA,
+					time_elapsed = NA,
+					stringsAsFactors = FALSE
+				)
+				for(i in c(names(class_metrics),
+						   names(class_probability_metrics),
+						   names(numeric_metrics) )) {
+					results[,i] <- NA
+				}
 			})
+			ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
 		}
 	}
 

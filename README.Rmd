@@ -90,9 +90,9 @@ adult_data <- mldash::new_dataset(
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", destfile)
 		df <- read.csv(destfile, header = FALSE)
-		names(df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status',
-					   'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'captial-loss',
-					   'hours-per-week', 'native-country', 'greater_than_50k')
+		names(df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_status',
+					   'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'captial_loss',
+					   'hours_per_week', 'native_country', 'greater_than_50k')
 		df$greater_than_50k <- df$greater_than_50k == ' >50K'
 		return(df)
 	},
