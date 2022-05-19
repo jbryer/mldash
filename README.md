@@ -47,10 +47,10 @@ ml_datasets %>% select(name, type, model)
 #> abalone.dcf abalone     regression
 #> adult.dcf     adult classification
 #> titanic.dcf titanic classification
-#>                                                                        model
-#> abalone.dcf                                             rings ~ length + sex
-#> adult.dcf                                               greater_than_50k ~ .
-#> titanic.dcf survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+#>                                                                                                                                                                             model
+#> abalone.dcf                                                                                                                                                  rings ~ length + sex
+#> adult.dcf   greater_than_50k ~ age + workclass + fnlwgt + education_num + marital_status + occupation + relationship + race + sex +\ncapital_gain + captial_loss + hours_per_week
+#> titanic.dcf                                                                                                      survived ~  pclass + sex + age + sibsp + parch + fare + embarked
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir`
@@ -87,23 +87,22 @@ ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 #> Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
 #> prediction from a rank-deficient fit may be misleading
 #>    [2 / 2] Running randomForest model...
-#> Timing stopped at: 0.007 0 0.008
-#>    Error running randomForest.dcf model
-#> <simpleError in eval(predvars, data, env): object 'education-num' not found>
 #> [3 / 3] Loading titanic data...
 #>    [1 / 2] Running logistic model...
 #>    [2 / 2] Running randomForest model...
 ml_results
 #>   dataset            model           type base_accuracy time_user time_system
-#> 1 abalone           lm.dcf     regression            NA     0.002       0.000
-#> 2   adult     logistic.dcf classification          0.75     3.324       0.050
-#> 3 titanic     logistic.dcf classification          0.60     0.002       0.000
-#> 4 titanic randomForest.dcf classification          0.60     0.363       0.013
+#> 1 abalone           lm.dcf     regression            NA     0.002       0.001
+#> 2   adult     logistic.dcf classification          0.75     0.691       0.029
+#> 3   adult randomForest.dcf classification          0.75    21.779       0.445
+#> 4 titanic     logistic.dcf classification          0.65     0.003       0.000
+#> 5 titanic randomForest.dcf classification          0.65     0.351       0.009
 #>   time_elapsed accuracy kappa sensitivity specificity roc_auc r_squared rmse
-#> 1        0.002       NA    NA          NA          NA      NA       0.3  2.6
-#> 2        3.380     0.85  0.57        0.94        0.59   0.093        NA   NA
-#> 3        0.003     0.76  0.49        0.85        0.62   0.176        NA   NA
-#> 4        0.377     0.80  0.57        0.91        0.65   0.174        NA   NA
+#> 1        0.003       NA    NA          NA          NA      NA      0.37  2.5
+#> 2        0.721     0.85  0.57        0.93        0.60   0.097        NA   NA
+#> 3       22.312     0.86  0.60        0.94        0.62   0.090        NA   NA
+#> 4        0.002     0.76  0.48        0.81        0.68   0.172        NA   NA
+#> 5        0.360     0.81  0.57        0.86        0.70   0.145        NA   NA
 ```
 
 ## Available Datasets
