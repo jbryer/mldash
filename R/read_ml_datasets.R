@@ -46,10 +46,12 @@ read_ml_datasets <- function(
 		pattern = "*.dcf",
 		use_cache = TRUE
 ) {
-	if(!dir.exists(cache_dir)) {
+	if(!dir.exists(cache_dir[1])) {
 		message(paste0('Creating ', cache_dir, ' directory...'))
 		dir.create(cache_dir, recursive = TRUE)
 	}
+	# TODO: also look for data files in the package directory
+	# paste0(find.package('mldash'), '/datasets')
 
 	datafiles <- list.files(dir, pattern = pattern)
 
@@ -79,7 +81,7 @@ read_ml_datasets <- function(
 		}
 
 		thedata <- NULL
-		datafile <- paste0(cache_dir, '/', dataname, '.rds')
+		datafile <- paste0(cache_dir[1], '/', dataname, '.rds')
 		if(file.exists(datafile) & use_cache) {
 			message(paste0('Reading ', dataname, ' from cache.'))
 			thedata <- readRDS(datafile)
@@ -110,7 +112,7 @@ read_ml_datasets <- function(
 
 	ml_datasets$type <- tolower(ml_datasets$type)
 
-	attr(ml_datasets, 'cache_dir') <- normalizePath(cache_dir)
+	attr(ml_datasets, 'cache_dir') <- normalizePath(cache_dir[1])
 	class(ml_datasets) <- c('mldash_datasets', 'data.frame')
 	return(ml_datasets)
 }

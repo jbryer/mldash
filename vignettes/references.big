@@ -1,10 +1,25 @@
 @article{JMLR:v15:delgado14a,
-  author  = {Manuel Fern{{\'a}}ndez-Delgado and Eva Cernadas and Sen{{\'e}}n Barro and Dinani Amorim},
-  title   = {Do we Need Hundreds of Classifiers to Solve Real World Classification Problems?},
-  journal = {Journal of Machine Learning Research},
-  year    = {2014},
-  volume  = {15},
-  number  = {90},
-  pages   = {3133-3181},
-  url     = {http://jmlr.org/papers/v15/delgado14a.html}
+	author  = {Manuel Fern{{\'a}}ndez-Delgado and Eva Cernadas and Sen{{\'e}}n Barro and Dinani Amorim},
+	title   = {Do we Need Hundreds of Classifiers to Solve Real World Classification Problems?},
+	journal = {Journal of Machine Learning Research},
+	year    = {2014},
+	volume  = {15},
+	number  = {90},
+	pages   = {3133-3181},
+	url     = {http://jmlr.org/papers/v15/delgado14a.html}
+}
+
+@Manual{,
+	title = {Tidymodels: a collection of packages for modeling and machine learning using tidyverse principles.},
+	author = {Max Kuhn and Hadley Wickham},
+	url = {https://www.tidymodels.org},
+	year = {2020},
+}
+
+@Manual{,
+	title = {yardstick: Tidy Characterizations of Model Performance},
+	author = {Max Kuhn and Davis Vaughan},
+	year = {2021},
+	note = {R package version 0.0.9},
+	url = {https://CRAN.R-project.org/package=yardstick},
 }

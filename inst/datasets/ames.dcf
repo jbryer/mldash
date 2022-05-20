@@ -9,5 +9,5 @@ data: function() {
 		ames$Sale_Price_log <- log10(ames$Sale_Price)
 		return(ames)
 	}
-model: Sale_Price_log ~ Longitude + Latitude + Lot_Area + Neighborhood + Year_Sold
+model: Sale_Price_log ~ Longitude + Latitude + Lot_Area + Year_Sold
 notes:

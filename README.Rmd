@@ -1,5 +1,7 @@
 ---
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -21,7 +23,7 @@ options(digits = 2)
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.
 
-**WARNING** This is very much a alpha project as I explore this approach to evaluating predictive models.
+**WARNING** This is very much an alpha project as I explore this approach to evaluating predictive models. Use at your own risk.
 
 
 ## Installation
@@ -60,6 +62,9 @@ Once the datasets and models have been loaded, the `run_models` will train and e
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 ml_results
 ```
+
+The `metrics` parameter to `run_models()` takes a list of metris from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metris is available here: https://yardstick.tidymodels.org/articles/metric-types.html
+
 
 ## Available Datasets
 
@@ -181,7 +186,7 @@ predict: function (model, newdata)
 note:
 ```
 
-
+Note that for classification mdels, the `run_models()` function will ensure that the dependent variable is coded as a factor. If the model assumes another data type (e.g. TRUE or FALSE) it will need to convert the variable. Otherwise, the data files (read in by the `read_data()` function) should ensure all independent variables a properly coded.
 
 
 ## Code of Conduct

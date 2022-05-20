@@ -9,11 +9,14 @@
 #'        See https://yardstick.tidymodels.org/articles/metric-types.html for more information.
 #' @return a data.frame with the results of all the models run against all the datasets.
 #' @export
+#' @import yardstick
+#' @importFrom sessioninfo session_info
 run_models <- function(
 		datasets,
 		models,
 		seed,
 		training_size = 0.7,
+		# metrics = get_all_metrics()
 		metrics = list(
 			'r_squared' = yardstick::rsq,
 			'rmse' = yardstick::rmse,
@@ -24,6 +27,7 @@ run_models <- function(
 			'roc_auc' = yardstick::roc_auc
 		)
 ) {
+	start_time <- Sys.time()
 
 	metric_types <- sapply(metrics, FUN = function(x) { class(x)[1] })
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
@@ -35,11 +39,13 @@ run_models <- function(
 		model = character(),
 		type = character(),
 		base_accuracy = numeric(),
+		cm = list(),
 		time_user = numeric(),
 		time_system = numeric(),
 		time_elapsed = numeric(),
 		stringsAsFactors = FALSE
 	)
+	ml_summary$cm <- list()
 
 	for(i in c(names(class_metrics),
 			   names(class_probability_metrics),
@@ -74,7 +80,7 @@ run_models <- function(
 			tmp <- attr(data_models, 'functions')
 			train_fun <- tmp[[modelname]]$train
 			predict_fun <- tmp[[modelname]]$predict
-			results <- data.frame()
+			# results <- data.frame()
 			tryCatch({
 				if(!is.null(data_models[m,]$packages) &
 				   !is.na(data_models[m,]$packages)) {
@@ -109,6 +115,8 @@ run_models <- function(
 					time_elapsed = exec_time[3],
 					stringsAsFactors = FALSE
 				)
+				results$cm <- NA
+
 				for(i in c(names(class_metrics),
 						   names(class_probability_metrics),
 						   names(numeric_metrics) )) {
@@ -128,6 +136,8 @@ run_models <- function(
 						})
 					}
 					validate$estimate <- as.factor(validate$estimate > 0.5) # TODO: Allow for other break points
+					cm <- table(validate$truth, validate$estimate)
+					results[1,]$cm <- list(list(cm))
 					for(i in names(class_metrics)) {
 						tryCatch({
 							results[1,i] <- class_metrics[[i]](validate,
@@ -174,6 +184,10 @@ run_models <- function(
 			ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
 		}
 	}
+
+	attr(ml_summary, 'start_time') <- start_time
+	attr(ml_summary, 'end_time') <- Sys.time()
+	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
 
 	return(ml_summary)
 }

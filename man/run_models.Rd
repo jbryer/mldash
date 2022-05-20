@@ -9,9 +9,7 @@ run_models(
   models,
   seed,
   training_size = 0.7,
-  metrics = list(r_squared = yardstick::rsq, rmse = yardstick::rmse, accuracy =
-    yardstick::accuracy, kappa = yardstick::kap, sensitivity = yardstick::sensitivity,
-    specificity = yardstick::specificity, roc_auc = yardstick::roc_auc)
+  metrics = get_all_metrics()
 )
 }
 \arguments{

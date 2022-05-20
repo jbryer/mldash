@@ -14,7 +14,7 @@ devtools::check()
 usethis::use_package('tidymodels', type = "Imports")
 usethis::use_package('RWeka', type = "Imports")
 usethis::use_package('randomForest', type = "Imports")
-usethis::use_package('yardstick', type = "Imports")
+usethis::use_package('shinyWidgets', type = "Imports")
 
 usethis::use_package_doc()
 
@@ -26,7 +26,7 @@ usethis::use_package_doc()
 library(mldash)
 
 # Clean data cache
-unlink('data-raw/*.rds')
+unlink('inst/datasets/*.rds')
 
 # TODO:
 # * Look for data within the package for built-in datasets.
@@ -58,17 +58,33 @@ predict.model_fit(fit, new_data = abalone)
 ##### Run models
 
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
-										cache_dir = 'data-raw')
+										cache_dir = 'inst/datasets')
 
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
-ml_models |> dplyr::select(name, type, packages)
+# ml_models |> dplyr::select(name, type, packages)
 
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
-ml_results
+ml_results |> View()
 
 # Run only classification models/datasets
 datasets <- ml_datasets %>% filter(type == 'classification')
 models <- ml_models %>% filter(type == 'classification')
 
 
-sessioninfo::session_info()
+##### Look for metrics
+library(yardstick)
+metrics <- list()
+pos <- which(search() == 'package:yardstick')
+rd_yardstick <- tools::Rd_db('yardstick')
+for(i in ls('package:yardstick')) {
+	obj <- get(i, pos = pos)
+	if(is.function(obj) & 'metric' %in% class(obj)) {
+		# therd <- rd_yardstick[grep(paste0(i, ".Rd"), names(rd_yardstick), value = TRUE)]
+		# title <- c(therd[[1]][[1]][[1]])
+		metrics[[i]] <- obj
+	}
+}
+names(metrics)
+
+
+(si <- sessioninfo::session_info())

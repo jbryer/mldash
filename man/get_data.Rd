@@ -5,9 +5,9 @@
 \title{Reads in a data frame for a model file}
 \usage{
 get_data(
+  dataname,
   dir = paste0(find.package("mldash"), "/datasets"),
   cache_dir = tempdir(),
-  dataname,
   use_cache = TRUE
 )
 }

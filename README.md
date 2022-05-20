@@ -121,7 +121,6 @@ ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 #>    [3 / 3] Running randomForest_regression model...
 #> [3 / 3] Loading titanic data...
 #>    [1 / 3] Running bag_mars_classification model...
-#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 #>    [2 / 3] Running logistic model...
 #>    [3 / 3] Running randomForest_classification model...
 ml_results
@@ -132,29 +131,29 @@ ml_results
 #> 4    ames         bag_mars_regression.dcf     regression            NA
 #> 5    ames                          lm.dcf     regression            NA
 #> 6    ames     randomForest_regression.dcf     regression            NA
-#> 7 titanic     bag_mars_classification.dcf classification          0.62
-#> 8 titanic                    logistic.dcf classification          0.62
-#> 9 titanic randomForest_classification.dcf classification          0.62
+#> 7 titanic     bag_mars_classification.dcf classification           0.6
+#> 8 titanic                    logistic.dcf classification           0.6
+#> 9 titanic randomForest_classification.dcf classification           0.6
 #>   time_user time_system time_elapsed accuracy kappa sensitivity specificity
-#> 1     0.210       0.012        0.226       NA    NA          NA          NA
-#> 2     0.001       0.000        0.001       NA    NA          NA          NA
-#> 3     1.300       0.054        1.361       NA    NA          NA          NA
-#> 4     0.336       0.006        0.342       NA    NA          NA          NA
-#> 5     0.003       0.000        0.003       NA    NA          NA          NA
-#> 6     2.119       0.030        2.150       NA    NA          NA          NA
-#> 7     0.148       0.004        0.151     0.18 -0.53        0.12        0.28
-#> 8     0.002       0.000        0.002     0.81  0.58        0.87        0.70
-#> 9     0.359       0.007        0.368     0.82  0.60        0.92        0.66
+#> 1     0.203       0.010        0.214       NA    NA          NA          NA
+#> 2     0.001       0.000        0.002       NA    NA          NA          NA
+#> 3     1.293       0.042        1.337       NA    NA          NA          NA
+#> 4     0.340       0.005        0.345       NA    NA          NA          NA
+#> 5     0.003       0.000        0.002       NA    NA          NA          NA
+#> 6     2.126       0.026        2.153       NA    NA          NA          NA
+#> 7     0.144       0.003        0.147     0.18 -0.56        0.13        0.25
+#> 8     0.003       0.000        0.003     0.80  0.58        0.85        0.72
+#> 9     0.355       0.007        0.364     0.82  0.61        0.90        0.70
 #>   roc_auc r_squared rmse
-#> 1      NA      0.33 2.57
-#> 2      NA      0.32 2.59
-#> 3      NA      0.33 2.58
-#> 4      NA      0.43 0.14
-#> 5      NA      0.56 0.12
-#> 6      NA      0.67 0.11
+#> 1      NA      0.33 2.56
+#> 2      NA      0.32 2.57
+#> 3      NA      0.33 2.55
+#> 4      NA      0.45 0.14
+#> 5      NA      0.60 0.12
+#> 6      NA      0.69 0.11
 #> 7    0.86        NA   NA
 #> 8    0.14        NA   NA
-#> 9    0.12        NA   NA
+#> 9    0.14        NA   NA
 ```
 
 ## Available Datasets
@@ -281,6 +280,12 @@ Results in the following file:
             randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
         }
     note:
+
+Note that for classification mdels, the `run_models()` function will
+ensure that the dependent variable is coded as a factor. If the model
+assumes another data type (e.g. TRUE or FALSE) it will need to convert
+the variable. Otherwise, the data files (read in by the `read_data()`
+function) should ensure all independent variables a properly coded.
 
 ## Code of Conduct
 

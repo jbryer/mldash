@@ -19,6 +19,8 @@ Imports:
     randomForest,
     RWeka,
     shiny,
+    shinyBS,
+    shinyWidgets,
     yardstick
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

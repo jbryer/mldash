@@ -1,0 +1,14 @@
+name: bag_tree_rpart_classification
+type: classification
+description: Ensembles of decision trees.
+train: function(formula, data) {
+	bag_tree() |>
+		set_mode("classification") |>
+		set_engine("rpart") |>
+		fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/bag_tree.html
+packages: parsnip, rpart
