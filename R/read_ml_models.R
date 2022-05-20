@@ -75,6 +75,8 @@ read_ml_models <- function(
 		}
 	}
 
+	ml_models$type <- tolower(ml_models$type)
+
 	attr(ml_models, 'functions') <- models
 	attr(ml_models, 'dir') <- normalizePath(dir)
 	class(ml_models) <- c('mldash_models', 'data.frame')

@@ -21,6 +21,8 @@ options(digits = 2)
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.
 
+**WARNING** This is very much a alpha project as I explore this approach to evaluating predictive models.
+
 
 ## Installation
 
@@ -42,7 +44,7 @@ This lists the datasets currenlty included in the package (more to come soon).
 ```{r, eval = TRUE, message = FALSE}
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'data-raw')
-ml_datasets %>% select(name, type, model)
+ml_datasets
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir` parameter defines where to look for model files.

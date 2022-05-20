@@ -108,6 +108,8 @@ read_ml_datasets <- function(
 		}
 	}
 
+	ml_datasets$type <- tolower(ml_datasets$type)
+
 	attr(ml_datasets, 'cache_dir') <- normalizePath(cache_dir)
 	class(ml_datasets) <- c('mldash_datasets', 'data.frame')
 	return(ml_datasets)

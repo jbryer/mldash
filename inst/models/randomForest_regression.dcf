@@ -1,0 +1,14 @@
+name: randomForest_regression
+type: regression
+description: Random forest prediction model usign the randomForest R package.
+train: function (formula, data)
+	{
+	    randomForest::randomForest(formula = formula, data = data,
+	        ntree = 1000)
+	}
+predict: function (model, newdata)
+	{
+	    randomForest:::predict.randomForest(model, newdata = newdata, type = 'response')
+	}
+packages: randomForest
+note:

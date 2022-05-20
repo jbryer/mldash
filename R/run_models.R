@@ -56,10 +56,17 @@ run_models <- function(
 		if(!missing(seed)) {
 			set.seed(seed)
 		}
+
+		type <- datasets[d,]$type
+
+		y_var <- all.vars(formu)[1]
+		if(type == 'classification' & !is.factor(thedata[, y_var])) {
+			thedata[, y_var] <- as.factor(thedata[, y_var])
+		}
+
 		training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
 		train_data <- thedata[training_rows,]
 		valid_data <- thedata[-training_rows,]
-		type <- datasets[d,]$type
 		data_models <- models[models$type == type,]
 		for(m in seq_len(nrow(data_models))) {
 			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name, ' model...'))
@@ -71,7 +78,7 @@ run_models <- function(
 			tryCatch({
 				if(!is.null(data_models[m,]$packages) &
 				   !is.na(data_models[m,]$packages)) {
-					pkgs <- unlist(strsplit(data_models[m,]$packages, ','))
+					pkgs <- trimws(unlist(strsplit(data_models[m,]$packages, ',')))
 					for(i in seq_len(length(pkgs))) {
 						suppressPackageStartupMessages(
 							library(package = pkgs[i],
@@ -81,6 +88,7 @@ run_models <- function(
 						)
 					}
 				}
+
 				exec_time <- as.numeric(system.time({
 					train <- train_fun(formu, train_data)
 				}))

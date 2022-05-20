@@ -18,6 +18,9 @@ data into training and validation sets, and calculating the desired
 performance metrics utilizing the
 [`yardstick`](https://yardstick.tidymodels.org) package.
 
+**WARNING** This is very much a alpha project as I explore this approach
+to evaluating predictive models.
+
 ## Installation
 
 You can install the development version of `mldash` using the `remotes`
@@ -42,15 +45,35 @@ soon).
 ``` r
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
                                         cache_dir = 'data-raw')
-ml_datasets %>% select(name, type, model)
+ml_datasets
 #>                name           type
 #> abalone.dcf abalone     regression
-#> adult.dcf     adult classification
+#> ames.dcf       ames     regression
 #> titanic.dcf titanic classification
-#>                                                                                                                                                                             model
-#> abalone.dcf                                                                                                                                                  rings ~ length + sex
-#> adult.dcf   greater_than_50k ~ age + workclass + fnlwgt + education_num + marital_status + occupation + relationship + race + sex +\ncapital_gain + captial_loss + hours_per_week
-#> titanic.dcf                                                                                                      survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+#>                                                                                                       description
+#> abalone.dcf                                             Predicting the age of abalone from physical measurements.
+#> ames.dcf                                                                                       Ames Housing Data.
+#> titanic.dcf The original Titanic dataset, describing the survival status of individual passengers on the Titanic.
+#>                                                                               source
+#> abalone.dcf                          https://archive.ics.uci.edu/ml/datasets/Abalone
+#> ames.dcf                                      http://jse.amstat.org/v19n3/decock.pdf
+#> titanic.dcf https://www.openml.org/search?type=data&sort=runs&id=40945&status=active
+#>                                                                                                                                                                                                                          reference
+#> abalone.dcf Nash, Warwick J. & Tasmania. Marine Research Laboratories. (1994). The Population biology of abalone (Haliotis species) in Tasmania. Hobart: Sea Fisheries Division, Dept. of Primary Industry and Fisheries, Tasmania
+#> ames.dcf                                                  De Cock, D. (2011). "Ames, Iowa: Alternative to the Boston Housing Data as an End of Semester Regression Project," Journal of Statistics Education, Volume 19, Number 3.
+#> titanic.dcf                                                                                                                                                                    Harrell, F.E., & Cason, T. (2017). Titanic Dataset.
+#>                                                                                        url
+#> abalone.dcf https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
+#> ames.dcf                          http://jse.amstat.org/v19n3/decock/DataDocumentation.txt
+#> titanic.dcf                        https://www.openml.org/data/download/16826755/phpMYEkMl
+#>                                                                                   model
+#> abalone.dcf                                                        rings ~ length + sex
+#> ames.dcf    Sale_Price_log ~ Longitude + Latitude + Lot_Area + Neighborhood + Year_Sold
+#> titanic.dcf            survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+#>             note
+#> abalone.dcf <NA>
+#> ames.dcf    <NA>
+#> titanic.dcf <NA>
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir`
@@ -59,18 +82,27 @@ parameter defines where to look for model files.
 ``` r
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
 ml_models
-#>                          name           type
-#> lm.dcf                     lm     regression
-#> logistic.dcf         logistic classification
-#> randomForest.dcf randomForest classification
-#>                                                                       description
-#> lm.dcf                            Linear regression using the stats::lm function.
-#> logistic.dcf                   Logistic regression using the stats::glm function.
-#> randomForest.dcf Random forest prediction model usign the randomForest R package.
-#>                  note     packages
-#> lm.dcf           <NA>         <NA>
-#> logistic.dcf     <NA>         <NA>
-#> randomForest.dcf      randomForest
+#>                                                        name           type
+#> bag_mars_classification.dcf         bag_mars_classification classification
+#> bag_mars_regression.dcf                 bag_mars_regression     regression
+#> lm.dcf                                                   lm     regression
+#> logistic.dcf                                       logistic classification
+#> randomForest_classification.dcf randomForest_classification classification
+#> randomForest_regression.dcf         randomForest_regression     regression
+#>                                                                                                             description
+#> bag_mars_classification.dcf     Ensemble of generalized linear models that use artificial features for some predictors.
+#> bag_mars_regression.dcf         Ensemble of generalized linear models that use artificial features for some predictors.
+#> lm.dcf                                                                  Linear regression using the stats::lm function.
+#> logistic.dcf                                                         Logistic regression using the stats::glm function.
+#> randomForest_classification.dcf                        Random forest prediction model usign the randomForest R package.
+#> randomForest_regression.dcf                            Random forest prediction model usign the randomForest R package.
+#>                                 note          packages
+#> bag_mars_classification.dcf     <NA> parsnip, baguette
+#> bag_mars_regression.dcf         <NA> parsnip, baguette
+#> lm.dcf                          <NA>              <NA>
+#> logistic.dcf                    <NA>              <NA>
+#> randomForest_classification.dcf           randomForest
+#> randomForest_regression.dcf               randomForest
 ```
 
 Once the datasets and models have been loaded, the `run_models` will
@@ -80,49 +112,76 @@ model type.
 ``` r
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 #> [1 / 3] Loading abalone data...
-#>    [1 / 1] Running lm model...
-#> [2 / 3] Loading adult data...
-#>    [1 / 2] Running logistic model...
-#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-#> Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
-#> prediction from a rank-deficient fit may be misleading
-#>    [2 / 2] Running randomForest model...
+#>    [1 / 3] Running bag_mars_regression model...
+#>    [2 / 3] Running lm model...
+#>    [3 / 3] Running randomForest_regression model...
+#> [2 / 3] Loading ames data...
+#>    [1 / 3] Running bag_mars_regression model...
+#>    [2 / 3] Running lm model...
+#>    [3 / 3] Running randomForest_regression model...
 #> [3 / 3] Loading titanic data...
-#>    [1 / 2] Running logistic model...
-#>    [2 / 2] Running randomForest model...
+#>    [1 / 3] Running bag_mars_classification model...
+#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+#>    [2 / 3] Running logistic model...
+#>    [3 / 3] Running randomForest_classification model...
 ml_results
-#>   dataset            model           type base_accuracy time_user time_system
-#> 1 abalone           lm.dcf     regression            NA     0.002       0.001
-#> 2   adult     logistic.dcf classification          0.75     0.691       0.029
-#> 3   adult randomForest.dcf classification          0.75    21.779       0.445
-#> 4 titanic     logistic.dcf classification          0.65     0.003       0.000
-#> 5 titanic randomForest.dcf classification          0.65     0.351       0.009
-#>   time_elapsed accuracy kappa sensitivity specificity roc_auc r_squared rmse
-#> 1        0.003       NA    NA          NA          NA      NA      0.37  2.5
-#> 2        0.721     0.85  0.57        0.93        0.60   0.097        NA   NA
-#> 3       22.312     0.86  0.60        0.94        0.62   0.090        NA   NA
-#> 4        0.002     0.76  0.48        0.81        0.68   0.172        NA   NA
-#> 5        0.360     0.81  0.57        0.86        0.70   0.145        NA   NA
+#>   dataset                           model           type base_accuracy
+#> 1 abalone         bag_mars_regression.dcf     regression            NA
+#> 2 abalone                          lm.dcf     regression            NA
+#> 3 abalone     randomForest_regression.dcf     regression            NA
+#> 4    ames         bag_mars_regression.dcf     regression            NA
+#> 5    ames                          lm.dcf     regression            NA
+#> 6    ames     randomForest_regression.dcf     regression            NA
+#> 7 titanic     bag_mars_classification.dcf classification          0.62
+#> 8 titanic                    logistic.dcf classification          0.62
+#> 9 titanic randomForest_classification.dcf classification          0.62
+#>   time_user time_system time_elapsed accuracy kappa sensitivity specificity
+#> 1     0.210       0.012        0.226       NA    NA          NA          NA
+#> 2     0.001       0.000        0.001       NA    NA          NA          NA
+#> 3     1.300       0.054        1.361       NA    NA          NA          NA
+#> 4     0.336       0.006        0.342       NA    NA          NA          NA
+#> 5     0.003       0.000        0.003       NA    NA          NA          NA
+#> 6     2.119       0.030        2.150       NA    NA          NA          NA
+#> 7     0.148       0.004        0.151     0.18 -0.53        0.12        0.28
+#> 8     0.002       0.000        0.002     0.81  0.58        0.87        0.70
+#> 9     0.359       0.007        0.368     0.82  0.60        0.92        0.66
+#>   roc_auc r_squared rmse
+#> 1      NA      0.33 2.57
+#> 2      NA      0.32 2.59
+#> 3      NA      0.33 2.58
+#> 4      NA      0.43 0.14
+#> 5      NA      0.56 0.12
+#> 6      NA      0.67 0.11
+#> 7    0.86        NA   NA
+#> 8    0.14        NA   NA
+#> 9    0.12        NA   NA
 ```
 
 ## Available Datasets
 
 -   [abalone](inst/datasets/abalone.dcf) - Predicting the age of abalone
     from physical measurements.
--   [adult](inst/datasets/adult.dcf) - Prediction task is to determine
-    whether a person makes over 50K a year.
+-   [ames](inst/datasets/ames.dcf) - Ames Housing Data.
 -   [titanic](inst/datasets/titanic.dcf) - The original Titanic dataset,
     describing the survival status of individual passengers on the
     Titanic.
 
 ## Available Models
 
+-   [bag_mars_classification](inst/models/bag_mars_classification.dcf) -
+    Ensemble of generalized linear models that use artificial features
+    for some predictors.
+-   [bag_mars_regression](inst/models/bag_mars_regression.dcf) -
+    Ensemble of generalized linear models that use artificial features
+    for some predictors.
 -   [lm](inst/models/lm.dcf) - Linear regression using the stats::lm
     function.
 -   [logistic](inst/models/logistic.dcf) - Logistic regression using the
     stats::glm function.
--   [randomForest](inst/models/randomForest.dcf) - Random forest
-    prediction model usign the randomForest R package.
+-   [randomForest_classification](inst/models/randomForest_classification.dcf) -
+    Random forest prediction model usign the randomForest R package.
+-   [randomForest_regression](inst/models/randomForest_regression.dcf) -
+    Random forest prediction model usign the randomForest R package.
 
 ## Creating Datasets
 
