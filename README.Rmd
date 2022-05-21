@@ -46,15 +46,15 @@ This lists the datasets currenlty included in the package (more to come soon).
 
 ```{r, eval = TRUE, message = FALSE}
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
-										cache_dir = 'data-raw')
-head(ml_datasets, n = 4)
+										cache_dir = 'inst/datasets')
+# head(ml_datasets, n = 4)
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir` parameter defines where to look for model files.
 
 ```{r, eval = TRUE, message = FALSE}
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
-head(ml_models, n = 4)
+# head(ml_models, n = 4)
 ```
 
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.

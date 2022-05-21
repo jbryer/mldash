@@ -44,36 +44,8 @@ soon).
 
 ``` r
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
-                                        cache_dir = 'data-raw')
-head(ml_datasets, n = 4)
-#>                name           type
-#> abalone.dcf abalone     regression
-#> ames.dcf       ames     regression
-#> titanic.dcf titanic classification
-#>                                                                                                       description
-#> abalone.dcf                                             Predicting the age of abalone from physical measurements.
-#> ames.dcf                                                                                       Ames Housing Data.
-#> titanic.dcf The original Titanic dataset, describing the survival status of individual passengers on the Titanic.
-#>                                                                               source
-#> abalone.dcf                          https://archive.ics.uci.edu/ml/datasets/Abalone
-#> ames.dcf                                      http://jse.amstat.org/v19n3/decock.pdf
-#> titanic.dcf https://www.openml.org/search?type=data&sort=runs&id=40945&status=active
-#>                                                                                                                                                                                                                          reference
-#> abalone.dcf Nash, Warwick J. & Tasmania. Marine Research Laboratories. (1994). The Population biology of abalone (Haliotis species) in Tasmania. Hobart: Sea Fisheries Division, Dept. of Primary Industry and Fisheries, Tasmania
-#> ames.dcf                                                  De Cock, D. (2011). "Ames, Iowa: Alternative to the Boston Housing Data as an End of Semester Regression Project," Journal of Statistics Education, Volume 19, Number 3.
-#> titanic.dcf                                                                                                                                                                    Harrell, F.E., & Cason, T. (2017). Titanic Dataset.
-#>                                                                                        url
-#> abalone.dcf https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
-#> ames.dcf                          http://jse.amstat.org/v19n3/decock/DataDocumentation.txt
-#> titanic.dcf                        https://www.openml.org/data/download/16826755/phpMYEkMl
-#>                                                                        model
-#> abalone.dcf                                             rings ~ length + sex
-#> ames.dcf        Sale_Price_log ~ Longitude + Latitude + Lot_Area + Year_Sold
-#> titanic.dcf survived ~  pclass + sex + age + sibsp + parch + fare + embarked
-#>             note
-#> abalone.dcf <NA>
-#> ames.dcf    <NA>
-#> titanic.dcf <NA>
+                                        cache_dir = 'inst/datasets')
+# head(ml_datasets, n = 4)
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir`
@@ -81,22 +53,7 @@ parameter defines where to look for model files.
 
 ``` r
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
-head(ml_models, n = 4)
-#>                                                            name           type
-#> bag_mars_classification.dcf             bag_mars_classification classification
-#> bag_mars_regression.dcf                     bag_mars_regression     regression
-#> bag_tree_C50_classification.dcf     bag_tree_C50_classification classification
-#> bag_tree_rpart_classification.dcf bag_tree_rpart_classification classification
-#>                                                                                                                                                          description
-#> bag_mars_classification.dcf                                                  Ensemble of generalized linear models that use artificial features for some predictors.
-#> bag_mars_regression.dcf                                                      Ensemble of generalized linear models that use artificial features for some predictors.
-#> bag_tree_C50_classification.dcf   Creates an collection of decision trees forming an ensemble. All trees in the ensemble are combined to produce a final prediction.
-#> bag_tree_rpart_classification.dcf                                                                                                       Ensembles of decision trees.
-#>                                   note          packages
-#> bag_mars_classification.dcf       <NA> parsnip, baguette
-#> bag_mars_regression.dcf           <NA> parsnip, baguette
-#> bag_tree_C50_classification.dcf   <NA> parsnip, baguette
-#> bag_tree_rpart_classification.dcf <NA>    parsnip, rpart
+# head(ml_models, n = 4)
 ```
 
 Once the datasets and models have been loaded, the `run_models` will
