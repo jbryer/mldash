@@ -187,21 +187,13 @@ Results in creating the following file:
 
 ``` r
 rf_model <- mldash::new_model(
-    name = 'randomForest',
+    name = 'randomForest_classification',
     type = 'classification',
     description = 'Random forest prediction model usign the randomForest R package.',
     train_fun = function(formula, data) {
-        y_var <- all.vars(formula)[1]
-        if(!is.factor(data[,y_var])) {
-            data[,y_var] <- as.factor(data[,y_var])
-        }
         randomForest::randomForest(formula = formula, data = data, ntree = 1000)
     },
     predict_fun = function(model, newdata) {
-        y_var <- all.vars(model$terms)[1]
-        if(!is.factor(newdata[,y_var])) {
-            newdata[,y_var] <- as.factor(newdata[,y_var])
-        }
         randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
     },
     packages = "randomForest",
@@ -211,29 +203,22 @@ rf_model <- mldash::new_model(
 
 Results in the following file:
 
-    name: randomForest
+    name: randomForest_classification
     type: classification
     description: Random forest prediction model usign the randomForest R package.
-    train: function (formula, data) 
+    train: function (formula, data)
         {
-            y_var <- all.vars(formula)[1]]
-            if(!is.factor(data[,y_var)) {
-                data[,y_var] <- as.factor(data[,y_var])
-            }
-            randomForest::randomForest(formula = formula, data = data, 
+            randomForest::randomForest(formula = formula, data = data,
                 ntree = 1000)
         }
-    predict: function (model, newdata) 
+    predict: function (model, newdata)
         {
-            y_var <- all.vars(formula)[1]]
-            if(!is.factor(newdata[,y_var)) {
-                newdata[,y_var] <- as.factor(newdata[,y_var])
-            }
             randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
         }
+    packages: randomForest
     note:
 
-Note that for classification mdels, the `run_models()` function will
+Note that for classification models, the `run_models()` function will
 ensure that the dependent variable is coded as a factor. If the model
 assumes another data type (e.g. TRUE or FALSE) it will need to convert
 the variable. Otherwise, the data files (read in by the `read_data()`
