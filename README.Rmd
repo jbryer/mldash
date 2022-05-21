@@ -1,5 +1,6 @@
 ---
 output: github_document
+always_allow_html: true
 editor_options: 
   chunk_output_type: console
 ---
@@ -46,24 +47,27 @@ This lists the datasets currenlty included in the package (more to come soon).
 ```{r, eval = TRUE, message = FALSE}
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'data-raw')
-ml_datasets
+head(ml_datasets, n = 4)
 ```
 
 Similarly, the `read_ml_models` will read in the models. The `dir` parameter defines where to look for model files.
 
 ```{r, eval = TRUE, message = FALSE}
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
-ml_models
+head(ml_models, n = 4)
 ```
 
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.
 
 ```{r, eval = TRUE}
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
-ml_results
 ```
 
-The `metrics` parameter to `run_models()` takes a list of metris from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metris is available here: https://yardstick.tidymodels.org/articles/metric-types.html
+```{r, eval=FALSE, echo=FALSE, results='asis'}
+DT::datatable(ml_results)
+```
+
+The `metrics` parameter to `run_models()` takes a list of metrics from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metris is available here: https://yardstick.tidymodels.org/articles/metric-types.html
 
 
 ## Available Datasets

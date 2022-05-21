@@ -18,8 +18,8 @@ data into training and validation sets, and calculating the desired
 performance metrics utilizing the
 [`yardstick`](https://yardstick.tidymodels.org) package.
 
-**WARNING** This is very much a alpha project as I explore this approach
-to evaluating predictive models.
+**WARNING** This is very much an alpha project as I explore this
+approach to evaluating predictive models. Use at your own risk.
 
 ## Installation
 
@@ -45,7 +45,7 @@ soon).
 ``` r
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
                                         cache_dir = 'data-raw')
-ml_datasets
+head(ml_datasets, n = 4)
 #>                name           type
 #> abalone.dcf abalone     regression
 #> ames.dcf       ames     regression
@@ -66,10 +66,10 @@ ml_datasets
 #> abalone.dcf https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
 #> ames.dcf                          http://jse.amstat.org/v19n3/decock/DataDocumentation.txt
 #> titanic.dcf                        https://www.openml.org/data/download/16826755/phpMYEkMl
-#>                                                                                   model
-#> abalone.dcf                                                        rings ~ length + sex
-#> ames.dcf    Sale_Price_log ~ Longitude + Latitude + Lot_Area + Neighborhood + Year_Sold
-#> titanic.dcf            survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+#>                                                                        model
+#> abalone.dcf                                             rings ~ length + sex
+#> ames.dcf        Sale_Price_log ~ Longitude + Latitude + Lot_Area + Year_Sold
+#> titanic.dcf survived ~  pclass + sex + age + sibsp + parch + fare + embarked
 #>             note
 #> abalone.dcf <NA>
 #> ames.dcf    <NA>
@@ -81,28 +81,22 @@ parameter defines where to look for model files.
 
 ``` r
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
-ml_models
-#>                                                        name           type
-#> bag_mars_classification.dcf         bag_mars_classification classification
-#> bag_mars_regression.dcf                 bag_mars_regression     regression
-#> lm.dcf                                                   lm     regression
-#> logistic.dcf                                       logistic classification
-#> randomForest_classification.dcf randomForest_classification classification
-#> randomForest_regression.dcf         randomForest_regression     regression
-#>                                                                                                             description
-#> bag_mars_classification.dcf     Ensemble of generalized linear models that use artificial features for some predictors.
-#> bag_mars_regression.dcf         Ensemble of generalized linear models that use artificial features for some predictors.
-#> lm.dcf                                                                  Linear regression using the stats::lm function.
-#> logistic.dcf                                                         Logistic regression using the stats::glm function.
-#> randomForest_classification.dcf                        Random forest prediction model usign the randomForest R package.
-#> randomForest_regression.dcf                            Random forest prediction model usign the randomForest R package.
-#>                                 note          packages
-#> bag_mars_classification.dcf     <NA> parsnip, baguette
-#> bag_mars_regression.dcf         <NA> parsnip, baguette
-#> lm.dcf                          <NA>              <NA>
-#> logistic.dcf                    <NA>              <NA>
-#> randomForest_classification.dcf           randomForest
-#> randomForest_regression.dcf               randomForest
+head(ml_models, n = 4)
+#>                                                            name           type
+#> bag_mars_classification.dcf             bag_mars_classification classification
+#> bag_mars_regression.dcf                     bag_mars_regression     regression
+#> bag_tree_C50_classification.dcf     bag_tree_C50_classification classification
+#> bag_tree_rpart_classification.dcf bag_tree_rpart_classification classification
+#>                                                                                                                                                          description
+#> bag_mars_classification.dcf                                                  Ensemble of generalized linear models that use artificial features for some predictors.
+#> bag_mars_regression.dcf                                                      Ensemble of generalized linear models that use artificial features for some predictors.
+#> bag_tree_C50_classification.dcf   Creates an collection of decision trees forming an ensemble. All trees in the ensemble are combined to produce a final prediction.
+#> bag_tree_rpart_classification.dcf                                                                                                       Ensembles of decision trees.
+#>                                   note          packages
+#> bag_mars_classification.dcf       <NA> parsnip, baguette
+#> bag_mars_regression.dcf           <NA> parsnip, baguette
+#> bag_tree_C50_classification.dcf   <NA> parsnip, baguette
+#> bag_tree_rpart_classification.dcf <NA>    parsnip, rpart
 ```
 
 Once the datasets and models have been loaded, the `run_models` will
@@ -111,50 +105,34 @@ model type.
 
 ``` r
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
+#> For binary classification, the first factor level is assumed to be the event.
+#> Use the argument `event_level = "second"` to alter this as needed.
 #> [1 / 3] Loading abalone data...
-#>    [1 / 3] Running bag_mars_regression model...
-#>    [2 / 3] Running lm model...
-#>    [3 / 3] Running randomForest_regression model...
+#>    [1 / 5] Running bag_mars_regression model...
+#>    [2 / 5] Running bag_tree_rpart_regression model...
+#>    [3 / 5] Running bart_regression model...
+#>    [4 / 5] Running lm model...
+#>    [5 / 5] Running randomForest_regression model...
 #> [2 / 3] Loading ames data...
-#>    [1 / 3] Running bag_mars_regression model...
-#>    [2 / 3] Running lm model...
-#>    [3 / 3] Running randomForest_regression model...
+#>    [1 / 5] Running bag_mars_regression model...
+#>    [2 / 5] Running bag_tree_rpart_regression model...
+#>    [3 / 5] Running bart_regression model...
+#>    [4 / 5] Running lm model...
+#>    [5 / 5] Running randomForest_regression model...
 #> [3 / 3] Loading titanic data...
-#>    [1 / 3] Running bag_mars_classification model...
-#>    [2 / 3] Running logistic model...
-#>    [3 / 3] Running randomForest_classification model...
-ml_results
-#>   dataset                           model           type base_accuracy
-#> 1 abalone         bag_mars_regression.dcf     regression            NA
-#> 2 abalone                          lm.dcf     regression            NA
-#> 3 abalone     randomForest_regression.dcf     regression            NA
-#> 4    ames         bag_mars_regression.dcf     regression            NA
-#> 5    ames                          lm.dcf     regression            NA
-#> 6    ames     randomForest_regression.dcf     regression            NA
-#> 7 titanic     bag_mars_classification.dcf classification           0.6
-#> 8 titanic                    logistic.dcf classification           0.6
-#> 9 titanic randomForest_classification.dcf classification           0.6
-#>   time_user time_system time_elapsed accuracy kappa sensitivity specificity
-#> 1     0.203       0.010        0.214       NA    NA          NA          NA
-#> 2     0.001       0.000        0.002       NA    NA          NA          NA
-#> 3     1.293       0.042        1.337       NA    NA          NA          NA
-#> 4     0.340       0.005        0.345       NA    NA          NA          NA
-#> 5     0.003       0.000        0.002       NA    NA          NA          NA
-#> 6     2.126       0.026        2.153       NA    NA          NA          NA
-#> 7     0.144       0.003        0.147     0.18 -0.56        0.13        0.25
-#> 8     0.003       0.000        0.003     0.80  0.58        0.85        0.72
-#> 9     0.355       0.007        0.364     0.82  0.61        0.90        0.70
-#>   roc_auc r_squared rmse
-#> 1      NA      0.33 2.56
-#> 2      NA      0.32 2.57
-#> 3      NA      0.33 2.55
-#> 4      NA      0.45 0.14
-#> 5      NA      0.60 0.12
-#> 6      NA      0.69 0.11
-#> 7    0.86        NA   NA
-#> 8    0.14        NA   NA
-#> 9    0.14        NA   NA
+#>    [1 / 7] Running bag_mars_classification model...
+#>    [2 / 7] Running bag_tree_C50_classification model...
+#>    [3 / 7] Running bag_tree_rpart_classification model...
+#>    [4 / 7] Running bart_classification model...
+#>    [5 / 7] Running logistic model...
+#>    [6 / 7] Running naive_bayes model...
+#>    [7 / 7] Running randomForest_classification model...
 ```
+
+The `metrics` parameter to `run_models()` takes a list of metrics from
+the [`yardstick`](https://yardstick.tidymodels.org/index.html) package
+(Kuhn & Vaughan, 2021). The full list of metris is available here:
+<https://yardstick.tidymodels.org/articles/metric-types.html>
 
 ## Available Datasets
 
@@ -173,10 +151,27 @@ ml_results
 -   [bag_mars_regression](inst/models/bag_mars_regression.dcf) -
     Ensemble of generalized linear models that use artificial features
     for some predictors.
+-   [bag_tree_C50_classification](inst/models/bag_tree_C50_classification.dcf) -
+    Creates an collection of decision trees forming an ensemble. All
+    trees in the ensemble are combined to produce a final prediction.
+-   [bag_tree_rpart_classification](inst/models/bag_tree_rpart_classification.dcf) -
+    Ensembles of decision trees.
+-   [bag_tree_rpart_regression](inst/models/bag_tree_rpart_regression.dcf) -
+    Ensembles of decision trees.
+-   [bart_classification](inst/models/bart_classification.dcf) - Defines
+    a tree ensemble model that uses Bayesian analysis to assemble the
+    ensemble. This function can fit classification and regression
+    models.
+-   [bart_regression](inst/models/bart_regression.dcf) - Defines a tree
+    ensemble model that uses Bayesian analysis to assemble the ensemble.
+    This function can fit classification and regression models.
 -   [lm](inst/models/lm.dcf) - Linear regression using the stats::lm
     function.
 -   [logistic](inst/models/logistic.dcf) - Logistic regression using the
     stats::glm function.
+-   [naive_bayes](inst/models/naive_bayes_classification.dcf) - Model
+    that uses Bayes’ theorem to compute the probability of each class,
+    given the predictor values.
 -   [randomForest_classification](inst/models/randomForest_classification.dcf) -
     Random forest prediction model usign the randomForest R package.
 -   [randomForest_regression](inst/models/randomForest_regression.dcf) -

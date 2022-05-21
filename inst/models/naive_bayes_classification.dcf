@@ -2,10 +2,10 @@ name: naive_bayes
 type: classification
 description: Model that uses Bayes' theorem to compute the probability of each class, given the predictor values.
 train: function(formula, data) {
-	naive_Bayes() |>
-		set_mode("classification") |>
-		set_engine("klaR") |>
-		fit(formula, data = data)
+	parsnip::naive_Bayes() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("klaR") |>
+		parsnip::fit(formula, data = data)
 	}
 predict: function(model, newdata) {
 		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]

@@ -2,10 +2,10 @@ name: bag_mars_regression
 type: regression
 description: Ensemble of generalized linear models that use artificial features for some predictors.
 train: function(formula, data) {
-	bag_mars(num_terms = 7) |>
-		set_mode("regression") |>
-		set_engine("earth", times = 3) |>
-		fit(formula, data = data)
+	parsnip::bag_mars(num_terms = 7) |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("earth", times = 3) |>
+		parsnip::fit(formula, data = data)
 	}
 predict: function(model, newdata) {
 		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]

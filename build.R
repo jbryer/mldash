@@ -71,20 +71,5 @@ datasets <- ml_datasets %>% filter(type == 'classification')
 models <- ml_models %>% filter(type == 'classification')
 
 
-##### Look for metrics
-library(yardstick)
-metrics <- list()
-pos <- which(search() == 'package:yardstick')
-rd_yardstick <- tools::Rd_db('yardstick')
-for(i in ls('package:yardstick')) {
-	obj <- get(i, pos = pos)
-	if(is.function(obj) & 'metric' %in% class(obj)) {
-		# therd <- rd_yardstick[grep(paste0(i, ".Rd"), names(rd_yardstick), value = TRUE)]
-		# title <- c(therd[[1]][[1]][[1]])
-		metrics[[i]] <- obj
-	}
-}
-names(metrics)
-
 
 (si <- sessioninfo::session_info())

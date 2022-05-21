@@ -16,16 +16,16 @@ run_models <- function(
 		models,
 		seed,
 		training_size = 0.7,
-		# metrics = get_all_metrics()
-		metrics = list(
-			'r_squared' = yardstick::rsq,
-			'rmse' = yardstick::rmse,
-			'accuracy' = yardstick::accuracy,
-			'kappa' = yardstick::kap,
-			'sensitivity' = yardstick::sensitivity,
-			'specificity' = yardstick::specificity,
-			'roc_auc' = yardstick::roc_auc
-		)
+		metrics = get_all_metrics()
+		# metrics = list(
+		# 	'r_squared' = yardstick::rsq,
+		# 	'rmse' = yardstick::rmse,
+		# 	'accuracy' = yardstick::accuracy,
+		# 	'kappa' = yardstick::kap,
+		# 	'sensitivity' = yardstick::sensitivity,
+		# 	'specificity' = yardstick::specificity,
+		# 	'roc_auc' = yardstick::roc_auc
+		# )
 ) {
 	start_time <- Sys.time()
 
@@ -95,15 +95,20 @@ run_models <- function(
 					}
 				}
 
+				# TODO: Save warnings an messages to results
 				exec_time <- as.numeric(system.time({
-					train <- train_fun(formu, train_data)
+					suppressWarnings({
+						train <- train_fun(formu, train_data)
+					})
 				}))
 
 				y_var <- all.vars(formu)[1]
-				validate <- data.frame(
-					estimate = predict_fun(train, valid_data),
-					truth = valid_data[,y_var,drop=TRUE]
-				)
+				suppressWarnings({
+					validate <- data.frame(
+						estimate = predict_fun(train, valid_data),
+						truth = valid_data[,y_var,drop=TRUE]
+					)
+				})
 
 				results <- data.frame(
 					dataset = datasets[d,]$name,
