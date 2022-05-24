@@ -25,7 +25,7 @@ required_model_fields <- c('name', 'type', 'train', 'predict')
 #'     \item{name}{The name of the dataset.}
 #'     \item{type}{Whether this is for a regression or classification model.}
 #'     \item{description}{Description of the dataset.}
-#'     \item{note}{Any additional information.}
+#'     \item{notes}{Any additional information.}
 #' }
 #' * denotes required fields.
 #' @export
@@ -33,13 +33,15 @@ read_ml_models <- function(
 		dir = paste0(find.package('mldash'), '/models'),
 		pattern = "*.dcf"
 ) {
-	modelfiles <- list.files(dir)
+	modelfiles <- list.files(dir,
+							 pattern = pattern,
+							 include.dirs = FALSE)
 
 	ml_models <- data.frame(
 		name = tools::file_path_sans_ext(modelfiles),
 		type = NA_character_,
 		description = NA_character_,
-		note = NA_character_,
+		notes = NA_character_,
 		packages = NA_character_,
 		row.names = modelfiles,
 		stringsAsFactors = FALSE
@@ -75,8 +77,24 @@ read_ml_models <- function(
 		}
 	}
 
-	ml_models$type <- tolower(ml_models$type)
+	pkgs <- ml_models[!is.na(ml_models$packages),]$packages |>
+		strsplit(',') |>
+		unlist() |>
+		trimws() |>
+		unique()
 
+
+	not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
+	if(length(not_installed) > 0) {
+		warning(paste0('The following package(s) are not installed but required by the models: ',
+					   paste0(not_installed, collapse = ', ')))
+		ans <- menu(c('Yes', 'No'), title = 'Do you want to install these packages?')
+		if(ans == 1) {
+			install.packages(not_installed)
+		}
+	}
+
+	ml_models$type <- tolower(ml_models$type)
 	attr(ml_models, 'functions') <- models
 	attr(ml_models, 'dir') <- normalizePath(dir)
 	class(ml_models) <- c('mldash_models', 'data.frame')

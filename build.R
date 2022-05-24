@@ -57,14 +57,23 @@ predict.model_fit(fit, new_data = abalone)
 
 ##### Run models
 
+model_pattern <- 'discrim_linear_sparsediscrim_classification.dcf'
+model_pattern <- '*.dcf'
+
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'inst/datasets')
 
-ml_models <- mldash::read_ml_models(dir = 'inst/models')
+ml_models <- mldash::read_ml_models(dir = 'inst/models',
+									pattern = model_pattern)
 # ml_models |> dplyr::select(name, type, packages)
 
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 ml_results |> View()
+
+si <- attr(ml_results, 'session_info')
+ls(si)
+attr(ml_results, 'start_time')
+si$platform$os
 
 # Run only classification models/datasets
 datasets <- ml_datasets %>% filter(type == 'classification')

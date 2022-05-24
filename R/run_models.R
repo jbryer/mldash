@@ -14,7 +14,7 @@
 run_models <- function(
 		datasets,
 		models,
-		seed,
+		seed = sample(1:2^15, 1),
 		training_size = 0.7,
 		metrics = get_all_metrics()
 		# metrics = list(
@@ -192,7 +192,14 @@ run_models <- function(
 
 	attr(ml_summary, 'start_time') <- start_time
 	attr(ml_summary, 'end_time') <- Sys.time()
+	attr(ml_summary, 'seed') <- seed
+	attr(ml_summary, 'training_size') <- training_size
+	attr(ml_summary, 'models') <- ml_models
+	attr(ml_summary, 'datasets') <- ml_datasets
+	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
+
+	class(ml_summary) <- c('mldash_summary', 'data.frame')
 
 	return(ml_summary)
 }
