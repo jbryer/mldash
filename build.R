@@ -22,6 +22,7 @@ usethis::use_package_doc()
 
 # UCI data sets are located here: https://archive.ics.uci.edu/ml/datasets.php
 # OpenML datasets here: https://www.openml.org/search?type=data&sort=runs
+# Weka datasets here: https://waikato.github.io/weka-wiki/datasets/
 
 library(mldash)
 
@@ -45,7 +46,13 @@ formula <- rings ~ length + sex
 
 thedata <- abalone
 
+# [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/index.php)
+library(ucimlr) # remotes::install_github("tyluRp/ucimlr")
+ucidata() |> View()
+automobile
 
+
+# Tidymodels example
 library(parsnip)
 library(baguette)
 fit <- bag_mars(num_terms = 7) |>
@@ -55,9 +62,69 @@ fit <- bag_mars(num_terms = 7) |>
 parsnip::predict_raw.model_fit(fit, new_data = abalone)[,1,drop=TRUE]
 predict.model_fit(fit, new_data = abalone)
 
+# Weka example
+# https://www.zeileis.org/papers/Hornik+Buchta+Zeileis-2009.pdf
+# https://cran.r-project.org/web/packages/RWeka/vignettes/RWeka.pdf
+# https://www.cs.waikato.ac.nz/~ml/weka/
+library(RWeka)
+WPM("refresh-cache")
+WPM("list-packages", "installed")
+WPM("list-packages", "available")
+
+WPM('install-package', 'lazyBayesianRules')
+LBR <- make_Weka_classifier("weka/classifiers/lazy/LBR",
+						    c("LBR", "Weka_lazy"),
+						    package = "lazyBayesianRules")
+m1 <- LBR(Species ~ ., data = iris)
+
+J48 <- make_Weka_classifier("weka/classifiers/trees/J48", c("bar", "Weka_tree"))
+m1 <- J48(formu, data = thedata)
+m1
+predict(m1, thedata, type = 'probability')
+
+titanic <- readRDS('inst/datasets/titanic.rds')
+titanic.formula <- survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+
+WPM('install-package', 'weka/classifiers/AnDE')
+WPM('package-info', 'repository', 'AnDE')
+AnDE <- make_Weka_classifier('weka/classifiers/bayes/AveragedNDependenceEstimators/A1DE')
+
+# Classifier Functions
+logistic.fit <- RWeka::Logistic(titanic.formula, titanic)
+smo.fit <- RWeka::SMO(titanic.formula, titanic)
+
+# Lazy
+ibk.fit <- RWeka::IBk(titanic.formula, titanic)
+# WPM('install-package', 'lazyBayesianRules')
+# lbr.fit <- RWeka::LBR(titanic.formula, titanic)
+
+# Meta
+adaboostm1.fit <- RWeka::AdaBoostM1(titanic.formula, titanic)
+bagging.fit <- RWeka::Bagging(titanic.formula, titanic)
+logitboost.fit <- RWeka::LogitBoost(titanic.formula, titanic)
+# WPM('install-package', 'MultiBoostAB')
+# multiboostab.fit <- RWeka::MultiBoostAB(titanic.formula, titanic)
+stacking.fit <- RWeka::Stacking(titanic.formula, titanic)
+# CostSensitiveClassifier.fit <- RWeka::CostSensitiveClassifier(titanic.formula, titanic)
+
+# Rule Learners
+jrip.fit <- RWeka::JRip(titanic.formula, titanic)
+# m5rules <- RWeka::M5Rules(titanic.formula, titanic)
+oner.fit <- RWeka::OneR(titanic.formula, titanic)
+part.fit <- RWeka::PART(titanic.formula, titanic)
+
+# Classifier Trees
+j48.fit <- RWeka::J48(titanic.formula, titanic)
+lmt.fit <- RWeka::LMT(titanic.formula, titanic)
+# m5p.fit <- RWeka::M5P(titanic.formula, titanic)
+DecisionStump.fit <- RWeka::DecisionStump(titanic.formula, titanic)
+
+
+
+
 ##### Run models
 
-model_pattern <- 'discrim_linear_sparsediscrim_classification.dcf'
+model_pattern <- 'weka*'
 model_pattern <- '*.dcf'
 
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
@@ -65,7 +132,6 @@ ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 
 ml_models <- mldash::read_ml_models(dir = 'inst/models',
 									pattern = model_pattern)
-# ml_models |> dplyr::select(name, type, packages)
 
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 ml_results |> View()

@@ -16,6 +16,7 @@ run_models <- function(
 		models,
 		seed = sample(1:2^15, 1),
 		training_size = 0.7,
+		save_trained_models = FALSE,
 		metrics = get_all_metrics()
 		# metrics = list(
 		# 	'r_squared' = yardstick::rsq,
@@ -54,10 +55,13 @@ run_models <- function(
 	}
 
 	cache_dir <- attr(datasets, 'cache_dir')
+	trained_models <- list()
 
 	for(d in seq_len(nrow(datasets))) {
-		message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasets[d,]$name, ' data...'))
-		thedata <- readRDS(paste0(cache_dir, '/', datasets[d,]$name, '.rds'))
+		datasetname <- datasets[d,]$name
+		message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasetname, ' data...'))
+		models[[datasetname]] <- list()
+		thedata <- readRDS(paste0(cache_dir, '/', datasetname, '.rds'))
 		formu <- as.formula(datasets[d,]$model)
 		if(!missing(seed)) {
 			set.seed(seed)
@@ -87,20 +91,31 @@ run_models <- function(
 					pkgs <- trimws(unlist(strsplit(data_models[m,]$packages, ',')))
 					for(i in seq_len(length(pkgs))) {
 						suppressPackageStartupMessages(
-							library(package = pkgs[i],
-									character.only = TRUE,
-									quietly = TRUE,
-									verbose = FALSE)
+							pkg_loaded <- require(package = pkgs[i],
+												  character.only = TRUE,
+												  quietly = TRUE,
+												  verbose = FALSE)
 						)
+						if(!pkg_loaded) {
+							warning(paste0(pkgs[i], ' package could not be loaded.'))
+						}
 					}
 				}
 
 				# TODO: Save warnings an messages to results
 				exec_time <- as.numeric(system.time({
-					suppressWarnings({
+					suppressWarnings({ # TODO: Should capture messages and warnings
 						train <- train_fun(formu, train_data)
 					})
 				}))
+
+				if(is.null(train)) {
+					next;
+				}
+
+				if(save_models) {
+					trained_models[[datasetname]][[modelname]] <- train
+				}
 
 				y_var <- all.vars(formu)[1]
 				suppressWarnings({
@@ -111,7 +126,7 @@ run_models <- function(
 				})
 
 				results <- data.frame(
-					dataset = datasets[d,]$name,
+					dataset = datasetname,
 					model = modelname,
 					type = type,
 					base_accuracy = NA_real_,
@@ -130,7 +145,9 @@ run_models <- function(
 
 				if(type == 'classification') {
 					results[1,]$base_accuracy <- max(prop.table(table(validate$truth)))
-					validate$truth <- as.factor(validate$truth)
+					if(!is.factor(validate$truth)) {
+						validate$truth <- as.factor(validate$truth)
+					}
 					for(i in names(class_probability_metrics)) {
 						tryCatch({
 							results[1,i] <- class_probability_metrics[[i]](validate,
@@ -169,9 +186,9 @@ run_models <- function(
 			},
 			error = function(e) {
 				message(paste0('   Error running ', modelname,' model'))
-				print(e)
+				# print(e)
 				results <- data.frame(
-					dataset = datasets[d,]$name,
+					dataset = datasetname,
 					model = modelname,
 					type = type,
 					base_accuracy = NA,
@@ -198,6 +215,9 @@ run_models <- function(
 	attr(ml_summary, 'datasets') <- ml_datasets
 	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
+	if(save_models) {
+		attr(ml_summary, 'trained_models') <- trained_models
+	}
 
 	class(ml_summary) <- c('mldash_summary', 'data.frame')
 
