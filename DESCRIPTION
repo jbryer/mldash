@@ -27,10 +27,12 @@ Suggests:
     dbarts,
     discrim,
     earth,
+    fastDummies,
     forecast,
     glmnet,
     klaR,
     knitr,
+    LiblineaR,
     MASS,
     mda,
     mgcv,
@@ -41,6 +43,7 @@ Suggests:
     rstanarm,
     sda,
     sparsediscrim,
+    stats,
     xgboost
 VignetteBuilder: 
     knitr
