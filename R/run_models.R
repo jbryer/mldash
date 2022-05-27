@@ -12,6 +12,8 @@
 #' @return a data.frame with the results of all the models run against all the datasets.
 #' @export
 #' @import yardstick
+#' @import parsnip
+#' @import RWeka
 #' @importFrom sessioninfo session_info
 run_models <- function(
 		datasets,

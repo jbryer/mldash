@@ -11,12 +11,23 @@ devtools::check()
 
 
 # Added package dependencies
-usethis::use_package('tidymodels', type = "Imports")
+usethis::use_package('parsnip', type = "Imports")
 usethis::use_package('RWeka', type = "Imports")
-usethis::use_package('randomForest', type = "Imports")
 usethis::use_package('shinyWidgets', type = "Imports")
 
-usethis::use_package_doc()
+ml_models <- mldash::read_ml_models(dir = 'inst/models',
+									pattern = model_pattern)
+
+# Add the packages defined in the model files to the Suggests field
+pkgs <- ml_models[!is.na(ml_models$packages),]$packages |>
+	strsplit(',') |>
+	unlist() |>
+	trimws() |>
+	unique()
+for(i in pkgs) {
+	usethis::use_package(i, type = 'Suggests')
+}
+
 
 ##### Build data sets ##########################################################
 
@@ -51,7 +62,7 @@ library(ucimlr) # remotes::install_github("tyluRp/ucimlr")
 ucidata() |> View()
 automobile
 
-
+##### Model examples ###########################################################
 # Tidymodels example
 library(parsnip)
 library(baguette)
@@ -120,15 +131,43 @@ lmt.fit <- RWeka::LMT(titanic.formula, titanic)
 DecisionStump.fit <- RWeka::DecisionStump(titanic.formula, titanic)
 
 
+##### Test code ################################################################
+data <- get_all_vars(readRDS('inst/datasets/titanic.rds'))
+formula <- survived ~  pclass + sex + age + sibsp + parch + fare + embarked
+type <- 'classification'
+y_var <- all.vars(formula)[1]
+if(type == 'classification' & !is.factor(data[, y_var])) {
+	data[, y_var] <- as.factor(data[, y_var])
+}
+
+# data <- model.matrix(formula, data) |> as.data.frame()
+data <- cbind(
+	y_var = data[,y_var],
+	fastDummies::dummy_columns(data[,!names(data) %in% y_var],
+							   remove_most_frequent_dummy = TRUE,
+							   remove_selected_columns = TRUE) )
+names(data)[1] <- y_var
+formula <- as.formula(paste0(y_var, ' ~ ', paste0(names(data)[2:ncol(data)], collapse = ' + ')))
+str(data)
+
+parsnip::logistic_reg() |>
+	parsnip::set_mode("classification") |>
+	parsnip::set_engine("brulee") |>
+	parsnip::fit(formula, data = data)
+
+model <- parsnip::logistic_reg() |>
+	parsnip::set_mode("classification") |>
+	parsnip::set_engine("LiblineaR") |>
+	parsnip::fit(formula, data = data)
+ls(model)
 
 
-##### Run models
-devtools::install()
+##### Run models ###############################################################
+model_pattern <- 'weka*'          # Weka only models
+model_pattern <- 'tm_logistic_*'   # Tidymodels only models
+model_pattern <- '*.dcf'          # All models
 
-model_pattern <- 'weka*'
-model_pattern <- 'tm_discrim_*'
-model_pattern <- '*.dcf'
-
+# These assume working from development directory structure
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'inst/datasets')
 
@@ -140,6 +179,7 @@ ml_results |> View()
 
 errors <- attr(ml_results, 'errors')
 names(errors)
+errors[[1]]
 
 si <- attr(ml_results, 'session_info')
 ls(si)
@@ -147,9 +187,8 @@ attr(ml_results, 'start_time')
 si$platform$os
 
 # Run only classification models/datasets
-datasets <- ml_datasets %>% filter(type == 'classification')
-models <- ml_models %>% filter(type == 'classification')
-
+ml_datasets <- ml_datasets %>% filter(type == 'classification')
+ml_models <- ml_models %>% filter(type == 'classification')
 
 
 (si <- sessioninfo::session_info())
