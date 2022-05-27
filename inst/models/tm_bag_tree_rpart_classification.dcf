@@ -1,4 +1,4 @@
-name: bag_tree_rpart_classification
+name: tm_bag_tree_rpart_classification
 type: classification
 description: Ensembles of decision trees.
 train: function(formula, data) {

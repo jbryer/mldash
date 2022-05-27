@@ -1,4 +1,4 @@
-name: bag_mars_classification
+name: tm_bag_mars_classification
 type: classification
 description: Ensemble of generalized linear models that use artificial features for some predictors.
 train: function(formula, data) {

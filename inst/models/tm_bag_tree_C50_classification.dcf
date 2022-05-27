@@ -1,4 +1,4 @@
-name: bag_tree_C50_classification
+name: tm_bag_tree_C50_classification
 type: classification
 description: Creates an collection of decision trees forming an ensemble. All trees in the ensemble are combined to produce a final prediction.
 train: function(formula, data) {

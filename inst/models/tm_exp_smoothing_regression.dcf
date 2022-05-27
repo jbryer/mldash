@@ -1,4 +1,4 @@
-name: exp_smoothing_ets_regression
+name: tm_exp_smoothing_ets_regression
 type: regression
 description: exp_smoothing() is a way to generate a specification of an Exponential Smoothing model before fitting and allows the model to be created using different packages.
 train: function(formula, data) {

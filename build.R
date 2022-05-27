@@ -123,8 +123,10 @@ DecisionStump.fit <- RWeka::DecisionStump(titanic.formula, titanic)
 
 
 ##### Run models
+devtools::install()
 
 model_pattern <- 'weka*'
+model_pattern <- 'tm_discrim_*'
 model_pattern <- '*.dcf'
 
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
@@ -133,8 +135,11 @@ ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 ml_models <- mldash::read_ml_models(dir = 'inst/models',
 									pattern = model_pattern)
 
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
+ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, print_errors = FALSE)
 ml_results |> View()
+
+errors <- attr(ml_results, 'errors')
+names(errors)
 
 si <- attr(ml_results, 'session_info')
 ls(si)

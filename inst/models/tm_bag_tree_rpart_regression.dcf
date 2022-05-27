@@ -1,4 +1,4 @@
-name: bag_tree_rpart_regression
+name: tm_bag_tree_rpart_regression
 type: regression
 description: Ensembles of decision trees.
 train: function(formula, data) {

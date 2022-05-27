@@ -1,4 +1,4 @@
-name: gen_additive_mod_mgcv_regression
+name: tm_gen_additive_mod_mgcv_regression
 type: regression
 description: gen_additive_mod() defines a model that can use smoothed functions of numeric predictors in a generalized linear model.
 train: function(formula, data) {

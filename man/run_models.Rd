@@ -7,8 +7,10 @@
 run_models(
   datasets,
   models,
-  seed,
+  seed = sample(1:2^15, 1),
   training_size = 0.7,
+  save_trained_models = FALSE,
+  print_errors = FALSE,
   metrics = get_all_metrics()
 )
 }
@@ -21,6 +23,9 @@ run_models(
 
 \item{training_size}{the proportion of the data that should be used for training.
 The remaining percentage will be used for validation.}
+
+\item{print_errors}{if TRUE errors will be printed while the function runs.
+Errors will always be saved in the returned object.}
 
 \item{metrics}{list of model performance metrics from the \code{yardstick} package.
 See https://yardstick.tidymodels.org/articles/metric-types.html for more information.}

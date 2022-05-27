@@ -1,4 +1,4 @@
-name: naive_bayes
+name: tm_naive_bayes
 type: classification
 description: Model that uses Bayes' theorem to compute the probability of each class, given the predictor values.
 train: function(formula, data) {

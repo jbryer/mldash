@@ -60,7 +60,7 @@ ml_models <- mldash::read_ml_models(dir = 'inst/models')
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.
 
 ```{r, eval = TRUE}
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
+ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, seed = 1234)
 ```
 
 ```{r, eval=FALSE, echo=FALSE, results='asis'}

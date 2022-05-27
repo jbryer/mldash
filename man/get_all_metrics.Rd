@@ -12,8 +12,9 @@ a list with all the metric functions from the \code{yardstick} package.
 \description{
 This is a convenience function that will return all the metrics from the
 \code{yardstick} package that can be used with the \code{\link[=run_models]{run_models()}} function.
-s
 }
 \seealso{
 run_models
+
+https://yardstick.tidymodels.org/articles/metric-types.html
 }

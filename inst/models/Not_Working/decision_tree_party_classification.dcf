@@ -1,14 +1,14 @@
-name: tm_decision_tree_rpart_regression
-type: regression
+name: decision_tree_rpart_classification
+type: classification
 description: Defines a model as a set of if/then statements that creates a tree-based structure.
 train: function(formula, data) {
 	parsnip::decision_tree() |>
-		parsnip::set_mode("regression") |>
-		parsnip::set_engine("rpart") |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("party") |>
 		parsnip::fit(formula, data = data)
 	}
 predict: function(model, newdata) {
-		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
 	}
 notes: More information here: https://parsnip.tidymodels.org/reference/decision_tree.html
-packages: parsnip, rpart
+packages: parsnip, party, censored

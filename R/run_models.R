@@ -5,6 +5,8 @@
 #' @param seed random seed to set before randomly selecting the training dataset.
 #' @param training_size the proportion of the data that should be used for training.
 #'        The remaining percentage will be used for validation.
+#' @param print_errors if TRUE errors will be printed while the function runs.
+#'        Errors will always be saved in the returned object.
 #' @param metrics list of model performance metrics from the `yardstick` package.
 #'        See https://yardstick.tidymodels.org/articles/metric-types.html for more information.
 #' @return a data.frame with the results of all the models run against all the datasets.
@@ -17,6 +19,7 @@ run_models <- function(
 		seed = sample(1:2^15, 1),
 		training_size = 0.7,
 		save_trained_models = FALSE,
+		print_errors = FALSE,
 		metrics = get_all_metrics()
 		# metrics = list(
 		# 	'r_squared' = yardstick::rsq,
@@ -29,6 +32,8 @@ run_models <- function(
 		# )
 ) {
 	start_time <- Sys.time()
+
+	errors <- list()
 
 	metric_types <- sapply(metrics, FUN = function(x) { class(x)[1] })
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
@@ -60,7 +65,7 @@ run_models <- function(
 	for(d in seq_len(nrow(datasets))) {
 		datasetname <- datasets[d,]$name
 		message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasetname, ' data...'))
-		models[[datasetname]] <- list()
+		trained_models[[datasetname]] <- list()
 		thedata <- readRDS(paste0(cache_dir, '/', datasetname, '.rds'))
 		formu <- as.formula(datasets[d,]$model)
 		if(!missing(seed)) {
@@ -84,7 +89,12 @@ run_models <- function(
 			tmp <- attr(data_models, 'functions')
 			train_fun <- tmp[[modelname]]$train
 			predict_fun <- tmp[[modelname]]$predict
-			# results <- data.frame()
+
+			results <- ml_summary[0,]
+			results[1,]$dataset <- datasetname
+			results[1,]$model <- modelname
+			results[1,]$type <- type
+
 			tryCatch({
 				if(!is.null(data_models[m,]$packages) &
 				   !is.na(data_models[m,]$packages)) {
@@ -93,8 +103,7 @@ run_models <- function(
 						suppressPackageStartupMessages(
 							pkg_loaded <- require(package = pkgs[i],
 												  character.only = TRUE,
-												  quietly = TRUE,
-												  verbose = FALSE)
+												  quietly = TRUE)
 						)
 						if(!pkg_loaded) {
 							warning(paste0(pkgs[i], ' package could not be loaded.'))
@@ -109,11 +118,15 @@ run_models <- function(
 					})
 				}))
 
+				results[1,]$time_user = exec_time[1]
+				results[1,]$time_system = exec_time[2]
+				results[1,]$time_elapsed = exec_time[3]
+
 				if(is.null(train)) {
 					next;
 				}
 
-				if(save_models) {
+				if(save_trained_models) {
 					trained_models[[datasetname]][[modelname]] <- train
 				}
 
@@ -124,24 +137,6 @@ run_models <- function(
 						truth = valid_data[,y_var,drop=TRUE]
 					)
 				})
-
-				results <- data.frame(
-					dataset = datasetname,
-					model = modelname,
-					type = type,
-					base_accuracy = NA_real_,
-					time_user = exec_time[1],
-					time_system = exec_time[2],
-					time_elapsed = exec_time[3],
-					stringsAsFactors = FALSE
-				)
-				results$cm <- NA
-
-				for(i in c(names(class_metrics),
-						   names(class_probability_metrics),
-						   names(numeric_metrics) )) {
-					results[,i] <- NA_real_
-				}
 
 				if(type == 'classification') {
 					results[1,]$base_accuracy <- max(prop.table(table(validate$truth)))
@@ -154,7 +149,12 @@ run_models <- function(
 																		   truth = truth,
 																		   estimate = estimate)[1,3]
 						}, error = function(e) {
-							message(paste0('Error calculating ', i, ' metric.'))
+							# TODO: Need to save errors to the returned object.
+							# message(paste0('Error calculating ', i, ' metric.'))
+							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							if(print_errors) {
+								print(e)
+							}
 						})
 					}
 					validate$estimate <- as.factor(validate$estimate > 0.5) # TODO: Allow for other break points
@@ -166,7 +166,11 @@ run_models <- function(
 															   truth = truth,
 															   estimate = estimate)[1,3]
 						}, error = function(e) {
-							message(paste0('Error calculating ', i, ' metric.'))
+							# message(paste0('Error calculating ', i, ' metric.'))
+							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							if(print_errors) {
+								print(e)
+							}
 						})
 					}
 				} else if(type == 'regression') {
@@ -176,7 +180,11 @@ run_models <- function(
 																 truth = truth,
 																 estimate = estimate)[1,3]
 						}, error = function(e) {
-							message(paste0('Error calculating ', i, ' metric.'))
+							# message(paste0('Error calculating ', i, ' metric.'))
+							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							if(print_errors) {
+								print(e)
+							}
 						})
 					}
 				} else {
@@ -186,21 +194,9 @@ run_models <- function(
 			},
 			error = function(e) {
 				message(paste0('   Error running ', modelname,' model'))
-				# print(e)
-				results <- data.frame(
-					dataset = datasetname,
-					model = modelname,
-					type = type,
-					base_accuracy = NA,
-					time_user = NA,
-					time_system = NA,
-					time_elapsed = NA,
-					stringsAsFactors = FALSE
-				)
-				for(i in c(names(class_metrics),
-						   names(class_probability_metrics),
-						   names(numeric_metrics) )) {
-					results[,i] <- NA
+				errors[[paste0(datasetname, '_', modelname)]] <<- e
+				if(print_errors) {
+					print(e)
 				}
 			})
 			ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
@@ -215,7 +211,8 @@ run_models <- function(
 	attr(ml_summary, 'datasets') <- ml_datasets
 	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
-	if(save_models) {
+	attr(ml_summary, 'errors') <- errors
+	if(save_trained_models) {
 		attr(ml_summary, 'trained_models') <- trained_models
 	}
 

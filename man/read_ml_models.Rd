@@ -22,7 +22,7 @@ a data frame with the following fields:
 \item{name}{The name of the dataset.}
 \item{type}{Whether this is for a regression or classification model.}
 \item{description}{Description of the dataset.}
-\item{note}{Any additional information.}
+\item{notes}{Any additional information.}
 }
 \itemize{
 \item denotes required fields.

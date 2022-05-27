@@ -1,0 +1,14 @@
+name: cubist_regression
+type: regression
+description: Defines a model that derives simple feature rules from a tree ensemble and creates regression models within each rule.
+train: function(formula, data) {
+	parsnip::cubist_rules() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("Cubist") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/cubist_rules.html
+packages: parsnip, Cubist

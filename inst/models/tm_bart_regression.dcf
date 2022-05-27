@@ -1,4 +1,4 @@
-name: bart_regression
+name: tm_bart_regression
 type: regression
 description: Defines a tree ensemble model that uses Bayesian analysis to assemble the ensemble. This function can fit classification and regression models.
 train: function(formula, data) {
