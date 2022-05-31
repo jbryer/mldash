@@ -86,9 +86,13 @@ read_ml_models <- function(
 
 	not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
 	if(length(not_installed) > 0) {
-		warning(paste0('The following package(s) are not installed but required by the models: ',
-					   paste0(not_installed, collapse = ', ')))
-		ans <- menu(c('Yes', 'No'), title = 'Do you want to install these packages?')
+		msg <- paste0('The following package',
+					  ifelse(length(not_installed) > 1, 's are', 'is'),
+					  ' not installed but required by the models: ',
+					   paste0(not_installed, collapse = ', '),
+					  '\nDo you want to install these packages?')
+		ans <- menu(c('Yes', 'No'),
+					title = msg)
 		if(ans == 1) {
 			install.packages(not_installed)
 		}

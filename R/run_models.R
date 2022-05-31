@@ -15,6 +15,8 @@
 #' @import parsnip
 #' @import RWeka
 #' @importFrom sessioninfo session_info
+#' @importFrom purrr quietly
+#' @importFrom reticulate py_capture_output
 run_models <- function(
 		datasets,
 		models,
@@ -22,7 +24,7 @@ run_models <- function(
 		training_size = 0.7,
 		save_trained_models = FALSE,
 		print_errors = FALSE,
-		metrics = get_all_metrics()
+		metrics = mldash::get_all_metrics()
 		# metrics = list(
 		# 	'r_squared' = yardstick::rsq,
 		# 	'rmse' = yardstick::rmse,
@@ -54,6 +56,10 @@ run_models <- function(
 		stringsAsFactors = FALSE
 	)
 	ml_summary$cm <- list()
+	ml_summary$train_output <- character()
+	ml_summary$train_warnings <- character()
+	ml_summary$train_messages <- character()
+	ml_summary$pythong_output <- character()
 
 	for(i in c(names(class_metrics),
 			   names(class_probability_metrics),
@@ -114,10 +120,23 @@ run_models <- function(
 				}
 
 				# TODO: Save warnings an messages to results
+
 				exec_time <- as.numeric(system.time({
-					suppressWarnings({ # TODO: Should capture messages and warnings
-						train <- train_fun(formu, train_data)
+					quiet_train_fun <- purrr::quietly(train_fun)
+					py_output <- reticulate::py_capture_output({
+						output <- quiet_train_fun(formu, train_data)
 					})
+					train <- output$result
+					results[1,]$train_output <- ifelse(length(output$output) > 0,
+													   paste0(output$output, collapse = '\n'),
+													   '')
+					results[1,]$train_warnings <- ifelse(length(output$warnings) > 0,
+														 paste0(output$output, collapse = '\n'),
+														 '')
+					results[1,]$train_messages <- ifelse(length(output$messages) > 0,
+														 paste0(output$messages, collapse = '\n'),
+														 '')
+					results[1,]$python_output <- py_output
 				}))
 
 				results[1,]$time_user = exec_time[1]

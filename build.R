@@ -11,7 +11,7 @@ devtools::check()
 
 
 # Added package dependencies
-usethis::use_package('parsnip', type = "Imports")
+usethis::use_package('reticulate', type = "Imports")
 usethis::use_package('RWeka', type = "Imports")
 usethis::use_package('shinyWidgets', type = "Imports")
 
@@ -28,6 +28,33 @@ for(i in pkgs) {
 	usethis::use_package(i, type = 'Suggests')
 }
 
+Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
+
+# Setup to be able to run the Python based models.
+# https://medium.com/codex/installing-tensorflow-on-m1-macs-958767a7a4b3
+remotes::install_github(sprintf("rstudio/%s", c("reticulate", "tensorflow", "keras", "torch")))
+reticulate::miniconda_uninstall() # start with a blank slate
+reticulate::install_miniconda()
+reticulate::conda_create("mldash")
+reticulate::use_condaenv("mldash")
+reticulate::conda_install("mldash", c("jupyterlab", "pandas", "statsmodels",
+									  "scipy", "scikit-learn", "matplotlib",
+									  "seaborn", "numpy", "pytorch", "tensorflow"))
+
+# keras::install_keras()
+# torch::install_torch()
+# tensorflow::install_tensorflow()
+
+# Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/bin/python")
+
+# tensorflow::use_python("~/miniforge3/bin/python")
+tensorflow::use_condaenv("mldash")
+keras::use_condaenv("mldash")
+
+# Test TensorFlow
+library(tensorflow)
+hello <- tf$constant("Hello")
+print(hello)
 
 ##### Build data sets ##########################################################
 
@@ -161,10 +188,23 @@ model <- parsnip::logistic_reg() |>
 	parsnip::fit(formula, data = data)
 ls(model)
 
+python_pkgs <- c('reticulate', 'keras', 'tensorflow', 'torch')
+
+pkgs <- ml_models$packages |> strsplit(',')
+pkgs <- lapply(pkgs, trimws)
+avail_pkgs <- available.packages()
+# deps <- tools::package_dependencies("brulee", db = avail_pkgs, which = 'strong', recursive = FALSE)
+# any(unlist(deps) %in% python_pkgs)
+deps <- lapply(pkgs, tools::package_dependencies, db = avail_pkgs, which = 'strong', recursive = TRUE)
+
+test <- unlist(lapply(deps, FUN = function(x) { any(unlist(x) %in% python_pkgs) }))
+names(test) <- ml_models$name
+test[test]
 
 ##### Run models ###############################################################
-model_pattern <- 'weka*'          # Weka only models
+model_pattern <- 'weka_*'          # Weka only models
 model_pattern <- 'tm_logistic_*'   # Tidymodels only models
+model_pattern <- 'tm_linear_reg_*'
 model_pattern <- '*.dcf'          # All models
 
 # These assume working from development directory structure
@@ -174,8 +214,8 @@ ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 ml_models <- mldash::read_ml_models(dir = 'inst/models',
 									pattern = model_pattern)
 
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, print_errors = FALSE)
-ml_results |> View()
+ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, print_errors = FALSE, seed = 1234)
+# ml_results |> View()
 
 errors <- attr(ml_results, 'errors')
 names(errors)

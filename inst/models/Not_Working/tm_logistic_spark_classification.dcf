@@ -2,13 +2,17 @@ name: tm_logistic_spark_classification
 type: classification
 description: Defines a generalized linear model for binary outcomes. A linear combination of the predictors is used to model the log odds of an event.
 train: function(formula, data) {
-	parsnip::logistic_reg() |>
+	sc <- sparklyr::spark_connect("local")
+	spark_data <- sparklyr::copy_to(sc, data)
+	parsnip::logistic_reg(penalty = double(1), mixture = double(1)) |>
 		parsnip::set_mode("classification") |>
 		parsnip::set_engine("spark") |>
-		parsnip::fit(formula, data = data)
+		parsnip::fit(formula, data = spark_data)
 	}
 predict: function(model, newdata) {
-		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	sc <- sparklyr::spark_connect("local")
+	spark_newdata <- sparklyr::copy_to(sc, newdata)
+		predict.model_fit(model, new_data = spark_newdata, type = "prob")[,1,drop=TRUE]
 	}
 notes: More information here: https://parsnip.tidymodels.org/reference/logistic_reg.html
 packages: parsnip, sparklyr

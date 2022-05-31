@@ -5,7 +5,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 library(dplyr)
 
 knitr::opts_chunk$set(
@@ -15,11 +15,17 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 options(digits = 2)
+
+library(mldash)
+
+Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
+
 ```
 
 # mldash
 
 <!-- badges: start -->
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.
@@ -35,6 +41,55 @@ You can install the development version of `mldash` using the `remotes` package 
 remotes::install_github('jbryer/mldash')
 ```
 
+### Python
+
+Many of the models will require Python which is executed using the `reticulate` package. I, personally, have found the installation and configuration of Python to be frustrating, especially on a Mac M1. However, as of this writing, the following works (on my system). First, install these packages from Github to ensure the latest version.
+
+```{r install_pythong_pkgs, eval=FALSE}
+remotes::install_github(sprintf("rstudio/%s", c("reticulate", "tensorflow", "keras", "torch")))
+```
+
+If you have previously installed Miniconda, it is helpful to start from a clean slate. 
+
+```{r miniconda_uninstall, eval=FALSE}
+reticulate::miniconda_uninstall()
+```
+
+We can then install Miniconda using the following command:
+
+```{r install_miniconda, eval=FALSE}
+reticulate::install_miniconda()
+```
+
+Once installed, we can create a conda environment:
+
+```{r conda_create, eval=FALSE}
+reticulate::conda_create("mldash")
+```
+
+And then make it active:
+
+```{r use_condaenv, eval=TRUE}
+reticulate::use_condaenv("mldash")
+tensorflow::use_condaenv("mldash")
+keras::use_condaenv("mldash")
+```
+
+Although there are utility functions to install `keras`, `tensorflow`, and `torch` from their respective packages, I found them to not always work as expected. The `conda_install` function will ensure the Python packages are installed into the correct environment.
+
+```{r conda_install, eval=FALSE}
+reticulate::conda_install("mldash", 
+						  c("jupyterlab", "pandas", "statsmodels",
+						    "scipy", "scikit-learn", "matplotlib",
+						    "seaborn", "numpy", "pytorch", "tensorflow"))
+```
+
+Lastly, ensure that `reticulate` uses the correct Python by setting the `RETICULATE_PYTHON` environment variable.
+
+```{r RETICULATE_PYTHON, eval=FALSE}
+Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
+```
+
 ## Running Predictive Models
 
 To begin, we read in the datasets using the `read_ml_datasets()` function. There are two parameters:
@@ -44,7 +99,7 @@ To begin, we read in the datasets using the `read_ml_datasets()` function. There
 
 This lists the datasets currenlty included in the package (more to come soon).
 
-```{r, eval = TRUE, message = FALSE}
+```{r read_ml_datasets, eval = TRUE, message = FALSE, fig.show='hide'}
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'inst/datasets')
 # head(ml_datasets, n = 4)
@@ -52,14 +107,14 @@ ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 
 Similarly, the `read_ml_models` will read in the models. The `dir` parameter defines where to look for model files.
 
-```{r, eval = TRUE, message = FALSE}
+```{r read_ml_models, eval = TRUE, message = FALSE}
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
 # head(ml_models, n = 4)
 ```
 
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.
 
-```{r, eval = TRUE}
+```{r run_models, eval = TRUE, warning=FALSE, message=FALSE, error=FALSE}
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, seed = 1234)
 ```
 
@@ -67,12 +122,17 @@ ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, see
 DT::datatable(ml_results)
 ```
 
+```{r, eval=TRUE, echo=FALSE, results='asis'}
+knitr::kable(ml_results[,c('dataset', 'model', 'type', 'time_elapsed', 'base_accuracy', 'accuracy', 'rsq')],
+			 row.names = FALSE)
+```
+
 The `metrics` parameter to `run_models()` takes a list of metrics from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metris is available here: https://yardstick.tidymodels.org/articles/metric-types.html
 
 
 ## Available Datasets
 
-```{r, echo = FALSE, results = 'asis'}
+```{r ml_datasets, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_datasets))) {
 	cat(paste0('* [', ml_datasets[i,]$name, '](inst/datasets/', row.names(ml_datasets)[i], ') - ', ml_datasets[i,]$description, '\n'))
 }
@@ -80,7 +140,7 @@ for(i in seq_len(nrow(ml_datasets))) {
 
 ## Available Models
 
-```{r, echo = FALSE, results = 'asis'}
+```{r ml_models, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_models))) {
 	cat(paste0('* [', ml_models[i,]$name, '](inst/models/', row.names(ml_models)[i], ') - ', ml_models[i,]$description, '\n'))
 }
@@ -89,7 +149,7 @@ for(i in seq_len(nrow(ml_models))) {
 
 ## Creating Datasets
 
-```{r, eval = FALSE}
+```{r new_dataset, eval = FALSE}
 adult_data <- mldash::new_dataset(
 	name = 'adult',
 	type = 'classification',
@@ -140,7 +200,7 @@ note:
 
 ## Creating Models
 
-```{r, eval = FALSE}
+```{r new_model, eval = FALSE}
 rf_model <- mldash::new_model(
 	name = 'randomForest_classification',
 	type = 'classification',

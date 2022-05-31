@@ -1,8 +1,8 @@
-name: linear_reg_keras_regression
+name: tm_mlp_keras_regression
 type: regression
-description: linear_reg() defines a model that can predict numeric values from predictors using a linear function.
+description: Defines a multilayer perceptron model (a.k.a. a single layer, feed-forward neural network).
 train: function(formula, data) {
-	parsnip::linear_reg() |>
+	parsnip::mlp() |>
 		parsnip::set_mode("regression") |>
 		parsnip::set_engine("keras") |>
 		parsnip::fit(formula, data = data)
@@ -10,5 +10,5 @@ train: function(formula, data) {
 predict: function(model, newdata) {
 		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
 	}
-notes: More information here: https://parsnip.tidymodels.org/reference/linear_reg.html
+notes: More information here: https://parsnip.tidymodels.org/reference/mlp.html
 packages: parsnip, keras
