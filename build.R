@@ -204,7 +204,7 @@ test[test]
 ##### Run models ###############################################################
 model_pattern <- 'weka_*'          # Weka only models
 model_pattern <- 'tm_logistic_*'   # Tidymodels only models
-model_pattern <- 'tm_linear_reg_*'
+model_pattern <- 'tm_null_model_*'
 model_pattern <- '*.dcf'          # All models
 
 # These assume working from development directory structure
@@ -217,9 +217,13 @@ ml_models <- mldash::read_ml_models(dir = 'inst/models',
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, print_errors = FALSE, seed = 1234)
 # ml_results |> View()
 
-errors <- attr(ml_results, 'errors')
-names(errors)
-errors[[1]]
+ml_errors <- attr(ml_results, 'errors')
+names(ml_errors)
+ml_errors[[1]]
+
+ml_warnings <- attr(ml_results, 'warnings')
+names(ml_warnings)
+ml_warnings[[1]]
 
 si <- attr(ml_results, 'session_info')
 ls(si)

@@ -37,7 +37,8 @@ run_models <- function(
 ) {
 	start_time <- Sys.time()
 
-	errors <- list()
+	model_errors <- list()
+	model_warnings <- list()
 
 	metric_types <- sapply(metrics, FUN = function(x) { class(x)[1] })
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
@@ -59,7 +60,7 @@ run_models <- function(
 	ml_summary$train_output <- character()
 	ml_summary$train_warnings <- character()
 	ml_summary$train_messages <- character()
-	ml_summary$pythong_output <- character()
+	ml_summary$python_output <- character()
 
 	for(i in c(names(class_metrics),
 			   names(class_probability_metrics),
@@ -119,24 +120,26 @@ run_models <- function(
 					}
 				}
 
-				# TODO: Save warnings an messages to results
-
 				exec_time <- as.numeric(system.time({
-					quiet_train_fun <- purrr::quietly(train_fun)
-					py_output <- reticulate::py_capture_output({
-						output <- quiet_train_fun(formu, train_data)
+					tryCatch({
+						quiet_train_fun <- purrr::quietly(train_fun)
+						py_output <- reticulate::py_capture_output({
+							output <- quiet_train_fun(formu, train_data)
+						})
+						train <- output$result
+						results[1,]$train_output <- ifelse(length(output$output) > 0,
+														   paste0(output$output, collapse = '\n'),
+														   NA)
+						results[1,]$train_warnings <- ifelse(length(output$warnings) > 0,
+															 paste0(output$output, collapse = '\n'),
+															 NA)
+						results[1,]$train_messages <- ifelse(length(output$messages) > 0,
+															 paste0(output$messages, collapse = '\n'),
+															 NA)
+						results[1,]$python_output <- ifelse(length(py_output) > 0,
+															paste0(py_output, collapse = '\n'),
+															NA)
 					})
-					train <- output$result
-					results[1,]$train_output <- ifelse(length(output$output) > 0,
-													   paste0(output$output, collapse = '\n'),
-													   '')
-					results[1,]$train_warnings <- ifelse(length(output$warnings) > 0,
-														 paste0(output$output, collapse = '\n'),
-														 '')
-					results[1,]$train_messages <- ifelse(length(output$messages) > 0,
-														 paste0(output$messages, collapse = '\n'),
-														 '')
-					results[1,]$python_output <- py_output
 				}))
 
 				results[1,]$time_user = exec_time[1]
@@ -162,33 +165,53 @@ run_models <- function(
 				if(type == 'classification') {
 					results[1,]$base_accuracy <- max(prop.table(table(validate$truth)))
 					if(!is.factor(validate$truth)) {
-						validate$truth <- as.factor(validate$truth)
+						validate$truth <- factor(validate$truth)
 					}
 					for(i in names(class_probability_metrics)) {
 						tryCatch({
-							results[1,i] <- class_probability_metrics[[i]](validate,
-																		   truth = truth,
-																		   estimate = estimate)[1,3]
+							quiet_metric_fun <- purrr::quietly(class_probability_metrics[[i]])
+							fun_out <- quiet_metric_fun(validate,
+														truth = truth,
+														estimate = estimate)
+							if(!is.null(fun_out$result[1,3])) {
+								results[1,i] <- fun_out$result[1,3]
+							}
+							if(length(fun_out$warnings) > 0) {
+								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							}
+							# results[1,i] <- class_probability_metrics[[i]](validate,
+							# 											   truth = truth,
+							# 											   estimate = estimate)[1,3]
 						}, error = function(e) {
-							# TODO: Need to save errors to the returned object.
-							# message(paste0('Error calculating ', i, ' metric.'))
-							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
 							if(print_errors) {
 								print(e)
 							}
 						})
 					}
 					validate$estimate <- as.factor(validate$estimate > 0.5) # TODO: Allow for other break points
+					if(length(levels(validate$estimate)) < length(levels(validate$truth))) {
+						levels(validate$estimate) <- levels(validate$truth)
+					}
 					cm <- table(validate$truth, validate$estimate)
 					results[1,]$cm <- list(list(cm))
 					for(i in names(class_metrics)) {
 						tryCatch({
-							results[1,i] <- class_metrics[[i]](validate,
-															   truth = truth,
-															   estimate = estimate)[1,3]
+							quiet_metric_fun <- purrr::quietly(class_metrics[[i]])
+							fun_out <- quiet_metric_fun(validate,
+														truth = truth,
+														estimate = estimate)
+							if(!is.null(fun_out$result[1,3])) {
+								results[1,i] <- fun_out$result[1,3]
+							}
+							if(length(fun_out$warnings) > 0) {
+								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							}
+							# results[1,i] <- class_metrics[[i]](validate,
+							# 								   truth = truth,
+							# 								   estimate = estimate)[1,3]
 						}, error = function(e) {
-							# message(paste0('Error calculating ', i, ' metric.'))
-							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
 							if(print_errors) {
 								print(e)
 							}
@@ -197,12 +220,22 @@ run_models <- function(
 				} else if(type == 'regression') {
 					for(i in names(numeric_metrics)) {
 						tryCatch({
-							results[1,i] <- numeric_metrics[[i]](validate,
-																 truth = truth,
-																 estimate = estimate)[1,3]
+							quiet_metric_fun <- purrr::quietly(numeric_metrics[[i]])
+							fun_out <- quiet_metric_fun(validate,
+														truth = truth,
+														estimate = estimate)
+							if(!is.null(fun_out$result[1,3])) {
+								results[1,i] <- fun_out$result[1,3]
+							}
+							if(length(fun_out$warnings) > 0) {
+								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							}
+							# results[1,i] <- numeric_metrics[[i]](validate,
+							# 									 truth = truth,
+							# 									 estimate = estimate)[1,3]
 						}, error = function(e) {
 							# message(paste0('Error calculating ', i, ' metric.'))
-							errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
 							if(print_errors) {
 								print(e)
 							}
@@ -215,7 +248,7 @@ run_models <- function(
 			},
 			error = function(e) {
 				message(paste0('   Error running ', modelname,' model'))
-				errors[[paste0(datasetname, '_', modelname)]] <<- e
+				model_errors[[paste0(datasetname, '_', modelname)]] <<- e
 				if(print_errors) {
 					print(e)
 				}
@@ -232,7 +265,8 @@ run_models <- function(
 	attr(ml_summary, 'datasets') <- ml_datasets
 	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
-	attr(ml_summary, 'errors') <- errors
+	attr(ml_summary, 'errors') <- model_errors
+	attr(ml_summary, 'warnings') <- model_warnings
 	if(save_trained_models) {
 		attr(ml_summary, 'trained_models') <- trained_models
 	}

@@ -11,7 +11,7 @@ run_models(
   training_size = 0.7,
   save_trained_models = FALSE,
   print_errors = FALSE,
-  metrics = get_all_metrics()
+  metrics = mldash::get_all_metrics()
 )
 }
 \arguments{
