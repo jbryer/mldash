@@ -188,6 +188,25 @@ model <- parsnip::logistic_reg() |>
 	parsnip::fit(formula, data = data)
 ls(model)
 
+model <- parsnip::svm_linear() |>
+	parsnip::set_mode("classification") |>
+	parsnip::set_engine("LiblineaR") |>
+	parsnip::fit(formula, data = data)
+predict.model_fit(model, new_data = data, type = "class")[,1,drop=TRUE]
+
+
+train_fun <- function() {
+	parsnip::rule_fit() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("xrf") |>
+		parsnip::fit(formula, data = data)
+}
+
+quiet_train_fun <- purrr::quietly(train_fun)
+model <- quiet_train_fun()
+
+predict.model_fit(model, new_data = data, type = "prob")[,1,drop=TRUE]
+
 python_pkgs <- c('reticulate', 'keras', 'tensorflow', 'torch')
 
 pkgs <- ml_models$packages |> strsplit(',')
@@ -204,7 +223,7 @@ test[test]
 ##### Run models ###############################################################
 model_pattern <- 'weka_*'          # Weka only models
 model_pattern <- 'tm_logistic_*'   # Tidymodels only models
-model_pattern <- 'tm_null_model_*'
+model_pattern <- 'tm_svm_rbf_*'
 model_pattern <- '*.dcf'          # All models
 
 # These assume working from development directory structure

@@ -189,10 +189,12 @@ run_models <- function(
 							}
 						})
 					}
-					validate$estimate <- as.factor(validate$estimate > 0.5) # TODO: Allow for other break points
-					if(length(levels(validate$estimate)) < length(levels(validate$truth))) {
-						levels(validate$estimate) <- levels(validate$truth)
+					if(is.numeric(validate$estimate)) {
+						validate$estimate <- as.factor(validate$estimate > 0.5) # TODO: Allow for other break points
 					}
+					# if(length(levels(validate$estimate)) < length(levels(validate$truth))) {
+					# 	levels(validate$estimate) <- levels(validate$truth)
+					# }
 					cm <- table(validate$truth, validate$estimate)
 					results[1,]$cm <- list(list(cm))
 					for(i in names(class_metrics)) {

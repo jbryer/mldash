@@ -12,7 +12,7 @@ train: function(formula, data) {
 predict: function(model, newdata) {
 	sc <- sparklyr::spark_connect("local")
 	spark_newdata <- sparklyr::copy_to(sc, newdata)
-		predict.model_fit(model, new_data = spark_newdata, type = "prob")[,1,drop=TRUE]
+	predict.model_fit(model, new_data = spark_newdata, type = "prob")[,1,drop=TRUE]
 	}
 notes: More information here: https://parsnip.tidymodels.org/reference/logistic_reg.html
 packages: parsnip, sparklyr
