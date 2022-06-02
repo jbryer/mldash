@@ -259,6 +259,8 @@ run_models <- function(
 		}
 	}
 
+	row.names(ml_summary) <- 1:nrow(ml_summary)
+
 	attr(ml_summary, 'start_time') <- start_time
 	attr(ml_summary, 'end_time') <- Sys.time()
 	attr(ml_summary, 'seed') <- seed

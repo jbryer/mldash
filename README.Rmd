@@ -22,7 +22,12 @@ Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 
 ```
 
+<img src="man/figures/mldash.png" align="right" width="120" />
+
 # `mldash`: Machine Learning Dashboard
+
+**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**    
+**Website: https://github.com/jbryer/mldash**
 
 <!-- badges: start -->
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
@@ -139,6 +144,8 @@ for(i in seq_len(nrow(ml_datasets))) {
 ```
 
 ## Available Models
+
+Each model is defined in a Debian Control File (DCF) format the details of which are described below. Below is the list of models included in the `mldash` package. Note that models that begin with `tm_` are models implemented with the [`tidymodels`](https://www.tidymodels.org) R package; models that begin with `weka_` are models implemented with the the [`RWeka`](https://cran.r-project.org/web/packages/RWeka/index.html) which is a wrapper to the [Weka](https://www.cs.waikato.ac.nz/ml/weka/) collection of machine learning algorithms.
 
 ```{r ml_models, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_models))) {

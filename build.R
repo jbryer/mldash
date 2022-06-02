@@ -90,6 +90,25 @@ ucidata() |> View()
 automobile
 
 ##### Model examples ###########################################################
+
+# Model familes (from Fernández-Delgado, Cernadas, Barro, & Amorim 2014)
+model_families <- c('discriminant analysis',
+					'Bayesian',
+					'neural networks',
+					'support vector machines',
+					'decision trees',
+					'rule-based classifiers',
+					'boosting',
+					'bagging',
+					'stacking',
+					'random forests and other ensembles',
+					'generalized linear models',
+					'nearest-neighbors',
+					'partial least squares and principal component regression',
+					'logistic and multinomial regression',
+					'multiple adaptive regression splines',
+					'other methods')
+
 # Tidymodels example
 library(parsnip)
 library(baguette)
@@ -249,9 +268,40 @@ ls(si)
 attr(ml_results, 'start_time')
 si$platform$os
 
+save_model_run <- function(results,
+						   dir = 'inst/model_runs') {
+	if(!'mldash_summary' %in% class(results)) {
+		stop('results needs to be the output of mldash::run_models.')
+	}
+	d <- attr(ml_results, 'start_time')
+	d <- gsub(' ', '_', d)
+	si <- Sys.info()
+	saveRDS(ml_results, file = paste0(dir, '/', unname(si['user']), '-', d, '.rds'))
+}
+
+save_model_run(ml_results)
+
 # Run only classification models/datasets
 ml_datasets <- ml_datasets %>% filter(type == 'classification')
 ml_models <- ml_models %>% filter(type == 'classification')
 
 
 (si <- sessioninfo::session_info())
+
+##### Hex Logo #################################################################
+library(hexSticker)
+p <- "man/figures/speed_icon.png"
+hexSticker::sticker(p,
+					filename = 'man/figures/mldash.png',
+					p_size = 8,
+					package = 'mldash',
+					url = "github.com/mldash",
+					u_size = 2.5,
+					s_width = .75, s_height = .75,
+					s_x = 1, s_y = 1,
+					p_x = 1, p_y = .60,
+					p_color = "#c51b8a",
+					h_fill = '#fde0dd',
+					h_color = '#c51b8a',
+					u_color = '#fa9fb5',
+					white_around_sticker = FALSE)
