@@ -84,7 +84,7 @@ run_models <- function(
 		type <- datasets[d,]$type
 
 		y_var <- all.vars(formu)[1]
-		if(type == 'classification' & !is.factor(thedata[, y_var])) {
+		if(type == 'classification' & !is.factor(thedata[, y_var,drop=TRUE])) {
 			thedata[, y_var] <- as.factor(thedata[, y_var])
 		}
 

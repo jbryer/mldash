@@ -3,15 +3,15 @@
 
 # `mldash`: Machine Learning Dashboard
 
-**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**  
-**Website: <https://github.com/jbryer/mldash>**
-
 <!-- badges: start -->
 
 [![Project Status: WIP – Initial development is in progress, but there
 has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->
+
+**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**  
+**Website: <https://github.com/jbryer/mldash>**
 
 The goal of `mldash` is to provide a framework for evaluating the
 performance of many predictive models across many datasets. The package
@@ -70,7 +70,8 @@ Once installed, we can create a conda environment:
 reticulate::conda_create("mldash")
 ```
 
-And then make it active:
+And then make it active (note sure if it is necessary to do this for all
+three packages, but it doesn’t hurt):
 
 ``` r
 reticulate::use_condaenv("mldash")
@@ -81,7 +82,9 @@ keras::use_condaenv("mldash")
 Although there are utility functions to install `keras`, `tensorflow`,
 and `torch` from their respective packages, I found them to not always
 work as expected. The `conda_install` function will ensure the Python
-packages are installed into the correct environment.
+packages are installed into the correct environment. Note that as of
+this writing, `pytorch` still does not have a Mac M1 native version so
+some predictive models will not work on that platform.
 
 ``` r
 reticulate::conda_install("mldash", 
@@ -91,7 +94,9 @@ reticulate::conda_install("mldash",
 ```
 
 Lastly, ensure that `reticulate` uses the correct Python by setting the
-`RETICULATE_PYTHON` environment variable.
+`RETICULATE_PYTHON` environment variable (this can also be put in your
+`.Renviron` file to be used across sessions, though I avoid doing that
+so I can use different Python paths for different projects).
 
 ``` r
 Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
@@ -131,118 +136,6 @@ model type.
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, seed = 1234)
 ```
 
-| dataset | model                                              | type           | time_elapsed | base_accuracy | accuracy |  rsq |
-|:--------|:---------------------------------------------------|:---------------|-------------:|--------------:|---------:|-----:|
-| abalone | lm.dcf                                             | regression     |         0.87 |            NA |       NA | 0.33 |
-| abalone | randomForest_regression.dcf                        | regression     |         1.43 |            NA |       NA | 0.34 |
-| abalone | tm_bag_mars_regression.dcf                         | regression     |         0.22 |            NA |       NA | 0.34 |
-| abalone | tm_bag_tree_rpart_regression.dcf                   | regression     |         0.34 |            NA |       NA | 0.29 |
-| abalone | tm_bart_regression.dcf                             | regression     |         2.39 |            NA |       NA | 0.34 |
-| abalone | tm_boost_tree_xgboost_regression.dcf               | regression     |         0.04 |            NA |       NA | 0.33 |
-| abalone | tm_decision_tree_rpart_regression.dcf              | regression     |         0.02 |            NA |       NA | 0.32 |
-| abalone | tm_gen_additive_mod_mgcv_regression.dcf            | regression     |         0.03 |            NA |       NA | 0.33 |
-| abalone | tm_linear_reg_glm_regression.dcf                   | regression     |         0.02 |            NA |       NA | 0.33 |
-| abalone | tm_linear_reg_glmnet_regression.dcf                | regression     |         0.03 |            NA |       NA | 0.33 |
-| abalone | tm_linear_reg_keras_regression.dcf                 | regression     |         4.04 |            NA |       NA | 0.00 |
-| abalone | tm_linear_reg_lm_regression.dcf                    | regression     |         0.02 |            NA |       NA | 0.33 |
-| abalone | tm_linear_reg_stan_regression.dcf                  | regression     |         1.06 |            NA |       NA | 0.33 |
-| abalone | tm_mars_regression.dcf                             | regression     |         0.03 |            NA |       NA | 0.34 |
-| abalone | tm_mlp_brulee_regression.dcf                       | regression     |           NA |            NA |       NA |   NA |
-| abalone | tm_mlp_keras_regression.dcf                        | regression     |         0.99 |            NA |       NA | 0.01 |
-| abalone | tm_mlp_nnet_regression.dcf                         | regression     |         0.09 |            NA |       NA | 0.34 |
-| abalone | tm_nearest_neighbor_regression.dcf                 | regression     |         0.05 |            NA |       NA | 0.23 |
-| abalone | tm_null_model_regression.dcf                       | regression     |         0.03 |            NA |       NA |   NA |
-| abalone | tm_pls_regression.dcf                              | regression     |         0.04 |            NA |       NA | 0.33 |
-| abalone | tm_poisson_reg_glm_regression.dcf                  | regression     |         0.02 |            NA |       NA | 0.32 |
-| abalone | tm_poisson_reg_glmnet_regression.dcf               | regression     |         0.03 |            NA |       NA | 0.28 |
-| abalone | tm_poisson_reg_stan_regression.dcf                 | regression     |        11.20 |            NA |       NA | 0.33 |
-| abalone | tm_poisson_reg_zeroinfl_regression.dcf             | regression     |           NA |            NA |       NA |   NA |
-| abalone | tm_rand_forest_randomForest_regression.dcf         | regression     |         0.77 |            NA |       NA |   NA |
-| abalone | tm_rand_forest_ranger_regression.dcf               | regression     |         0.16 |            NA |       NA | 0.34 |
-| abalone | tm_svm_linear_kernlab_regression.dcf               | regression     |         0.20 |            NA |       NA | 0.33 |
-| abalone | tm_svm_poly_kernlab_regression.dcf                 | regression     |         0.58 |            NA |       NA | 0.33 |
-| abalone | tm_svm_rbf_kernlab_regression.dcf                  | regression     |         0.25 |            NA |       NA | 0.34 |
-| ames    | lm.dcf                                             | regression     |         0.00 |            NA |       NA | 0.28 |
-| ames    | randomForest_regression.dcf                        | regression     |         2.40 |            NA |       NA | 0.67 |
-| ames    | tm_bag_mars_regression.dcf                         | regression     |         0.15 |            NA |       NA | 0.49 |
-| ames    | tm_bag_tree_rpart_regression.dcf                   | regression     |         0.39 |            NA |       NA | 0.70 |
-| ames    | tm_bart_regression.dcf                             | regression     |         1.76 |            NA |       NA | 0.70 |
-| ames    | tm_boost_tree_xgboost_regression.dcf               | regression     |         0.04 |            NA |       NA | 0.70 |
-| ames    | tm_decision_tree_rpart_regression.dcf              | regression     |         0.02 |            NA |       NA | 0.55 |
-| ames    | tm_gen_additive_mod_mgcv_regression.dcf            | regression     |         0.02 |            NA |       NA | 0.28 |
-| ames    | tm_linear_reg_glm_regression.dcf                   | regression     |         0.02 |            NA |       NA | 0.28 |
-| ames    | tm_linear_reg_glmnet_regression.dcf                | regression     |         0.03 |            NA |       NA | 0.28 |
-| ames    | tm_linear_reg_keras_regression.dcf                 | regression     |         0.69 |            NA |       NA | 0.08 |
-| ames    | tm_linear_reg_lm_regression.dcf                    | regression     |         0.02 |            NA |       NA | 0.28 |
-| ames    | tm_linear_reg_stan_regression.dcf                  | regression     |         0.81 |            NA |       NA | 0.28 |
-| ames    | tm_mars_regression.dcf                             | regression     |         0.02 |            NA |       NA | 0.56 |
-| ames    | tm_mlp_brulee_regression.dcf                       | regression     |           NA |            NA |       NA |   NA |
-| ames    | tm_mlp_keras_regression.dcf                        | regression     |         0.63 |            NA |       NA | 0.01 |
-| ames    | tm_mlp_nnet_regression.dcf                         | regression     |         0.02 |            NA |       NA |   NA |
-| ames    | tm_nearest_neighbor_regression.dcf                 | regression     |         0.06 |            NA |       NA | 0.61 |
-| ames    | tm_null_model_regression.dcf                       | regression     |         0.02 |            NA |       NA |   NA |
-| ames    | tm_pls_regression.dcf                              | regression     |         0.03 |            NA |       NA | 0.28 |
-| ames    | tm_poisson_reg_glm_regression.dcf                  | regression     |         0.06 |            NA |       NA | 0.28 |
-| ames    | tm_poisson_reg_glmnet_regression.dcf               | regression     |         0.03 |            NA |       NA | 0.25 |
-| ames    | tm_poisson_reg_stan_regression.dcf                 | regression     |           NA |            NA |       NA |   NA |
-| ames    | tm_poisson_reg_zeroinfl_regression.dcf             | regression     |           NA |            NA |       NA |   NA |
-| ames    | tm_rand_forest_randomForest_regression.dcf         | regression     |         0.96 |            NA |       NA | 0.67 |
-| ames    | tm_rand_forest_ranger_regression.dcf               | regression     |         0.68 |            NA |       NA | 0.72 |
-| ames    | tm_svm_linear_kernlab_regression.dcf               | regression     |         0.10 |            NA |       NA | 0.28 |
-| ames    | tm_svm_poly_kernlab_regression.dcf                 | regression     |         0.15 |            NA |       NA | 0.28 |
-| ames    | tm_svm_rbf_kernlab_regression.dcf                  | regression     |         0.12 |            NA |       NA | 0.55 |
-| titanic | logistic.dcf                                       | classification |         0.00 |          0.61 |     0.78 |   NA |
-| titanic | randomForest_classification.dcf                    | classification |         0.38 |          0.61 |     0.81 |   NA |
-| titanic | tm_bag_mars_classification.dcf                     | classification |         0.16 |          0.61 |     0.21 |   NA |
-| titanic | tm_bag_tree_C50_classification.dcf                 | classification |         0.54 |          0.61 |     0.20 |   NA |
-| titanic | tm_bag_tree_rpart_classification.dcf               | classification |         0.33 |          0.61 |     0.20 |   NA |
-| titanic | tm_bart_classification.dcf                         | classification |         0.85 |          0.61 |     0.20 |   NA |
-| titanic | tm_boost_tree_C50_classification.dcf               | classification |         0.05 |          0.61 |     0.21 |   NA |
-| titanic | tm_boost_tree_xgboost_classification.dcf           | classification |         0.05 |          0.61 |     0.19 |   NA |
-| titanic | tm_decision_tree_rpart_classification.dcf          | classification |         0.03 |          0.61 |     0.21 |   NA |
-| titanic | tm_discrim_flexible_classification.dcf             | classification |         0.03 |          0.61 |     0.22 |   NA |
-| titanic | tm_discrim_linear_MASS_classification.dcf          | classification |         0.02 |          0.61 |     0.22 |   NA |
-| titanic | tm_discrim_linear_mda_classification.dcf           | classification |         0.02 |          0.61 |     0.22 |   NA |
-| titanic | tm_discrim_linear_sda_classification.dcf           | classification |         0.04 |          0.61 |     0.22 |   NA |
-| titanic | tm_discrim_linear_sparsediscrim_classification.dcf | classification |         0.03 |          0.61 |     0.24 |   NA |
-| titanic | tm_discrim_regularized_classification.dcf          | classification |         0.37 |          0.61 |     0.32 |   NA |
-| titanic | tm_gen_additive_mod_mgcv_classification.dcf        | classification |         0.03 |          0.61 |     0.22 |   NA |
-| titanic | tm_logistic_brulee_classification.dcf              | classification |           NA |            NA |       NA |   NA |
-| titanic | tm_logistic_glm_classification.dcf                 | classification |         0.02 |          0.61 |     0.22 |   NA |
-| titanic | tm_logistic_glmnet_classification.dcf              | classification |         0.04 |          0.61 |     0.21 |   NA |
-| titanic | tm_logistic_keras_classification.dcf               | classification |         0.40 |          0.61 |     0.34 |   NA |
-| titanic | tm_logistic_liblinear_classification.dcf           | classification |         0.04 |          0.61 |     0.22 |   NA |
-| titanic | tm_logistic_stan_classification.dcf                | classification |         1.83 |          0.61 |     0.22 |   NA |
-| titanic | tm_mars_classification.dcf                         | classification |         0.03 |          0.61 |     0.22 |   NA |
-| titanic | tm_mlp_brulee_classification.dcf                   | classification |           NA |            NA |       NA |   NA |
-| titanic | tm_mlp_keras_classification.dcf                    | classification |         0.43 |          0.61 |     0.32 |   NA |
-| titanic | tm_mlp_nnet_classification.dcf                     | classification |         0.05 |          0.61 |     0.24 |   NA |
-| titanic | tm_naive_bayes_klaR_classification.dcf             | classification |         0.03 |          0.61 |     0.28 |   NA |
-| titanic | tm_naive_bayes_naivebayes_classification.dcf       | classification |         0.03 |          0.61 |     0.28 |   NA |
-| titanic | tm_nearest_neighbor_classification.dcf             | classification |         0.04 |          0.61 |     0.22 |   NA |
-| titanic | tm_null_model_classification.dcf                   | classification |         0.03 |          0.61 |       NA |   NA |
-| titanic | tm_pls_classification.dcf                          | classification |         0.04 |          0.61 |     0.22 |   NA |
-| titanic | tm_rand_forest_randomForest_classification.dcf     | classification |         0.24 |          0.61 |     0.20 |   NA |
-| titanic | tm_rand_forest_ranger_classification.dcf           | classification |         0.14 |          0.61 |     0.19 |   NA |
-| titanic | tm_rule_fit_xrf_classification.dcf                 | classification |        38.78 |          0.61 |     0.24 |   NA |
-| titanic | tm_svm_linear_kernlab_classification.dcf           | classification |         0.05 |          0.61 |     0.24 |   NA |
-| titanic | tm_svm_linear_LiblineaR_classification.dcf         | classification |         0.79 |          0.61 |     0.65 |   NA |
-| titanic | tm_svm_poly_kernlab_classification.dcf             | classification |         0.06 |          0.61 |     0.24 |   NA |
-| titanic | tm_svm_rbf_kernlab_classification.dcf              | classification |         0.06 |          0.61 |     0.20 |   NA |
-| titanic | weka_bagging.dcf                                   | classification |         0.14 |          0.61 |     0.79 |   NA |
-| titanic | weka_decisionstump.dcf                             | classification |         0.01 |          0.61 |     0.76 |   NA |
-| titanic | weka_ibk.dcf                                       | classification |         0.06 |          0.61 |     0.76 |   NA |
-| titanic | weka_J48_classification.dcf                        | classification |         0.04 |          0.61 |     0.79 |   NA |
-| titanic | weka_lmt.dcf                                       | classification |         0.33 |          0.61 |     0.80 |   NA |
-| titanic | weka_logistic.dcf                                  | classification |         0.05 |          0.61 |     0.78 |   NA |
-| titanic | weka_logitboost.dcf                                | classification |         0.06 |          0.61 |     0.79 |   NA |
-| titanic | weka_oner.dcf                                      | classification |         0.01 |          0.61 |     0.76 |   NA |
-| titanic | weka_part.dcf                                      | classification |         0.02 |          0.61 |     0.78 |   NA |
-| titanic | weka_smo.dcf                                       | classification |         0.05 |          0.61 |     0.76 |   NA |
-| titanic | weka_stacking.dcf                                  | classification |         0.01 |          0.61 |       NA |   NA |
-| titanic | weka.adaboostm1.dcf                                | classification |         0.03 |          0.61 |     0.77 |   NA |
-| titanic | wkea_jrip.dcf                                      | classification |         0.06 |          0.61 |     0.79 |   NA |
-
 The `metrics` parameter to `run_models()` takes a list of metrics from
 the [`yardstick`](https://yardstick.tidymodels.org/index.html) package
 (Kuhn & Vaughan, 2021). The full list of metris is available here:
@@ -252,6 +145,8 @@ the [`yardstick`](https://yardstick.tidymodels.org/index.html) package
 
 -   [abalone](inst/datasets/abalone.dcf) - Predicting the age of abalone
     from physical measurements.
+-   [adult](inst/datasets/adult.dcf) - Prediction task is to determine
+    whether a person makes over 50K a year.
 -   [ames](inst/datasets/ames.dcf) - Ames Housing Data.
 -   [titanic](inst/datasets/titanic.dcf) - The original Titanic dataset,
     describing the survival status of individual passengers on the

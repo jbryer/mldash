@@ -40,23 +40,32 @@ required_dataset_fields <- c('name', 'type', 'data', 'model')
 #' }
 #' * denotes required fields.
 #' @export
+#' @importFrom tools file_path_sans_ext
 read_ml_datasets <- function(
-		dir = paste0(find.package('mldash'), '/datasets'),
+		dir = c(paste0(find.package('mldash'), '/datasets')),
 		cache_dir = tempdir(),
 		pattern = "*.dcf",
 		use_cache = TRUE
 ) {
-	if(!dir.exists(cache_dir[1])) {
-		message(paste0('Creating ', cache_dir, ' directory...'))
-		dir.create(cache_dir, recursive = TRUE)
+	for(i in cache_dir) {
+		if(!dir.exists(i)) {
+			message(paste0('Creating ', i, ' directory...'))
+			dir.create(i, recursive = TRUE)
+		}
 	}
-	# TODO: also look for data files in the package directory
-	# paste0(find.package('mldash'), '/datasets')
 
-	datafiles <- list.files(dir, pattern = pattern)
+	if(length(dir) > 1 & length(cache_dir) == 1) {
+		cache_dir <- rep(cache_dir, length(dir))
+	}
+
+	datafiles <- lapply(dir, list.files, pattern = pattern, full.names = TRUE)
+	cache_dir <- rep(cache_dir, sapply(datafiles, length))
+	datafiles <- unlist(datafiles)
 
 	ml_datasets <- data.frame(
-		name = tools::file_path_sans_ext(datafiles),
+		name = basename(datafiles) |> tools::file_path_sans_ext(),
+		file = datafiles,
+		cache_file = paste0(cache_dir, '/', basename(datafiles) |> tools::file_path_sans_ext(), '.rds'),
 		type = NA_character_,
 		description = NA_character_,
 		source = NA_character_,
@@ -64,26 +73,31 @@ read_ml_datasets <- function(
 		url = NA_character_,
 		model = NA_character_,
 		note = NA_character_,
-		row.names = datafiles,
+		nrow = NA_integer_,
+		ncol = NA_integer_,
 		stringsAsFactors = FALSE
 	)
 
-	for(i in datafiles) {
-		dataname <- tools::file_path_sans_ext(i)
-		tmp <- as.data.frame(read.dcf(paste0(dir, '/', i)))
+	for(i in seq_len(nrow(ml_datasets))) {
+		tmp <- as.data.frame(read.dcf(ml_datasets[i,]$file))
 
 		if(nrow(tmp) != 1) {
 			warning(paste0('Error reading ', i, '. Skipping.'))
+			next;
 		}
 		if(!all(required_dataset_fields %in% names(tmp))) {
-			warning(paste0('Not all required fields are found in ', i, '. Skipping.'))
+			warning(paste0('Not all required fields are found in ', ml_datasets[i,]$file, '. Skipping.'))
 			next;
 		}
 
 		thedata <- NULL
-		datafile <- paste0(cache_dir[1], '/', dataname, '.rds')
-		if(file.exists(datafile) & use_cache) {
-			message(paste0('Reading ', dataname, ' from cache.'))
+		datafile <- ml_datasets[i,]$cache_file
+
+		file_info <- file.info(ml_datasets[i,]$file)
+		cache_info <- file.info(datafile)
+
+		if(file.exists(datafile) & use_cache & cache_info$mtime > file_info$mtime) {
+			message(paste0('Reading ', ml_datasets[i,]$name, ' from cache.'))
 			thedata <- readRDS(datafile)
 		} else {
 			tryCatch({
@@ -103,6 +117,9 @@ read_ml_datasets <- function(
 			})
 		}
 
+		ml_datasets[i,]$nrow <- nrow(thedata)
+		ml_datasets[i,]$ncol <- ncol(thedata)
+
 		for(j in names(ml_datasets)) {
 			if(j %in% names(tmp)) {
 				ml_datasets[i,j] <- tmp[1,j]
@@ -110,9 +127,16 @@ read_ml_datasets <- function(
 		}
 	}
 
+	dups <- duplicated(ml_datasets$name)
+	if(sum(dups) > 0) {
+		warning(paste0('Duplicate data files found. The following will be excluded: ',
+					   paste0(ml_datasets[dups,]$file, collapse = ', ')))
+		ml_datasets <- ml_datasets[!dups,]
+	}
+
 	ml_datasets$type <- tolower(ml_datasets$type)
 
-	attr(ml_datasets, 'cache_dir') <- normalizePath(cache_dir[1])
+	attr(ml_datasets, 'cache_dir') <- normalizePath(cache_dir)
 	class(ml_datasets) <- c('mldash_datasets', 'data.frame')
 	return(ml_datasets)
 }

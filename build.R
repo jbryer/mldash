@@ -239,6 +239,25 @@ test <- unlist(lapply(deps, FUN = function(x) { any(unlist(x) %in% python_pkgs) 
 names(test) <- ml_models$name
 test[test]
 
+
+data('adult', package = 'ucimlr')
+adult <- adult |>
+	dplyr::mutate(income_gt_50k = income == '>50K',
+				  workclass = factor(workclass),
+				  education = factor(education,
+				  				   levels = c('Preschool', '1st-4th', '5th-6th', '7th-8th',
+				  				   		   '9th', '10th', '11th', '12th',
+				  				   		   'HS-grad', 'Prof-school', 'Some-college',
+				  				   		   'Assoc-voc', 'Assoc-acdm', 'Bachelors', 'Masters', 'Doctorate'),
+				  				   ordered = TRUE),
+				  marital_status = factor(marital_status),
+				  occupation = factor(occupation),
+				  relationship = factor(relationship),
+				  race = factor(race),
+				  sex = factor(sex),
+				  native_country = factor(native_country)) |>
+	tidyr::drop_na()
+
 ##### Run models ###############################################################
 model_pattern <- 'weka_*'          # Weka only models
 model_pattern <- 'tm_logistic_*'   # Tidymodels only models
@@ -248,6 +267,8 @@ model_pattern <- '*.dcf'          # All models
 # These assume working from development directory structure
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'inst/datasets')
+
+ml_datasets <- ml_datasets |> dplyr::filter(name == 'adult')
 
 ml_models <- mldash::read_ml_models(dir = 'inst/models',
 									pattern = model_pattern)
@@ -287,6 +308,28 @@ ml_models <- ml_models %>% filter(type == 'classification')
 
 
 (si <- sessioninfo::session_info())
+
+helptext <- help('accuracy', package = 'yardstick')
+helptext <- utils:::.getHelpFile(as.character(helptext))
+tools:::Rd2txt(helptext)
+
+
+db <- tools::Rd_db("yardstick")
+# db <- db[names(db) == 'accuracy.Rd']
+# db <- db[grep('accuracy.Rd', names(db))]
+lapply(db, tools:::.Rd_get_metadata, "name")
+lapply(db, tools:::.Rd_get_metadata, "description")
+
+yardstick_base_url <- 'https://yardstick.tidymodels.org/reference/'
+metrics <- mldash::get_all_metrics()
+for(i in names(metrics)) {
+	db_fun <- db[names(db) == paste0(i, '.Rd')]
+	desc <- lapply(db_fun, tools:::.Rd_get_metadata, "description")
+	gsub('\n', ' ', desc)
+	cat(paste0('* [', i, '](', yardstick_base_url, i, '.html) - ',
+			   desc, '\n'))
+}
+
 
 ##### Hex Logo #################################################################
 library(hexSticker)

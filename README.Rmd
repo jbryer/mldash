@@ -26,12 +26,13 @@ Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 
 # `mldash`: Machine Learning Dashboard
 
-**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**    
-**Website: https://github.com/jbryer/mldash**
-
 <!-- badges: start -->
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 <!-- badges: end -->
+
+**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**    
+**Website: https://github.com/jbryer/mldash**
+
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.
 
@@ -72,7 +73,7 @@ Once installed, we can create a conda environment:
 reticulate::conda_create("mldash")
 ```
 
-And then make it active:
+And then make it active (note sure if it is necessary to do this for all three packages, but it doesn't hurt):
 
 ```{r use_condaenv, eval=TRUE}
 reticulate::use_condaenv("mldash")
@@ -80,7 +81,7 @@ tensorflow::use_condaenv("mldash")
 keras::use_condaenv("mldash")
 ```
 
-Although there are utility functions to install `keras`, `tensorflow`, and `torch` from their respective packages, I found them to not always work as expected. The `conda_install` function will ensure the Python packages are installed into the correct environment.
+Although there are utility functions to install `keras`, `tensorflow`, and `torch` from their respective packages, I found them to not always work as expected. The `conda_install` function will ensure the Python packages are installed into the correct environment. Note that as of this writing, `pytorch` still does not have a Mac M1 native version so some predictive models will not work on that platform.
 
 ```{r conda_install, eval=FALSE}
 reticulate::conda_install("mldash", 
@@ -89,7 +90,7 @@ reticulate::conda_install("mldash",
 						    "seaborn", "numpy", "pytorch", "tensorflow"))
 ```
 
-Lastly, ensure that `reticulate` uses the correct Python by setting the `RETICULATE_PYTHON` environment variable.
+Lastly, ensure that `reticulate` uses the correct Python by setting the `RETICULATE_PYTHON` environment variable (this can also be put in your `.Renviron` file to be used across sessions, though I avoid doing that so I can use different Python paths for different projects).
 
 ```{r RETICULATE_PYTHON, eval=FALSE}
 Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
@@ -119,15 +120,11 @@ ml_models <- mldash::read_ml_models(dir = 'inst/models')
 
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.
 
-```{r run_models, eval = TRUE, warning=FALSE, message=FALSE, error=FALSE}
+```{r run_models, eval = FALSE, warning=FALSE, message=FALSE, error=FALSE}
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, seed = 1234)
 ```
 
 ```{r, eval=FALSE, echo=FALSE, results='asis'}
-DT::datatable(ml_results)
-```
-
-```{r, eval=TRUE, echo=FALSE, results='asis'}
 knitr::kable(ml_results[,c('dataset', 'model', 'type', 'time_elapsed', 'base_accuracy', 'accuracy', 'rsq')],
 			 row.names = FALSE)
 ```
