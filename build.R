@@ -264,6 +264,8 @@ model_pattern <- 'tm_logistic_*'   # Tidymodels only models
 model_pattern <- 'tm_svm_rbf_*'
 model_pattern <- '*.dcf'          # All models
 
+ml_datasets <- mldash::read_ml_datasets()
+
 # These assume working from development directory structure
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
 										cache_dir = 'inst/datasets')

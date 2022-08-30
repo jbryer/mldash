@@ -105,13 +105,13 @@ read_ml_datasets <- function(
 				thedata <- getdata()
 				formu <- as.formula(tmp[1,]$model)
 				if(!all(complete.cases(get_all_vars(formula = formu, data = thedata)))) {
-					warning(paste0('Missing data found in ', dataname,
+					warning(paste0('Missing data found in ', ml_datasets[i,]$name,
 								   '. It is recommend that missing data be handled in the data file.'))
 				}
 				saveRDS(thedata, file = datafile)
 				rm(getdata)
 			}, error = function(e) {
-				warning(paste0('Error getting data from ', dataname))
+				warning(paste0('Error getting data from ', ml_datasets[i,]$name))
 				print(e)
 				next;
 			})
