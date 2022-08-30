@@ -331,6 +331,21 @@ for(i in names(metrics)) {
 }
 
 
+
+##### OpenML Test ##############################################################
+library(OpenML)
+library(farff)
+
+listOMLTaskTypes()
+openml_classif <- listOMLTasks(task.type = 'Supervised Classification')
+
+openml_data <- getOMLDataSet(data.id = 52)
+openml_task <- getOMLTask(task.id = 52)
+
+
+openml_datasets <- listOMLDataSets(number.of.instances = c(100000, 200000),
+						   number.of.features = c(1, 5))
+
 ##### Hex Logo #################################################################
 library(hexSticker)
 p <- "man/figures/speed_icon.png"

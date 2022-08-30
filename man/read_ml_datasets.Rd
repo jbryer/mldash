@@ -5,7 +5,7 @@
 \title{Reads model files for running predictive models.}
 \usage{
 read_ml_datasets(
-  dir = paste0(find.package("mldash"), "/datasets"),
+  dir = c(paste0(find.package("mldash"), "/datasets")),
   cache_dir = tempdir(),
   pattern = "*.dcf",
   use_cache = TRUE

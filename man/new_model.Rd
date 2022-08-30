@@ -10,8 +10,8 @@ new_model(
   type = c("classification", "regression")[1],
   description = "Description of the dataset",
   train_fun = "function(formula, data) {\\n\\t# Run predictive model.\\n\\t}",
- 
-    predict_fun = "function(model, newdata) {\\n\\t# Return predicted probabilities for classification or nemeric values for regression.\\n\\t}",
+  predict_fun =
+    "function(model, newdata) {\\n\\t# Return predicted probabilities for classification or nemeric values for regression.\\n\\t}",
   packages = "",
   note = "",
   open = interactive(),
