@@ -75,7 +75,7 @@ run_models <- function(
 		datasetname <- datasets[d,]$name
 		message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasetname, ' data...'))
 		trained_models[[datasetname]] <- list()
-		thedata <- readRDS(paste0(cache_dir, '/', datasetname, '.rds'))
+		thedata <- readRDS(paste0(cache_dir[d], '/', datasetname, '.rds'))
 		formu <- as.formula(datasets[d,]$model)
 		if(!missing(seed)) {
 			set.seed(seed)

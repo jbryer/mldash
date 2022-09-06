@@ -9,6 +9,7 @@ devtools::install()
 devtools::build()
 devtools::check()
 
+# TODO: Allow for sourcing of data files.
 
 # Added package dependencies
 usethis::use_package('reticulate', type = "Imports")
@@ -275,7 +276,12 @@ ml_datasets <- ml_datasets |> dplyr::filter(name == 'adult')
 ml_models <- mldash::read_ml_models(dir = 'inst/models',
 									pattern = model_pattern)
 
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, print_errors = FALSE, seed = 1234)
+ml_models <- mldash::read_ml_models()
+
+ml_results <- mldash::run_models(datasets = ml_datasets,
+								 models = ml_models,
+								 print_errors = FALSE,
+								 seed = 1234)
 # ml_results |> View()
 
 ml_errors <- attr(ml_results, 'errors')

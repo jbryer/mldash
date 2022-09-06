@@ -108,7 +108,9 @@ read_ml_datasets <- function(
 					warning(paste0('Missing data found in ', ml_datasets[i,]$name,
 								   '. It is recommend that missing data be handled in the data file.'))
 				}
-				saveRDS(thedata, file = datafile)
+				if(use_cache) {
+					saveRDS(thedata, file = datafile)
+				}
 				rm(getdata)
 			}, error = function(e) {
 				warning(paste0('Error getting data from ', ml_datasets[i,]$name))
