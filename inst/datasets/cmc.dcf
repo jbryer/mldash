@@ -1,0 +1,28 @@
+name: cmc
+type: classification
+description: The problem is to predict the current contraceptive
+       method choice (no use, long-term methods, or short-term
+       methods) of a woman based on her demographic and
+       socio-economic characteristics.
+source:
+       https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice
+reference: APA reference for the dataset.
+url:
+       https://archive.ics.uci.edu/ml/machine-learning-databases/cmc/cmc.data
+data: function () 
+	{
+	    destfile <- tempfile()
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/cmc/cmc.data", 
+	        destfile)
+	    df <- read.csv(destfile, header = FALSE, colClasses = c("numeric", 
+	        "factor", "factor", "numeric", rep("factor", 6)), col.names = c("wifes_age", 
+	        "wifes_education", "husbands_education", "number_of_children", 
+	        "wifes_religion", "wife_now_working", "husbands_occupation", 
+	        "standard_of_living_index", "media_exposure", "contraceptive_method_used"))
+	    return(df)
+	}
+model: contraceptive_method_used ~ wifes_age + wifes_education +
+       husbands_education + number_of_children + wifes_religion +
+       wife_now_working + husbands_occupation +
+       standard_of_living_index + media_exposure
+note:
