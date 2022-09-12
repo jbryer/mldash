@@ -3,7 +3,7 @@
 #' @return a list with the metadata information.
 #' @export
 new_dataset <- function(
-		name,
+		name = "AsianReligions",
 		dir = './inst/datasets',
 		type = c('classification', 'clustering')[1],
 		description = "Most of the sacred texts provided to this dataset are from Project Gutenberg. The raw texts along with
