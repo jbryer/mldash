@@ -8,9 +8,9 @@ url: https://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 data: function() {
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/acute/diagnosis.data", destfile)
-		acute_imflammation <- read.csv(destfile, header = FALSE)
-		names(acute_imflammation) <- c("Patient_Temperature", "Nausea", "Lumbar_Pain", "Urine_Pushing", "Micturition_Pains", "Urethra_Burning_Itching", "Bladder_Inflammation", "Pelvic_Nephritis")
-		return(acute_imflammation)
+		acute_inflammation <- read.csv(destfile, header = FALSE)
+		names(acute_inflammation) <- c("Patient_Temperature", "Nausea", "Lumbar_Pain", "Urine_Pushing", "Micturition_Pains", "Urethra_Burning_Itching", "Bladder_Inflammation", "Pelvic_Nephritis")
+		return(acute_inflammation)
 	}
 model: Bladder_Inflammation ~.
 notes:
