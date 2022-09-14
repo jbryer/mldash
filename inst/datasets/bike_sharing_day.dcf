@@ -1,0 +1,25 @@
+name: bike_sharing_day
+type: regression
+description: Predication of daily bike rental count based on the environmental and seasonal settings
+source: https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip
+data: function () 
+	{
+	    data_file_name = "day.csv"
+	    destfile <- tempfile()
+	    temp_dir = tempdir()
+	    absolute_path_data_file_name = paste(temp_dir, "/", data_file_name, 
+	        sep = "")
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00275/Bike-Sharing-Dataset.zip", 
+	        destfile)
+	    unzip(destfile, files = data_file_name, exdir = temp_dir)
+	    df <- read.csv(absolute_path_data_file_name, header = TRUE)
+	    names(df) <- c("instant", "dteday", "season", "yr", "mnth", 
+	        "holiday", "weekday", "workingday", "weathersit", "temp", 
+	        "atemp", "hum", "windspeed", "casual", "registered", 
+	        "cnt")
+	    return(df)
+	}
+model: cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered
+note:
