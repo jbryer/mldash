@@ -7,7 +7,7 @@ e-mail: jacek.czerniak '@' ibspan.waw.pl or jczerniak '@' ukw.edu.pl
 url: https://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 data: function() {
 		destfile <- tempfile()
-		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/acute/diagnosis.data", destfile)
+		download.file("https://raw.githubusercontent.com/cliftonleesps/tmp/main/diagnosis.data", destfile)
 		acute_inflammation <- read.csv(destfile, header = FALSE)
 		names(acute_inflammation) <- c("Patient_Temperature", "Nausea", "Lumbar_Pain", "Urine_Pushing", "Micturition_Pains", "Urethra_Burning_Itching", "Bladder_Inflammation", "Pelvic_Nephritis")
 		return(acute_inflammation)
