@@ -1,0 +1,21 @@
+name: religious_texts
+type: classification, clustering
+description: An exploration of commonalities within Sacred Asian religious texts such as Tao Te Ching, the Four Noble Truths of Buddhism, Yogasutra, Upanishad, and Biblical texts including the Book of Proverbs, the Book of Ecclesiastes, the Book of Ecclesiasticus, and the Book of Wisdom. Utilized to investigate similararities of lessons taught in each religion according to each respective texts, as well as to predict where an exerpt of sacred literature comes from.
+source: https://archive.ics.uci.edu/ml/datasets/A+study+of++Asian+Religious+and+Biblical+Texts#
+reference: Preeti Sah, College of Computing and Information Sciences, Rochester Institute of Technology, Rochester, NY 14623, ks3911@rit.edu; Ernest Fokoue, School of Mathematical Sciences, Rochester Institute of Technology,Rochester, NY 14623, epfeqa@rit.edu
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00512/AsianReligionsData.zip
+data: function ()
+	{
+	    data_file_name = "Complete_data .txt"
+	    destfile <- tempfile()
+	    temp_dir = tempdir()
+	    absolute_path_data_file_name = paste(temp_dir, "/", data_file_name,
+	        sep = "")
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00512/AsianReligionsData.zip",
+	        destfile)
+	    unzip(destfile, files = data_file_name, exdir = temp_dir)
+	    df <- read.table(absolute_path_data_file_name, header = TRUE)
+	    return(df)
+	}
+model:
+note:
