@@ -1,0 +1,15 @@
+name: pysch_copay
+type: regression
+description: Copay modes for established patients in US zip codes
+source: https://data.cms.gov/provider-data/dataset/057a-5bcf
+reference: [TBD APA Reference]
+url: https://data.cms.gov/provider-data/sites/default/files/resources/fc2d959e5f37a15379a86cfc87332296_1657569974/Psychiatry.csv
+data: function () 
+	{
+	    destfile <- tempfile()
+	    download.file("https://data.cms.gov/provider-data/sites/default/files/resources/fc2d959e5f37a15379a86cfc87332296_1657569974/Psychiatry.csv", destfile)
+	    df <- read.csv(destfile, header = TRUE)
+	    return(df)
+	}
+model: mode_copay_for_established_patient ~.
+note: There are also copay modes for other patient types: new; medicare.
