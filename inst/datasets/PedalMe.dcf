@@ -1,0 +1,15 @@
+name: PedalMe
+type: regression
+description: A dataset about the number of weekly bicycle package deliveries by Pedal Me in London during 2020 and 2021.
+source: https://archive.ics.uci.edu/ml/datasets/Pedal+Me+Bicycle+Deliveries
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00613/pedalme_.zip
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00613/pedalme_.zip",destfile)
+		df <-  read.csv(unz(destfile, "pedalme_features.csv"))
+	    return(df)
+	}
+model: X ~ .
+note:

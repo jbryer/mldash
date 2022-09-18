@@ -1,0 +1,18 @@
+name: air
+type: timeseries
+description: Contains the responses of a gas multisensor device deployed on the field in an Italian city. Hourly responses averages are recorded along with gas concentrations references from a certified analyzer.
+source: https://archive.ics.uci.edu/ml/datasets/Air+Quality
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip",destfile)
+		df <-  read.csv(unz(destfile, "AirQualityUCI.csv"), sep = ";" ,header = TRUE)
+		df$ds <- as.POSIXlt(paste(df$Date, df$Time), format = "%m/%d/%Y%H.%M.%S")
+		df$y <- as.numeric(df$CO.GT.)
+		df <- df %>% drop_na(c(ds,y))
+	    return(df)
+	}
+model: ds ~ .
+note:

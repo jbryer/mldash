@@ -1,0 +1,22 @@
+name: amazon
+type: timeseries
+description: Amazon's InfoSec is getting smarter about the way Access data is leveraged. This is an anonymized sample of access provisioned within the company.
+source: https://archive.ics.uci.edu/ml/datasets/Amazon+Access+Samples
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00216/
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00216/amzn-anon-access-samples.tgz", destfile)
+		df <- read_csv(archive_read(destfile, file = 'amzn-anon-access-samples-history-2.0.csv'))
+		df$REQUEST_DATE <- as.Date(df$REQUEST_DATE)
+		df$AUTHORIZATION_DATE <- as.Date(df$AUTHORIZATION_DATE)
+		df <- df %>% rename(
+		    ds = REQUEST_DATE,
+		    y = LOGIN
+		)
+		df <- df %>% drop_na(c(ds,y))
+	    return(df)
+	}
+model: ds ~ .
+note:

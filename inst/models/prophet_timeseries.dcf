@@ -1,0 +1,12 @@
+name: prophet_timeseries
+type: timeseries
+description: Prophet is a forecasting procedure implemented in R and Python.
+train: function(formula, data) {
+	model <- prophet(data)
+	future <- make_future_dataframe(model, periods = 365)
+	}
+predict: function(model, newdata) {
+		forecast <- predict(model, newdata)
+	}
+notes: More information here: https://facebook.github.io/prophet/
+packages: prophet

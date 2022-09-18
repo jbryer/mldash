@@ -1,0 +1,18 @@
+name: wine
+type: classification
+description: The analysis determined the quantities of 13 constituents found in each of the three types of wines.
+source: https://archive.ics.uci.edu/ml/datasets/Wine
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data", destfile)
+		df <- read.csv(destfile, header = FALSE)
+		names(df) <- c('Class','Alcohol','Malic acid','Ash','Alcalinity of ash','Magnesium',
+		'Total phenols','Flavanoids','Nonflavanoid phenols','Proanthocyanins'
+		,'Color intensity','Hue','OD280/OD315 of diluted wines','Proline')
+	    return(df)
+	}
+model: Class ~ .
+note:
