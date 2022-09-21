@@ -1,0 +1,17 @@
+name: credit_card_app
+type: classification
+description: This data concerns credit card applications; good mix of attributes.
+source: https://archive-beta.ics.uci.edu/ml/datasets/credit+approval
+reference: [TBD APA reference for the dataset]
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data
+data: function () 
+	{
+	    destfile <- tempfile()
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data",
+	        destfile)
+	    df <- read.csv(destfile, header=FALSE)
+	    names(df) <- c('A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15','A16')
+	    return(df)
+	}
+model: A16 ~ .
+note: All attribute names and values have been changed to meaningless symbols to protect confidentiality of the data.
