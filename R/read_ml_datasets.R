@@ -68,6 +68,7 @@ read_ml_datasets <- function(
 		cache_file = paste0(cache_dir, '/', basename(datafiles) |> tools::file_path_sans_ext(), '.rds'),
 		type = NA_character_,
 		description = NA_character_,
+		packages = NA_character_,
 		source = NA_character_,
 		reference = NA_character_,
 		url = NA_character_,
@@ -122,10 +123,30 @@ read_ml_datasets <- function(
 		ml_datasets[i,]$nrow <- nrow(thedata)
 		ml_datasets[i,]$ncol <- ncol(thedata)
 
+		# Add values to the data.frame if they exist in the dcf file
 		for(j in names(ml_datasets)) {
 			if(j %in% names(tmp)) {
 				ml_datasets[i,j] <- tmp[1,j]
 			}
+		}
+	}
+
+	pkgs <- ml_models[!is.na(ml_models$packages),]$packages |>
+		strsplit(',') |>
+		unlist() |>
+		trimws() |>
+		unique()
+
+	not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
+	if(length(not_installed) > 0) {
+		msg <- paste0('The following package',
+					  ifelse(length(not_installed) > 1, 's are', 'is'),
+					  ' not installed but required by the models: ',
+					  paste0(not_installed, collapse = ', '),
+					  '\nDo you want to install these packages?')
+		ans <- utils::menu(c('Yes', 'No'), title = msg)
+		if(ans == 1) {
+			install.packages(not_installed)
 		}
 	}
 

@@ -9,6 +9,15 @@ devtools::install()
 devtools::build()
 devtools::check()
 
+
+# Test core functions
+ml_datasets <- mldash::read_ml_datasets()
+ml_models <- mldash::read_ml_models()
+ml_results <- mldash::run_models(datasets = ml_datasets,
+								 models = ml_models,
+								 print_errors = FALSE,
+								 seed = 1234)
+
 # TODO: Allow for sourcing of data files.
 
 # Added package dependencies
@@ -16,8 +25,7 @@ usethis::use_package('reticulate', type = "Imports")
 usethis::use_package('RWeka', type = "Imports")
 usethis::use_package('shinyWidgets', type = "Imports")
 
-ml_models <- mldash::read_ml_models(dir = 'inst/models',
-									pattern = model_pattern)
+ml_models <- mldash::read_ml_models(dir = 'inst/models')
 
 # Add the packages defined in the model files to the Suggests field
 pkgs <- ml_models[!is.na(ml_models$packages),]$packages |>

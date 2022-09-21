@@ -83,7 +83,6 @@ read_ml_models <- function(
 		trimws() |>
 		unique()
 
-
 	not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
 	if(length(not_installed) > 0) {
 		msg <- paste0('The following package',

@@ -12,4 +12,5 @@ data: function() {
 		return(abalone)
 	}
 model: rings ~ length + sex
+packages:
 notes:
