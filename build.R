@@ -5,7 +5,7 @@ usethis::use_tidy_description()
 usethis::use_spell_check()
 
 devtools::document()
-devtools::install()
+devtools::install(dependencies = FALSE) # Note, should set this to TRUE every so often
 devtools::build()
 devtools::check()
 
@@ -18,12 +18,28 @@ ml_results <- mldash::run_models(datasets = ml_datasets,
 								 print_errors = FALSE,
 								 seed = 1234)
 
+ml_datasets2 <- ml_datasets[13,]
+ml_results <- mldash::run_models(datasets = ml_datasets2,
+								 models = ml_models,
+								 print_errors = FALSE,
+								 seed = 1234)
+
+class(ml_results)
+ml_results_attributes <- attributes(ml_results)
+names(ml_results_attributes)
+errors <- attr(ml_results, 'errors')
+names(errors)
+errors[['titanic_tm_null_model_classification.dcf_accuracy']]
+warnings <- attr(ml_results, 'warnings')
+names(warnings)
+attr(ml_results, 'session_info')
+
 # TODO: Allow for sourcing of data files.
 
 # Added package dependencies
-usethis::use_package('reticulate', type = "Imports")
-usethis::use_package('RWeka', type = "Imports")
-usethis::use_package('shinyWidgets', type = "Imports")
+usethis::use_package('tidyr', type = "Imports")
+# usethis::use_package('RWeka', type = "Imports")
+# usethis::use_package('shinyWidgets', type = "Imports")
 
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
 

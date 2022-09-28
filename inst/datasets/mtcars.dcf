@@ -1,0 +1,14 @@
+name: mtcars
+type: regression
+description: Motor Trend Car Road Tests
+reference: Henderson and Velleman (1981), Building multiple regression models interactively. Biometrics, 37, 391–411.
+data: function() {
+		if(!require(datasets)) {
+			warning('datasets package cannot be loaded. Maybe try reinstalling.')
+		} else {
+			data(mtcars)
+			return(mtcars)
+		}
+	}
+model: mpg ~ .
+notes:

@@ -8,10 +8,10 @@ data: function ()
 	{
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz",destfile)
-		df <- read_csv(destfile)
+		df <- readr::read_csv(destfile)
 		df$ds <- df$date_time
 		df$y <- df$traffic_volume
-		df <- df %>% drop_na(c(ds,y))
+		df <- df |> tidyr::drop_na(c(ds,y))
 	    return(df)
 	}
 model: ds ~ .

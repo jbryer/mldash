@@ -25,6 +25,7 @@ Imports:
     shiny,
     shinyBS,
     shinyWidgets,
+    tidyr,
     yardstick
 Suggests: 
     baguette,

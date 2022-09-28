@@ -8,15 +8,16 @@ data: function ()
 	{
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00216/amzn-anon-access-samples.tgz", destfile)
-		df <- read_csv(archive_read(destfile, file = 'amzn-anon-access-samples-history-2.0.csv'))
+		df <- readr::read_csv(archive::archive_read(destfile, file = 'amzn-anon-access-samples-history-2.0.csv'))
 		df$REQUEST_DATE <- as.Date(df$REQUEST_DATE)
 		df$AUTHORIZATION_DATE <- as.Date(df$AUTHORIZATION_DATE)
-		df <- df %>% rename(
+		df <- df |> dplyr::rename(
 		    ds = REQUEST_DATE,
 		    y = LOGIN
 		)
-		df <- df %>% drop_na(c(ds,y))
+		df <- df |> tidyr::drop_na(c(ds,y))
 	    return(df)
 	}
 model: ds ~ .
 note:
+packages: archive

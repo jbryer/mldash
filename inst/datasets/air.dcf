@@ -11,8 +11,9 @@ data: function ()
 		df <-  read.csv(unz(destfile, "AirQualityUCI.csv"), sep = ";" ,header = TRUE)
 		df$ds <- as.POSIXlt(paste(df$Date, df$Time), format = "%m/%d/%Y%H.%M.%S")
 		df$y <- as.numeric(df$CO.GT.)
-		df <- df %>% drop_na(c(ds,y))
+		df <- df |> tidyr::drop_na(c(ds,y))
 	    return(df)
 	}
 model: ds ~ .
 note:
+packages: tidyr
