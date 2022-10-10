@@ -128,9 +128,11 @@ read_ml_datasets <- function(
 				eval(parse(text = paste0('getdata <- ', tmp[1,]$data)))
 				thedata <- getdata()
 				formu <- as.formula(tmp[1,]$model)
-				if(!all(complete.cases(get_all_vars(formula = formu, data = thedata)))) {
+				all_vars <- get_all_vars(formula = formu, data = thedata)
+				if(!all(complete.cases(all_vars))) {
+					missing <- paste(colnames(all_vars)[as.data.frame(which(is.na(all_vars), arr.ind=TRUE))$col %>% unique()], collapse = ", " )
 					warning(paste0('Missing data found in ', ml_datasets[i,]$name,
-								   '. It is recommend that missing data be handled in the data file.'))
+                                                       ". It is recommend that missing data be handled in the data file.\n  Columns with missing data: ", missing))
 				}
 				if(use_cache) {
 					saveRDS(thedata, file = datafile)
