@@ -35,19 +35,24 @@ run_models <- function(
 		# 	'roc_auc' = yardstick::roc_auc
 		# )
 ) {
-        # Confirm the JAVA_HOME and RETICULATE (python) environment variables
+
+	# Confirm the JAVA_HOME and RETICULATE (python) environment variables
 	# are defined. Otherwise, some models won't run.
-	tryCatch({
-		if (Sys.getenv("JAVA_HOME") == "") {
-			stop("Environment variable JAVA_HOME must be defined")
+	if(Sys.getenv("JAVA_HOME") == "") {
+		msg <- paste0('JAVA_HOME is not set. Some models may not run. Do you wish to continue?')
+		ans <- menu(c('Yes', 'No'), title = msg)
+		if(ans == 2) {
+			return()
 		}
-		if (Sys.getenv("RETICULATE_PYTHON") == "") {
-			stop("Environment variable RETICULATE_PYTHON must be defined")
+	}
+	if(Sys.getenv("RETICULATE_PYTHON") == "") {
+		stop("Environment variable RETICULATE_PYTHON must be defined")
+		msg <- paste0('Environment variable RETICULATE_PYTHON must be defined. Some models may not run. Do you wish to continue?')
+		ans <- menu(c('Yes', 'No'), title = msg)
+		if(ans == 2) {
+			return()
 		}
-	}, error = function(e) {
-		print(e)
-		return
-	})
+	}
 
 	start_time <- Sys.time()
 
