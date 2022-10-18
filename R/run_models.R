@@ -25,15 +25,6 @@ run_models <- function(
 		save_trained_models = FALSE,
 		print_errors = FALSE,
 		metrics = mldash::get_all_metrics()
-		# metrics = list(
-		# 	'r_squared' = yardstick::rsq,
-		# 	'rmse' = yardstick::rmse,
-		# 	'accuracy' = yardstick::accuracy,
-		# 	'kappa' = yardstick::kap,
-		# 	'sensitivity' = yardstick::sensitivity,
-		# 	'specificity' = yardstick::specificity,
-		# 	'roc_auc' = yardstick::roc_auc
-		# )
 ) {
 
 	# Confirm the JAVA_HOME and RETICULATE (python) environment variables
@@ -63,6 +54,9 @@ run_models <- function(
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
 	class_metrics <- metrics[metric_types == 'class_metric']
 	class_probability_metrics <- metrics[metric_types == 'prob_metric']
+	timeseries_metrics <- list(numeric_metrics
+							   # Add additional metrics here specific for timeseries
+							   )
 
 	ml_summary <- data.frame(
 		dataset = character(),
@@ -107,10 +101,18 @@ run_models <- function(
 			thedata[, y_var] <- as.factor(thedata[, y_var])
 		}
 
-		training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
-		train_data <- thedata[training_rows,]
-		valid_data <- thedata[-training_rows,]
+		train_data <- NULL
+		valid_data <- NULL
 		data_models <- models[models$type == type,]
+		if(type == 'timeseries') {
+			# Different sampling procedure
+			# train_data <-
+			# valid_data <-
+		} else {
+			training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
+			train_data <- thedata[training_rows,]
+			valid_data <- thedata[-training_rows,]
+		}
 		for(m in seq_len(nrow(data_models))) {
 			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name, ' model...'))
 			modelname <- row.names(data_models)[m]
@@ -228,9 +230,6 @@ run_models <- function(
 							if(length(fun_out$warnings) > 0) {
 								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
 							}
-							# results[1,i] <- class_metrics[[i]](validate,
-							# 								   truth = truth,
-							# 								   estimate = estimate)[1,3]
 						}, error = function(e) {
 							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
 							if(print_errors) {
@@ -251,9 +250,28 @@ run_models <- function(
 							if(length(fun_out$warnings) > 0) {
 								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
 							}
-							# results[1,i] <- numeric_metrics[[i]](validate,
-							# 									 truth = truth,
-							# 									 estimate = estimate)[1,3]
+						}, error = function(e) {
+							# message(paste0('Error calculating ', i, ' metric.'))
+							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
+							if(print_errors) {
+								print(e)
+							}
+						})
+					}
+				} else if(type == 'timeseries') {
+					# TODO: David!
+					for(i in names(timeseries_metrics)) {
+						tryCatch({
+							quiet_metric_fun <- purrr::quietly(timeseries_metrics[[i]])
+							fun_out <- quiet_metric_fun(validate,
+														truth = truth,
+														estimate = estimate)
+							if(!is.null(fun_out$result[1,3])) {
+								results[1,i] <- fun_out$result[1,3]
+							}
+							if(length(fun_out$warnings) > 0) {
+								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							}
 						}, error = function(e) {
 							# message(paste0('Error calculating ', i, ' metric.'))
 							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
