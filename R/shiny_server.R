@@ -70,7 +70,7 @@ shiny_server <- function(input, output, session) {
 	##### Datasets #############################################################
 
 	get_dataset <- reactive({
-		ml_datasets %>% filter(name == input$dataset)
+		ml_datasets |> filter(name == input$dataset)
 	})
 
 	output$dataset <- DT::renderDataTable({
@@ -89,12 +89,12 @@ shiny_server <- function(input, output, session) {
 
 	get_model <- reactive({
 		req(input$model)
-		ml_models %>% filter(name == input$model)
+		ml_models |> filter(name == input$model)
 	})
 
 	output$test_data <- renderUI({
 		req(input$model_type)
-		datasets <- ml_datasets %>% filter(type == input$model_type)
+		datasets <- ml_datasets |> filter(type == input$model_type)
 		selectInput('test_dataset',
 					label = 'Test with dataset:',
 					choices = datasets$name)
