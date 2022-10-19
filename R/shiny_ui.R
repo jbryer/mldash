@@ -14,39 +14,22 @@ shiny_ui <- function() {
 
 		tabPanel(
 			'Overview',
-			sidebarLayout(
-				sidebarPanel(
-					width = 3,
-					selectInput('model_run',
-								'Model Run:',
-								choices = model_runs),
-					# uiOutput('mr_type'),
-					# uiOutput('mr_dataset'),
-					uiOutput('mr_metrics'),
-					# selectInput('model_type',
-					# 			'Model Type:',
-					# 			choices = c('classification', 'regression')),
-					# selectInput('dataset',
-					# 			'Dataset:',
-					# 			choices = ml_datasets$name),
-					# selectInput('model',
-					# 			'Model:',
-					# 			choices = ml_models$name),
-					helpText(" ")
+			wellPanel(
+				fluidRow(
+					column(6, selectInput('model_run',
+										  'Model Run:',
+										  choices = model_runs)),
+					column(6, uiOutput('mr_metrics'))
+				)
+			),
+			tabsetPanel(
+				tabPanel(
+					'Table',
+					DT::dataTableOutput('model_run_summary')
 				),
-
-				mainPanel(
-					width = 9,
-					tabsetPanel(
-						tabPanel(
-							'Table',
-							DT::dataTableOutput('model_run_summary')
-						),
-						tabPanel(
-							'Session Info',
-							verbatimTextOutput('model_run_session_info')
-						)
-					)
+				tabPanel(
+					'Session Info',
+					verbatimTextOutput('model_run_session_info')
 				)
 			)
 		),

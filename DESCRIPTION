@@ -1,10 +1,9 @@
 Package: mldash
 Title: Evaluating Machine Learning Models Across Many Datasets
 Version: 0.1.0
-Authors@R: c(
+Authors@R: 
     person("Jason", "Bryer", , "jason@bryer.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2454-0402"))
-  )
 Maintainer: Jason Bryer <jason@bryer.org>
 Description: Framework for evaluating predictive models across many
     datasets. Datasets and models are defined in debian control files.

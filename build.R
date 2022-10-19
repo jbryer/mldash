@@ -18,9 +18,10 @@ ml_results <- mldash::run_models(datasets = ml_datasets,
 								 print_errors = FALSE,
 								 seed = 1234)
 
-ml_datasets2 <- ml_datasets[13,]
+ml_datasets2 <- ml_datasets |> dplyr::filter(name == 'titanic')
+ml_models2 <- ml_models |> dplyr::filter(name == 'logistic')
 ml_results <- mldash::run_models(datasets = ml_datasets2,
-								 models = ml_models,
+								 models = ml_models2,
 								 print_errors = FALSE,
 								 seed = 1234)
 
