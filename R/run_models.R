@@ -54,9 +54,7 @@ run_models <- function(
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
 	class_metrics <- metrics[metric_types == 'class_metric']
 	class_probability_metrics <- metrics[metric_types == 'prob_metric']
-	timeseries_metrics <- list(numeric_metrics
-							   # Add additional metrics here specific for timeseries
-							   )
+	timeseries_metrics <- numeric_metrics
 
 	ml_summary <- data.frame(
 		dataset = character(),
@@ -105,9 +103,14 @@ run_models <- function(
 		valid_data <- NULL
 		data_models <- models[models$type == type,]
 		if(type == 'timeseries') {
-			# Different sampling procedure
-			# train_data <-
-			# valid_data <-
+
+			data_n <- nrow(thedata)
+			train_n <- floor(nrow(thedata) *training_size)
+			valid_n <- data_n - train_n
+
+			train_data <- thedata |> dplyr::slice(1:train_n)
+			valid_data <- thedata |> dplyr::slice(train_n+1:data_n)
+
 		} else {
 			training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
 			train_data <- thedata[training_rows,]
@@ -176,12 +179,26 @@ run_models <- function(
 				}
 
 				y_var <- all.vars(formu)[1]
-				suppressWarnings({
-					validate <- data.frame(
-						estimate = predict_fun(train, valid_data),
-						truth = valid_data[,y_var,drop=TRUE]
-					)
-				})
+
+				if(type == 'timeseries') {
+					suppressWarnings({
+						validate <- data.frame(
+							estimate = predict_fun(train, valid_data) |> dplyr::slice(train_n+1:data_n),
+							truth = valid_data[,y_var,drop=TRUE]
+						)
+						validate <- validate |> dplyr::select('estimate.yhat','truth')
+						colnames(validate) <- c('estimate','truth')
+					})
+				} else {
+					suppressWarnings({
+						validate <- data.frame(
+							estimate = predict_fun(train, valid_data),
+							truth = valid_data[,y_var,drop=TRUE]
+						)
+					})
+				}
+
+
 
 				if(type == 'classification') {
 					results[1,]$base_accuracy <- max(prop.table(table(validate$truth)))
