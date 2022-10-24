@@ -16,6 +16,6 @@ data: function ()
 		df$y[df$y == -200] <- NA
 	    return(df)
 	}
-model: ds ~ .
+model: y ~ ds
 note:
 packages: tidyr,dplyr,lubridate
