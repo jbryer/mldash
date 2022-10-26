@@ -7,3 +7,8 @@ build.R
 data-raw/
 Articles/
 working/
+test_new_dataset.R
+test_new_model.R
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

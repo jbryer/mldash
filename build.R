@@ -9,6 +9,8 @@ devtools::install(dependencies = FALSE) # Note, should set this to TRUE every so
 devtools::build()
 devtools::check()
 
+usethis::use_pkgdown()
+pkgdown::build_site()
 
 # Test core functions
 ml_datasets <- mldash::read_ml_datasets()
@@ -17,6 +19,15 @@ ml_results <- mldash::run_models(datasets = ml_datasets,
 								 models = ml_models,
 								 print_errors = FALSE,
 								 seed = 1234)
+
+ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
+ml_models <- mldash::read_ml_models(dir = 'inst/models', pattern = 'prophet_timeseries.dcf')
+ml_results <- mldash::run_models(datasets = ml_datasets,
+								 models = ml_models)
+
+names(attributes(ml_results))
+ml_errors <- attr(ml_results, 'errors')
+ml_errors
 
 ml_datasets2 <- ml_datasets |> dplyr::filter(name == 'titanic')
 ml_models2 <- ml_models |> dplyr::filter(name == 'logistic')

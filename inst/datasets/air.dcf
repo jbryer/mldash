@@ -19,3 +19,4 @@ data: function ()
 model: y ~ ds
 note:
 packages: tidyr,dplyr,lubridate
+model_params: list(freq = 'hours')

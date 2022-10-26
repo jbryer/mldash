@@ -76,6 +76,7 @@ read_ml_datasets <- function(
 		note = NA_character_,
 		nrow = NA_integer_,
 		ncol = NA_integer_,
+		model_params = NA_character_,
 		stringsAsFactors = FALSE
 	)
 
