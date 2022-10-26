@@ -43,7 +43,7 @@ required_dataset_fields <- c('name', 'type', 'data', 'model')
 #' @importFrom tools file_path_sans_ext
 read_ml_datasets <- function(
 		dir = c(paste0(find.package('mldash'), '/datasets')),
-		cache_dir = tempdir(),
+		cache_dir = dir,
 		pattern = "*.dcf",
 		use_cache = TRUE
 ) {

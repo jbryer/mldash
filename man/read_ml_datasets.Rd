@@ -6,7 +6,7 @@
 \usage{
 read_ml_datasets(
   dir = c(paste0(find.package("mldash"), "/datasets")),
-  cache_dir = tempdir(),
+  cache_dir = dir,
   pattern = "*.dcf",
   use_cache = TRUE
 )
