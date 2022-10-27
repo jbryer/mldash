@@ -1,4 +1,4 @@
-name: Cervical Cancer
+name: cervical_cancer
 type: Classification, Clustering
 description: The dataset contains 19 attributes regarding ca cervix behavior risk with class label is ca_cervix with 1 and 0 as values which means the respondent with and without ca cervix, respectively. predictor for classifying suspicious firms.
 source: https://archive.ics.uci.edu/ml/datasets/Cervical+Cancer+Behavior+Risk#
@@ -6,12 +6,11 @@ reference:  Sobar, Machmud, R., & Wijaya, A. (2016). Behavior Determinant Based 
 url: https://archive.ics.uci.edu/ml/machine-learning-databases/00537/sobar-72.csv
 data: function ()
 	{
-destfile <- tempfile()
+		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00537/sobar-72.csv", destfile)
 		cervical.cancer <- read.csv(destfile, header = FALSE)
-		names(cervical.cancer) <- c('behavior_sexualRisk', behavior_eating', 'behavior_personalHygine', 'intention_aggregation', 'intention_commitment', 'attitude_consistency', 'attitude_spontaneity', 'norm_significantPerson', 'norm_fulfillment', 'perception_vulnerability', 'perception_severity', 'motivation_strength', 'motivation_willingness', 'socialSupport_emotionality', 'socialSupport_appreciation', 'socialSupport_instrumental', 'empowerment_knowledge', 'empowerment_abilities', 'empowerment_desires', 'ca_cervix')
+		names(cervical.cancer) <- c('behavior_sexualRisk', 'behavior_eating', 'behavior_personalHygine', 'intention_aggregation', 'intention_commitment', 'attitude_consistency', 'attitude_spontaneity', 'norm_significantPerson', 'norm_fulfillment', 'perception_vulnerability', 'perception_severity', 'motivation_strength', 'motivation_willingness', 'socialSupport_emotionality', 'socialSupport_appreciation', 'socialSupport_instrumental', 'empowerment_knowledge', 'empowerment_abilities', 'empowerment_desires', 'ca_cervix')
 		return(cervical.cancer)
 	}
-
 model: ca_cervix ~ .
 note:

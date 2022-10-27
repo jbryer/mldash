@@ -1,0 +1,35 @@
+name: adult
+type: Classification
+description: Predict whether income exceeds $50K/yr based on census data. Also known as "Census Income" dataset.
+source: https://archive.ics.uci.edu/ml/datasets/Adult
+reference: Ron Kohavi, "Scaling Up the Accuracy of Naive-Bayes Classifiers: a Decision-Tree Hybrid", Proceedings of the Second International Conference on Knowledge Discovery and Data Mining, 1996
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", destfile)
+		adult <- read.csv(destfile, header = FALSE)
+		names(adult) <- c('age', 'workclass', 'fnlwgt', 'education', 'education-num',
+			'marital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain',
+			'capital_loss', 'hours_per_week', 'native_country', 'income')
+		adult <- adult |>
+			dplyr::mutate(income_gt_50k = income == '>50K',
+						  workclass = factor(workclass),
+						  education = factor(education,
+						  				   levels = c('Preschool', '1st-4th', '5th-6th', '7th-8th',
+						  				   		   '9th', '10th', '11th', '12th',
+						  				   		   'HS-grad', 'Prof-school', 'Some-college',
+						  				   		   'Assoc-voc', 'Assoc-acdm', 'Bachelors', 'Masters', 'Doctorate'),
+						  				   ordered = TRUE),
+						  marital_status = factor(marital_status),
+						  occupation = factor(occupation),
+						  relationship = factor(relationship),
+						  race = factor(race),
+						  sex = factor(sex),
+						  native_country = factor(native_country)) |>
+			tidyr::drop_na()
+		return(adult)
+	}
+model: income_gt_50k ~ .
+note:
+packages: dplyr, tidyr

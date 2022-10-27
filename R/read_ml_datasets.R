@@ -84,7 +84,7 @@ read_ml_datasets <- function(
 		tmp <- as.data.frame(read.dcf(ml_datasets[i,]$file))
 
 		if(nrow(tmp) != 1) {
-			warning(paste0('Error reading ', i, '. Skipping.'))
+			warning(paste0('Error reading ', ml_datasets[i,]$file, '. Skipping.'))
 			next;
 		}
 		if(!all(required_dataset_fields %in% names(tmp))) {
@@ -122,9 +122,10 @@ read_ml_datasets <- function(
 		cache_info <- file.info(datafile)
 
 		if(file.exists(datafile) & use_cache & cache_info$mtime > file_info$mtime) {
-			message(paste0('Reading ', ml_datasets[i,]$name, ' from cache.'))
+			message(paste0('Reading ', ml_datasets[i,]$name, ' from cache...'))
 			thedata <- readRDS(datafile)
 		} else {
+			message(paste0('Downloading ', ml_datasets[i,]$name, '...'))
 			tryCatch({
 				eval(parse(text = paste0('getdata <- ', tmp[1,]$data)))
 				thedata <- getdata()
@@ -140,7 +141,7 @@ read_ml_datasets <- function(
 				}
 				rm(getdata)
 			}, error = function(e) {
-				warning(paste0('Error getting data from ', ml_datasets[i,]$name))
+				warning(paste0('Error getting data ', ml_datasets[i,]$name))
 				print(e)
 				next;
 			})
