@@ -211,9 +211,7 @@ run_models <- function(
 
 					suppressWarnings({
 						validate <- data.frame(
-							# estimate = predict_fun(train, valid_data) |> dplyr::slice(train_n+1:data_n),
-							estimate = do.call(predict_fun, args) |>
-								dplyr::slice(train_n+1:data_n),
+							estimate = do.call(predict_fun, args),
 							truth = valid_data[,y_var,drop=TRUE]
 						)
 						validate <- validate |> dplyr::select('estimate.yhat','truth')
