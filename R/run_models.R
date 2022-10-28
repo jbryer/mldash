@@ -29,14 +29,14 @@ run_models <- function(
 
 	# Confirm the JAVA_HOME and RETICULATE (python) environment variables
 	# are defined. Otherwise, some models won't run.
-	if(!check_java()) {
+	if(Sys.getenv("JAVA_HOME") == "") {
 		msg <- paste0('JAVA_HOME is not set. Some models may not run. Do you wish to continue?')
 		ans <- menu(c('Yes', 'No'), title = msg)
 		if(ans == 2) {
 			return()
 		}
 	}
-	if(!check_python()) {
+	if(Sys.getenv("RETICULATE_PYTHON") == "") {
 		stop("Environment variable RETICULATE_PYTHON must be defined")
 		msg <- paste0('Environment variable RETICULATE_PYTHON must be defined. Some models may not run. Do you wish to continue?')
 		ans <- menu(c('Yes', 'No'), title = msg)
@@ -214,8 +214,13 @@ run_models <- function(
 							estimate = do.call(predict_fun, args),
 							truth = valid_data[,y_var,drop=TRUE]
 						)
-						validate <- validate |> dplyr::select('estimate.yhat','truth')
-						colnames(validate) <- c('estimate','truth')
+						if ("estimate..mean" %in% colnames(validate)) {
+							validate <- validate |> dplyr::select('estimate..mean','truth')
+							colnames(validate) <- c('estimate','truth')
+						} else {
+							validate <- validate |> dplyr::select('estimate.yhat','truth')
+							colnames(validate) <- c('estimate','truth')
+						}
 					})
 				} else {
 					suppressWarnings({
