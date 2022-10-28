@@ -1,4 +1,4 @@
-name: Audit
+name: audit
 type: Classification
 description: Exhaustive one year non-confidential data in the year 2015 to 2016 of firms is collected from the Auditor Office of India to build a predictor for classifying suspicious firms.
 source: https://archive.ics.uci.edu/ml/datasets/Audit+Data#
@@ -7,13 +7,12 @@ url: https://archive.ics.uci.edu/ml/machine-learning-databases/00611/acceleromet
 data: function ()
 	{
 		destfile <- tempfile()
-		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00475/audit_data.zip")
-		df <- read.csv(unz(destfile,"audit_risk.csv"), sep = ";", header = TRUE)
-		df <- tidyr::drop_na(df)
-		df <- subset(df, select = -c(LOCATION_ID))
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00475/audit_data.zip", destfile)
+		df <- read.csv(unz(destfile,"audit_data/audit_risk.csv"), header = TRUE) |>
+			tidyr::drop_na() |>
+			subset(select = -c(LOCATION_ID))
 	    return(df)
 	}
-
 model: Risk ~ .
 note:
 packages: tidyr

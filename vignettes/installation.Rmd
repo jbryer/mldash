@@ -1,0 +1,50 @@
+---
+title: "Installation of System Requirements"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{installation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mldash)
+```
+
+
+# Introduction
+
+# Installing Python
+
+## System level installation
+
+### Windows
+
+```{bash, eval=FALSE}
+```
+
+```{python, eval=FALSE}
+```
+
+### Mac
+
+
+### Ubuntu
+
+
+## Using Reticulate
+
+
+# Installing Java
+
+
+
+
+

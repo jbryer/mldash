@@ -29,14 +29,14 @@ run_models <- function(
 
 	# Confirm the JAVA_HOME and RETICULATE (python) environment variables
 	# are defined. Otherwise, some models won't run.
-	if(Sys.getenv("JAVA_HOME") == "") {
+	if(!check_java()) {
 		msg <- paste0('JAVA_HOME is not set. Some models may not run. Do you wish to continue?')
 		ans <- menu(c('Yes', 'No'), title = msg)
 		if(ans == 2) {
 			return()
 		}
 	}
-	if(Sys.getenv("RETICULATE_PYTHON") == "") {
+	if(!check_python()) {
 		stop("Environment variable RETICULATE_PYTHON must be defined")
 		msg <- paste0('Environment variable RETICULATE_PYTHON must be defined. Some models may not run. Do you wish to continue?')
 		ans <- menu(c('Yes', 'No'), title = msg)
@@ -54,9 +54,7 @@ run_models <- function(
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
 	class_metrics <- metrics[metric_types == 'class_metric']
 	class_probability_metrics <- metrics[metric_types == 'prob_metric']
-	timeseries_metrics <- list(numeric_metrics
-							   # Add additional metrics here specific for timeseries
-							   )
+	timeseries_metrics <- numeric_metrics
 
 	ml_summary <- data.frame(
 		dataset = character(),
@@ -105,14 +103,25 @@ run_models <- function(
 		valid_data <- NULL
 		data_models <- models[models$type == type,]
 		if(type == 'timeseries') {
-			# Different sampling procedure
-			# train_data <-
-			# valid_data <-
+
+			data_n <- nrow(thedata)
+			train_n <- floor(nrow(thedata) *training_size)
+			valid_n <- data_n - train_n
+
+			train_data <- thedata |> dplyr::slice(1:train_n)
+			valid_data <- thedata |> dplyr::slice(train_n+1:data_n)
+
 		} else {
 			training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
 			train_data <- thedata[training_rows,]
 			valid_data <- thedata[-training_rows,]
 		}
+
+		model_args <- NULL
+		if(!is.na(datasets[d,]$model_params)) {
+			model_args <- eval(parse(text = datasets[d,]$model_params))
+		}
+
 		for(m in seq_len(nrow(data_models))) {
 			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name, ' model...'))
 			modelname <- row.names(data_models)[m]
@@ -145,7 +154,18 @@ run_models <- function(
 					tryCatch({
 						quiet_train_fun <- purrr::quietly(train_fun)
 						py_output <- reticulate::py_capture_output({
-							output <- quiet_train_fun(formu, train_data)
+							args <- list(
+								formula = formu,
+								data = train_data
+							)
+							if(!is.null(model_args)) {
+								for(i in seq_len(length(model_args))) {
+									args[[names(model_args)[i]]] <- model_args[[i]]
+								}
+							}
+							# output <- quiet_train_fun(formu, train_data)
+							# TODO: Should check to make sure the function can take the parameters
+							output <- do.call(quiet_train_fun, args)
 						})
 						train <- output$result
 						results[1,]$train_output <- ifelse(length(output$output) > 0,
@@ -176,12 +196,36 @@ run_models <- function(
 				}
 
 				y_var <- all.vars(formu)[1]
-				suppressWarnings({
-					validate <- data.frame(
-						estimate = predict_fun(train, valid_data),
-						truth = valid_data[,y_var,drop=TRUE]
-					)
-				})
+
+				args <- list(
+					model = train,
+					newdata = valid_data
+				)
+				if(!is.null(model_args)) {
+					for(i in seq_len(length(model_args))) {
+						args[[names(model_args)[i]]] <- model_args[[i]]
+					}
+				}
+
+				if(type == 'timeseries') {
+
+					suppressWarnings({
+						validate <- data.frame(
+							estimate = do.call(predict_fun, args),
+							truth = valid_data[,y_var,drop=TRUE]
+						)
+						validate <- validate |> dplyr::select('estimate.yhat','truth')
+						colnames(validate) <- c('estimate','truth')
+					})
+				} else {
+					suppressWarnings({
+						validate <- data.frame(
+							# estimate = predict_fun(train, valid_data),
+							estimate = do.call(predict_fun, args),
+							truth = valid_data[,y_var,drop=TRUE]
+						)
+					})
+				}
 
 				if(type == 'classification') {
 					results[1,]$base_accuracy <- max(prop.table(table(validate$truth)))
@@ -191,6 +235,7 @@ run_models <- function(
 					for(i in names(class_probability_metrics)) {
 						tryCatch({
 							quiet_metric_fun <- purrr::quietly(class_probability_metrics[[i]])
+
 							fun_out <- quiet_metric_fun(validate,
 														truth = truth,
 														estimate = estimate)

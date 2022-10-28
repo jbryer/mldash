@@ -8,11 +8,14 @@ data: function ()
 	{
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz",destfile)
-		df <- readr::read_csv(destfile)
+		df <- readr::read_csv(destfile, show_col_types = FALSE)
 		df$ds <- df$date_time
 		df$y <- df$traffic_volume
 		df <- df |> tidyr::drop_na(c(ds,y))
-	    return(df)
+		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2018-07-01"))
+		return(df)
 	}
-model: ds ~ .
+model: y ~ ds
 note:
+packages: tidyr,dplyr,lubridate
+model_params: list(freq = 'hours')

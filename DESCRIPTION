@@ -1,9 +1,11 @@
 Package: mldash
 Title: Evaluating Machine Learning Models Across Many Datasets
 Version: 0.1.0
-Authors@R: 
+Authors@R: c(
     person("Jason", "Bryer", , "jason@bryer.org", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-2454-0402"))
+           comment = c(ORCID = "0000-0002-2454-0402")),
+    person("Angela", "Lui", , "angela.lui@cuny.edu", role = c("ctb"))
+    )
 Maintainer: Jason Bryer <jason@bryer.org>
 Description: Framework for evaluating predictive models across many
     datasets. Datasets and models are defined in debian control files.
@@ -49,9 +51,11 @@ Suggests:
     sparsediscrim,
     spelling,
     stats,
+    testthat (>= 3.0.0),
     xgboost
 VignetteBuilder: 
     knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)

@@ -4,7 +4,7 @@
 \alias{get_all_metrics}
 \title{Returns all metrics from the \code{yardstick} package.}
 \usage{
-get_all_metrics()
+get_all_metrics(include_multiclass = FALSE)
 }
 \value{
 a list with all the metric functions from the \code{yardstick} package.

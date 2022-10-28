@@ -19,5 +19,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Jason Bryer \email{jason@bryer.org} (\href{https://orcid.org/0000-0002-2454-0402}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Angela Lui \email{angela.lui@cuny.edu} [contributor]
+}
+
 }
 \keyword{internal}
