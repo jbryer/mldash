@@ -1,0 +1,15 @@
+name: fable_tslm_timeseries
+type: timeseries
+description: The R package fable provides a collection of commonly used univariate and multivariate time series forecasting models.
+train: function(formula, data, ...) {
+		tb <- data |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		tb |> fabletools::model(tslm = fable::TSLM(y))
+	}
+predict: function(model, newdata, ...) {
+		tb <- newdata |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		fabletools::forecast(model, new_data = tb)
+	}
+notes: More information here: https://fable.tidyverts.org/
+packages: dplyr,tsibble,fable,fabletools
