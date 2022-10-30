@@ -21,6 +21,37 @@ library(mldash)
 
 # Introduction
 
+Configuring a workstation to run mldash requires installing and supporting a few major components: R; Python; Java. Of course, R runs mldash and many R-native models. However, mldash will also run Python & Java models so this guide will give steps on how to building a working environment.
+
+Depending on your particular operating system, you can use various system tools, package managers to ease the installation process.
+
+At the end of this guide, you should have a workstation meets the following goals:
+ * Runs R and R Studio
+ * Has all the required R library dependencies installed
+ * R pointing to a working Python installation
+ * R pointing to a working Java 8 installation
+
+# Installing R & RStudio
+
+Aside from R and RStudio, you'll need to install many model dependencies.
+
+### M1 Mac
+
+### Red Hat Linux
+[ install.packages(c("baguette","libcoin","earth","dbarts","xgboost","forecast","modeltime","glmnet","brulee","fastDummies","kknn","plsmod"))
+
+install.packages(c("BiocManager"),type="binary")
+
+install.packages(c("poissonreg","pscl","ranger","kernlab","mda","discrim","sda","sparsediscrim","klaR","LiblineaR","naivebayes","rules","MASS","baguette"),type="binary")
+
+,"dbarts","discrim","earth","fastDummies","glmnet","keras","kernlab","kknn","klaR","mda","mgcv","mixOmics","naivebayes","nnet","parsnip",
+"plsmod","poissonreg","randomForest","ranger","rpart","rstanarm","rules","sda","sparsediscrim","stats","xgboost","xrf"),type="binary")
+]
+
+
+### Windows
+
+
 # Installing Python
 
 ## System level installation
@@ -35,16 +66,24 @@ library(mldash)
 
 ### Mac
 
+[M1 - Install Mambaforge from https://mamba.readthedocs.io/]
+
 
 ### Ubuntu
 
+### Red Hat Linux
+[Install from https://conda-forge.org]
 
 ## Using Reticulate
 
 
 # Installing Java
 
+### M1 Mac
+[install Azul j8 jdk]
 
+### Red Hat Linux
+[sudo yum install -y java-1.8.0-openjdk]
 
 
 
