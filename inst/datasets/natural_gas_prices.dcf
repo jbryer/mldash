@@ -1,0 +1,24 @@
+name: natural_gas_prices
+type: timeseries
+description: Time series of major Natural Gas Prices including US Henry Hub. Data comes from U.S. Energy Information Administration EIA.
+source: https://datahub.io/core/natural-gas#data
+reference: APA reference for the dataset.
+url: https://datahub.io/core/natural-gas/r/daily.csv
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://datahub.io/core/natural-gas/r/daily.csv",destfile)
+		df <-  readr::read_csv(destfile)
+		df$ds <- df$Date
+		df$y <- df$Price
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2016-05-01"))
+		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		df <- data.frame(tb)
+		return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr,readr
+model_params: list(freq = 'day')
