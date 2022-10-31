@@ -21,4 +21,4 @@ data: function ()
 	    return(df)
 	}
 model: cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered
-note:
+note: [tbd]
