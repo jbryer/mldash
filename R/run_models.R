@@ -214,8 +214,13 @@ run_models <- function(
 							estimate = do.call(predict_fun, args),
 							truth = valid_data[,y_var,drop=TRUE]
 						)
-						validate <- validate |> dplyr::select('estimate.yhat','truth')
-						colnames(validate) <- c('estimate','truth')
+						if ("estimate..mean" %in% colnames(validate)) {
+							validate <- validate |> dplyr::select('estimate..mean','truth')
+							colnames(validate) <- c('estimate','truth')
+						} else {
+							validate <- validate |> dplyr::select('estimate.yhat','truth')
+							colnames(validate) <- c('estimate','truth')
+						}
 					})
 				} else {
 					suppressWarnings({

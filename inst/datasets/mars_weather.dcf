@@ -1,0 +1,24 @@
+name: mars_weather
+type: timeseries
+description: Mars Weather
+source: https://www.openml.org/data/download/22102625/dataset
+reference: APA reference for the dataset.
+url: https://www.openml.org/data/download/22102625/dataset
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://raw.githubusercontent.com/the-pudding/data/master/mars-weather/mars-weather.csv",destfile)
+		df <-  readr::read_csv(destfile)
+		df$ds <- df$terrestrial_date
+		df$y <- df$max_temp
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds))
+		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		df <- data.frame(tb)
+	    return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr,lubridate
+model_params: list(freq = 'day')

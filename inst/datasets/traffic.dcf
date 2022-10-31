@@ -11,8 +11,8 @@ data: function ()
 		df <- readr::read_csv(destfile, show_col_types = FALSE)
 		df$ds <- df$date_time
 		df$y <- df$traffic_volume
-		df <- df |> tidyr::drop_na(c(ds,y))
-		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2018-07-01"))
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2018-08-01"))
 		return(df)
 	}
 model: y ~ ds

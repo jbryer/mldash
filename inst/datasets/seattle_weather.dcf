@@ -1,0 +1,24 @@
+name: seattle_weather
+type: timeseries
+description: Seattle Weather
+source: https://github.com/vega/vega/blob/main/docs/data/seattle-weather.csv
+reference: APA reference for the dataset.
+url: https://raw.githubusercontent.com/vega/vega/main/docs/data/seattle-weather.csvt
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://raw.githubusercontent.com/vega/vega/main/docs/data/seattle-weather.csv",destfile)
+		df <-  readr::read_csv(destfile)
+		df$ds <- df$date
+		df$y <- df$temp_max
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds))
+		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		df <- data.frame(tb)
+	    return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr,lubridate
+model_params: list(freq = 'day')

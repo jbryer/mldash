@@ -1,0 +1,26 @@
+name: sales
+type: timeseries
+description: This is a transnational data set which contains all the transactions for a UK-based online retail.
+source: https://archive.ics.uci.edu/ml/datasets/Online+Retail
+reference: APA reference for the dataset.
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file('https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx',destfile)
+		df <- readxl::read_excel(destfile)
+		df <- df |> timetk::summarise_by_time(.date_var = InvoiceDate,.by = "hour",value = sum(Quantity*UnitPrice))
+		df$ds <- df$InvoiceDate
+		df$y <- df$value
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds))
+		df <- df |> dplyr::filter(ds > as.Date("2011-10-01"))
+		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = 0L)
+		df <- data.frame(tb)
+		return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr,readxl,timetk
+model_params: list(freq = 'hours')
