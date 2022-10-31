@@ -159,7 +159,6 @@ adult_data <- mldash::new_dataset(
 	type = 'classification',
 	description = 'Prediction task is to determine whether a person makes over 50K a year.',
 	source = 'https://archive.ics.uci.edu/ml/datasets/Adult',
-	url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data',
 	dir = 'inst/datasets',
 	data = function() {
 		destfile <- tempfile()
@@ -184,7 +183,6 @@ type: classification
 description: Prediction task is to determine whether a person makes over 50K a year.
 source: https://archive.ics.uci.edu/ml/datasets/Adult
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
 data: function () 
 	{
 	    destfile <- tempfile()

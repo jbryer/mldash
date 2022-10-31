@@ -3,7 +3,6 @@ type: classification
 description: The original Titanic dataset, describing the survival status of individual passengers on the Titanic.
 source: https://www.openml.org/search?type=data&sort=runs&id=40945&status=active
 reference: Harrell, F.E., & Cason, T. (2017). Titanic Dataset.
-url: https://www.openml.org/data/download/16826755/phpMYEkMl
 data: function() {
 		destfile <- tempfile()
 		download.file("https://www.openml.org/data/download/16826755/phpMYEkMl", destfile)

@@ -3,7 +3,6 @@ type: classification
 description: The analysis determined the quantities of 13 constituents found in each of the three types of wines.
 source: https://archive.ics.uci.edu/ml/datasets/Wine
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
 data: function ()
 	{
 		destfile <- tempfile()

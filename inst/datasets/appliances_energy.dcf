@@ -3,7 +3,6 @@ type: timeseries
 description: Experimental data used to create regression models of appliances energy use in a low energy building.
 source: https://archive.ics.uci.edu/ml/datasets/Appliances+energy+prediction
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/00374/energydata_complete.csv
 data: function ()
 	{
 		destfile <- tempfile()

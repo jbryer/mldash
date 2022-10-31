@@ -3,7 +3,6 @@ type: regression
 description: Predicting the age of abalone from physical measurements.
 source: https://archive.ics.uci.edu/ml/datasets/Abalone
 reference: Nash, Warwick J. & Tasmania. Marine Research Laboratories. (1994). The Population biology of abalone (Haliotis species) in Tasmania. Hobart: Sea Fisheries Division, Dept. of Primary Industry and Fisheries, Tasmania
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data
 data: function() {
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data", destfile)

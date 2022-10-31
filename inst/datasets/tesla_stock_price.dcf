@@ -3,7 +3,6 @@ type: timeseries
 description: Standard and Poor's (S&P) 500 Index Data including Dividend, Earnings and P/E Ratio.
 source: https://github.com/plotly
 reference: APA reference for the dataset.
-url: https://github.com/plotly/datasets/blob/master/tesla-stock-price.csv
 data: function ()
 	{
 		destfile <- tempfile()

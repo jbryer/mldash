@@ -3,7 +3,6 @@ type: timeseries
 description: This is a transnational data set which contains all the transactions for a UK-based online retail.
 source: https://archive.ics.uci.edu/ml/datasets/Online+Retail
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx
 data: function ()
 	{
 		destfile <- tempfile()

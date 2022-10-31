@@ -3,7 +3,6 @@ type: timeseries
 description: Mars Weather
 source: https://www.openml.org/data/download/22102625/dataset
 reference: APA reference for the dataset.
-url: https://www.openml.org/data/download/22102625/dataset
 data: function ()
 	{
 		destfile <- tempfile()

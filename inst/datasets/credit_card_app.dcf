@@ -3,8 +3,7 @@ type: classification
 description: This data concerns credit card applications; good mix of attributes.
 source: https://archive-beta.ics.uci.edu/ml/datasets/credit+approval
 reference: [TBD APA reference for the dataset]
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data
-data: function () 
+data: function ()
 	{
 	    destfile <- tempfile()
 	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data",

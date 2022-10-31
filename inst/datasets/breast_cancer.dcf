@@ -3,7 +3,6 @@ type: classification
 description: Predict malignant or benign for in breast cancer patients
 source: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data
 data: function ()
 	{
 	    destfile <- tempfile()

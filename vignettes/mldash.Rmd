@@ -1,8 +1,33 @@
 ---
-title: "Framework for Evaluating the Performance of Predictive Models"
-output: rmarkdown::html_vignette
+title: "Framework for Benchmarking Predictive Models"
+date: "`r Sys.Date()`"
+abstract: "Amazing work and fantastic findings."
+resource_files:
+ - josh-latex-pan-temp.latex
+ - josh-references.bib
+output:
+ pdf_document:
+ toc: true
+ toc_depth: 3
+ fig_crop: no
+ template: josh-latex-pan-temp.latex
+ citation_package: biblatex
+ number_sections: true
+pkgdown:
+ as_is: false
+fontsize: 11pt
+geometry: = 2in
+biblio-title: "References"
+bibfile: references.bib
+
+# Custom YAML Pandoc Variables
+line-numbers: true
+list-tables: true
+list-figures: true
+
+# Package indexing
 vignette: >
-  %\VignetteIndexEntry{Framework for Evaluating the Performance of Predictive Models}
+  %\VignetteIndexEntry{Framework for Benchmarking Predictive Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +39,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
 ```{r setup}
 library(mldash)
 ```
+
+
+

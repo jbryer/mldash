@@ -3,7 +3,6 @@ type: timeseries
 description: Contains the responses of a gas multisensor device deployed on the field in an Italian city. Hourly responses averages are recorded along with gas concentrations references from a certified analyzer.
 source: https://archive.ics.uci.edu/ml/datasets/Air+Quality
 reference: APA reference for the dataset.
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/00360/
 data: function ()
 	{
 		destfile <- tempfile()

@@ -3,8 +3,6 @@ type: classification
 description: The data was created by a medical expert as a data set to test the expert system, which will perform the presumptive diagnosis of two diseases of the urinary system.
 source: https://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 reference: Jacek Czerniak, Ph.D., Assistant Professor, Systems Research Institute, Polish Academy of Sciences, Laboratory of Intelligent Systems, ul. Newelska 6, Room 218, 01-447 Warszawa, Poland,
-e-mail: jacek.czerniak '@' ibspan.waw.pl or jczerniak '@' ukw.edu.pl
-url: https://archive.ics.uci.edu/ml/datasets/Acute+Inflammations
 data: function() {
 		destfile <- tempfile()
 		download.file("https://raw.githubusercontent.com/cliftonleesps/tmp/main/diagnosis.data", destfile)

@@ -3,7 +3,6 @@ type: timeseries
 description: Standard and Poor's (S&P) 500 Index Data including Dividend, Earnings and P/E Ratio.
 source: https://datahub.io/core/s-and-p-500
 reference: APA reference for the dataset.
-url: https://datahub.io/core/s-and-p-500/r/data.csv
 data: function ()
 	{
 		destfile <- tempfile()

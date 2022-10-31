@@ -3,7 +3,6 @@ type: Classification
 description: Predict whether income exceeds $50K/yr based on census data. Also known as "Census Income" dataset.
 source: https://archive.ics.uci.edu/ml/datasets/Adult
 reference: Ron Kohavi, "Scaling Up the Accuracy of Naive-Bayes Classifiers: a Decision-Tree Hybrid", Proceedings of the Second International Conference on Knowledge Discovery and Data Mining, 1996
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
 data: function ()
 	{
 		destfile <- tempfile()

@@ -2,8 +2,7 @@ name: hs_graduate_earnings
 type: regression
 description: Predicting high school graduates median earnings based on their occupational industries
 source: https://catalog.data.gov/dataset/high-school-graduate-outcomes-earnings-by-industry
-reference: 
-url: https://data.wa.gov/api/views/6he9-ya4y/rows.csv
+reference:
 data: function ()
 	{
 	    destfile <- tempfile()
