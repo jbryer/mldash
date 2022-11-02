@@ -1,0 +1,25 @@
+name: neuralnet_logistic_classification
+type: classification
+description: Neural network logistic-classification prediction model using the neuralnet R package.
+train: function (formula, data)
+	{
+		set.seed(444)
+		neuralnet::neuralnet(formula=formula,
+		data = data,
+		hidden = 3,
+		act.fct = "logistic",
+		linear.output = FALSE)
+	}
+predict: function (model, newdata)
+	{
+	    set.seed(444)
+	    neuralnet::compute(neuralnet
+	    (formula=formula,
+	    data = dtest,
+	    hidden = 3,
+	    act.fct = "logistic",
+	    linear.output = FALSE),
+	    newdata)$net.result
+	}
+packages: neuralnet
+note:
