@@ -9,9 +9,10 @@ run_models(
   models,
   seed = sample(1:2^15, 1),
   training_size = 0.7,
-  save_trained_models = FALSE,
   print_errors = FALSE,
-  metrics = mldash::get_all_metrics()
+  metrics = mldash::get_all_metrics(),
+  save_model_fits = FALSE,
+  timeout = 60
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ Errors will always be saved in the returned object.}
 
 \item{metrics}{list of model performance metrics from the \code{yardstick} package.
 See https://yardstick.tidymodels.org/articles/metric-types.html for more information.}
+
+\item{timeout}{the maximum amount of time (in seconds) a model is allowed to run
+before it is interrupted, can be \code{Inf} to never expire.}
 }
 \value{
 a data.frame with the results of all the models run against all the datasets.

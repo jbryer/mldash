@@ -1,4 +1,4 @@
-name: lm
+name: Linear Regression
 type: regression
 description: Linear regression using the stats::lm function.
 train: function(formula, data) {

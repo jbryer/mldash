@@ -1,4 +1,4 @@
-name: logistic
+name: Logistic Regression
 type: classification
 description: Logistic regression using the stats::glm function.
 train: function(formula, data) {

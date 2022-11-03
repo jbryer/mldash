@@ -1,4 +1,4 @@
-name: fable_arima_timeseries
+name: Fable Arima Timeseries
 type: timeseries
 description: The R package fable provides a collection of commonly used univariate and multivariate time series forecasting models.
 train: function(formula, data, ...) {

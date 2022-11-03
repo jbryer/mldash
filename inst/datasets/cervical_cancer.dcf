@@ -3,7 +3,6 @@ type: Classification, Clustering
 description: The dataset contains 19 attributes regarding ca cervix behavior risk with class label is ca_cervix with 1 and 0 as values which means the respondent with and without ca cervix, respectively. predictor for classifying suspicious firms.
 source: https://archive.ics.uci.edu/ml/datasets/Cervical+Cancer+Behavior+Risk#
 reference:  Sobar, Machmud, R., & Wijaya, A. (2016). Behavior Determinant Based Cervical Cancer Early Detection with Machine Learning Algorithm. Advanced Science Letters, 22(10)
-url: https://archive.ics.uci.edu/ml/machine-learning-databases/00537/sobar-72.csv
 data: function ()
 	{
 		destfile <- tempfile()

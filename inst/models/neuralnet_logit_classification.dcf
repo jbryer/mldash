@@ -1,4 +1,4 @@
-name: neuralnet_logistic_classification
+name: Neural network logistic-classification
 type: classification
 description: Neural network logistic-classification prediction model using the neuralnet R package.
 train: function (formula, data)

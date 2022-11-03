@@ -5,7 +5,7 @@
 #'
 #' @return TRUE if RETICULATE_PYTHON is set.
 #' @export
-check_java <- function() {
+check_python <- function() {
 	if(Sys.getenv("RETICULATE_PYTHON") == "") {
 		if(Sys.info()['sysname'] == 'Darwin') {
 		} else if(Sys.info()['sysname'] == 'Windows') {

@@ -9,6 +9,8 @@
 #'        Errors will always be saved in the returned object.
 #' @param metrics list of model performance metrics from the `yardstick` package.
 #'        See https://yardstick.tidymodels.org/articles/metric-types.html for more information.
+#' @param timeout the maximum amount of time (in seconds) a model is allowed to run
+#'        before it is interrupted, can be `Inf` to never expire.
 #' @return a data.frame with the results of all the models run against all the datasets.
 #' @export
 #' @import yardstick
@@ -17,14 +19,16 @@
 #' @importFrom sessioninfo session_info
 #' @importFrom purrr quietly
 #' @importFrom reticulate py_capture_output
+#' @importFrom R.utils withTimeout
 run_models <- function(
 		datasets,
 		models,
 		seed = sample(1:2^15, 1),
 		training_size = 0.7,
-		save_trained_models = FALSE,
 		print_errors = FALSE,
-		metrics = mldash::get_all_metrics()
+		metrics = mldash::get_all_metrics(),
+		save_model_fits = FALSE,
+		timeout = 60
 ) {
 
 	# Confirm the JAVA_HOME and RETICULATE (python) environment variables
@@ -47,9 +51,6 @@ run_models <- function(
 
 	start_time <- Sys.time()
 
-	model_errors <- list()
-	model_warnings <- list()
-
 	metric_types <- sapply(metrics, FUN = function(x) { class(x)[1] })
 	numeric_metrics <- metrics[metric_types == 'numeric_metric']
 	class_metrics <- metrics[metric_types == 'class_metric']
@@ -67,11 +68,13 @@ run_models <- function(
 		time_elapsed = numeric(),
 		stringsAsFactors = FALSE
 	)
-	ml_summary$cm <- list()
+	ml_summary$cm <- as.list(NULL)
 	ml_summary$train_output <- character()
 	ml_summary$train_warnings <- character()
 	ml_summary$train_messages <- character()
 	ml_summary$python_output <- character()
+	if(save_model_fits) { ml_summary$fit <- as.list(NULL) }
+	ml_summary$error <- as.list(NULL)
 
 	for(i in c(names(class_metrics),
 			   names(class_probability_metrics),
@@ -80,12 +83,12 @@ run_models <- function(
 	}
 
 	cache_dir <- attr(datasets, 'cache_dir')
-	trained_models <- list()
+	# trained_models <- list()
 
 	for(d in seq_len(nrow(datasets))) {
-		datasetname <- datasets[d,]$name
+		datasetname <- datasets[d,]$id
 		message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasetname, ' data...'))
-		trained_models[[datasetname]] <- list()
+		# trained_models[[datasetname]] <- list()
 		thedata <- readRDS(paste0(cache_dir[d], '/', datasetname, '.rds'))
 		formu <- as.formula(datasets[d,]$model)
 		if(!missing(seed)) {
@@ -103,14 +106,12 @@ run_models <- function(
 		valid_data <- NULL
 		data_models <- models[models$type == type,]
 		if(type == 'timeseries') {
-
 			data_n <- nrow(thedata)
 			train_n <- floor(nrow(thedata) *training_size)
 			valid_n <- data_n - train_n
 
 			train_data <- thedata |> dplyr::slice(1:train_n)
 			valid_data <- thedata |> dplyr::slice(train_n+1:data_n)
-
 		} else {
 			training_rows <- sample(nrow(thedata), size = training_size * nrow(thedata))
 			train_data <- thedata[training_rows,]
@@ -165,9 +166,18 @@ run_models <- function(
 							}
 							# output <- quiet_train_fun(formu, train_data)
 							# TODO: Should check to make sure the function can take the parameters
-							output <- do.call(quiet_train_fun, args)
+							output <- R.utils::withTimeout(
+								{
+									do.call(quiet_train_fun, args)
+								},
+								timeout = timeout,
+								onTimeout = 'error'
+							)
 						})
 						train <- output$result
+						if(save_model_fits) {
+							results[1,]$fit[[1]] <- train
+						}
 						results[1,]$train_output <- ifelse(length(output$output) > 0,
 														   paste0(output$output, collapse = '\n'),
 														   NA)
@@ -180,6 +190,12 @@ run_models <- function(
 						results[1,]$python_output <- ifelse(length(py_output) > 0,
 															paste0(py_output, collapse = '\n'),
 															NA)
+					},
+					error = function(e) {
+						if(print_errors) {
+							print(e)
+						}
+						results[1,]$error[[1]] <- e
 					})
 				}))
 
@@ -188,11 +204,8 @@ run_models <- function(
 				results[1,]$time_elapsed = exec_time[3]
 
 				if(is.null(train)) {
+					ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
 					next;
-				}
-
-				if(save_trained_models) {
-					trained_models[[datasetname]][[modelname]] <- train
 				}
 
 				y_var <- all.vars(formu)[1]
@@ -208,7 +221,6 @@ run_models <- function(
 				}
 
 				if(type == 'timeseries') {
-
 					suppressWarnings({
 						validate <- data.frame(
 							estimate = do.call(predict_fun, args),
@@ -247,17 +259,12 @@ run_models <- function(
 							if(!is.null(fun_out$result[1,3])) {
 								results[1,i] <- fun_out$result[1,3]
 							}
-							if(length(fun_out$warnings) > 0) {
-								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
-							}
-							# results[1,i] <- class_probability_metrics[[i]](validate,
-							# 											   truth = truth,
-							# 											   estimate = estimate)[1,3]
+							# if(length(fun_out$warnings) > 0) {
+							# 	model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							# }
 						}, error = function(e) {
-							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
-							if(print_errors) {
-								print(e)
-							}
+							message(paste0('      Error calculating ', i, ' metric.'))
+							if(print_errors) { print(e) }
 						})
 					}
 					if(is.numeric(validate$estimate)) {
@@ -277,14 +284,12 @@ run_models <- function(
 							if(!is.null(fun_out$result[1,3])) {
 								results[1,i] <- fun_out$result[1,3]
 							}
-							if(length(fun_out$warnings) > 0) {
-								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
-							}
+							# if(length(fun_out$warnings) > 0) {
+							# 	model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							# }
 						}, error = function(e) {
-							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
-							if(print_errors) {
-								print(e)
-							}
+							message(paste0('      Error calculating ', i, ' metric.'))
+							if(print_errors) { print(e) }
 						})
 					}
 				} else if(type == 'regression') {
@@ -297,15 +302,12 @@ run_models <- function(
 							if(!is.null(fun_out$result[1,3])) {
 								results[1,i] <- fun_out$result[1,3]
 							}
-							if(length(fun_out$warnings) > 0) {
-								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
-							}
+							# if(length(fun_out$warnings) > 0) {
+							# 	model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							# }
 						}, error = function(e) {
-							# message(paste0('Error calculating ', i, ' metric.'))
-							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
-							if(print_errors) {
-								print(e)
-							}
+							message(paste0('      Error calculating ', i, ' metric.'))
+							if(print_errors) { print(e) }
 						})
 					}
 				} else if(type == 'timeseries') {
@@ -319,15 +321,12 @@ run_models <- function(
 							if(!is.null(fun_out$result[1,3])) {
 								results[1,i] <- fun_out$result[1,3]
 							}
-							if(length(fun_out$warnings) > 0) {
-								model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
-							}
+							# if(length(fun_out$warnings) > 0) {
+							# 	model_warnings[[paste0(datasetname, '_', modelname, '_', i)]] <- fun_out$warnings
+							# }
 						}, error = function(e) {
-							# message(paste0('Error calculating ', i, ' metric.'))
-							model_errors[[paste0(datasetname, '_', modelname, '_', i)]] <<- e
-							if(print_errors) {
-								print(e)
-							}
+							message(paste0('      Error calculating ', i, ' metric.'))
+							if(print_errors) { print(e) }
 						})
 					}
 				} else {
@@ -337,10 +336,8 @@ run_models <- function(
 			},
 			error = function(e) {
 				message(paste0('   Error running ', modelname,' model'))
-				model_errors[[paste0(datasetname, '_', modelname)]] <<- e
-				if(print_errors) {
-					print(e)
-				}
+				if(print_errors) { print(e) }
+				results[1,]$error[[1]] <- e
 			})
 			ml_summary <- rbind(ml_summary, results[,names(ml_summary)])
 		}
@@ -356,11 +353,6 @@ run_models <- function(
 	attr(ml_summary, 'datasets') <- ml_datasets
 	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
-	attr(ml_summary, 'errors') <- model_errors
-	attr(ml_summary, 'warnings') <- model_warnings
-	if(save_trained_models) {
-		attr(ml_summary, 'trained_models') <- trained_models
-	}
 
 	class(ml_summary) <- c('mldash_summary', 'data.frame')
 

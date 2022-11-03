@@ -8,13 +8,12 @@ required_dataset_fields <- c('name', 'type', 'data', 'model')
 #'
 #' \itemize{
 #'     \item{name*}{The name of the dataset.}
-#'     \item{type*}{Whether this is for a regression or classification model.}
+#'     \item{type*}{Whether this is for a regression, classification, timeseries, or spatial model.}
 #'     \item{description}{Description of the dataset.}
 #'     \item{source}{The source of the dataset.}
 #'     \item{reference}{Reference for the dataset (APA format preferred).}
-#'     \item{url}{URL to download the dataset.}
 #'     \item{data*}{An R function that returns a data.frame.}
-#'     \item{model*}{The model formula used for the predictive model.}
+#'     \item{model*}{The formula used for the predictive model.}
 #'     \item{note}{Any additional information.}
 #' }
 #' * denotes required fields.
@@ -29,12 +28,12 @@ required_dataset_fields <- c('name', 'type', 'data', 'model')
 #'        then the data will be retrieved from the `data` function parameter.
 #' @return a data frame with the following fields:
 #' \itemize{
-#'     \item{name*}{The name of the dataset.}
+#'     \item{id}{The filename of the dataset.}
+#'     \item{title*}{The name of the dataset from the dcf file.}
 #'     \item{type*}{Whether this is for a regression or classification model.}
 #'     \item{description}{Description of the dataset.}
 #'     \item{source}{The source of the dataset.}
 #'     \item{reference}{Reference for the dataset (APA format preferred).}
-#'     \item{url}{URL to download the dataset.}
 #'     \item{model*}{The model formula used for the predictive model.}
 #'     \item{note}{Any additional information.}
 #' }
@@ -63,7 +62,8 @@ read_ml_datasets <- function(
 	datafiles <- unlist(datafiles)
 
 	ml_datasets <- data.frame(
-		name = basename(datafiles) |> tools::file_path_sans_ext(),
+		id = basename(datafiles) |> tools::file_path_sans_ext(),
+		name = NA_character_,
 		file = datafiles,
 		cache_file = paste0(cache_dir, '/', basename(datafiles) |> tools::file_path_sans_ext(), '.rds'),
 		type = NA_character_,
@@ -71,7 +71,6 @@ read_ml_datasets <- function(
 		packages = NA_character_,
 		source = NA_character_,
 		reference = NA_character_,
-		url = NA_character_,
 		model = NA_character_,
 		note = NA_character_,
 		nrow = NA_integer_,
@@ -122,10 +121,10 @@ read_ml_datasets <- function(
 		cache_info <- file.info(datafile)
 
 		if(file.exists(datafile) & use_cache & cache_info$mtime > file_info$mtime) {
-			message(paste0('Reading ', ml_datasets[i,]$name, ' from cache...'))
+			message(paste0('Reading ', ml_datasets[i,]$id, ' from cache...'))
 			thedata <- readRDS(datafile)
 		} else {
-			message(paste0('Downloading ', ml_datasets[i,]$name, '...'))
+			message(paste0('Downloading ', ml_datasets[i,]$id, '...'))
 			tryCatch({
 				eval(parse(text = paste0('getdata <- ', tmp[1,]$data)))
 				thedata <- getdata()
@@ -133,7 +132,7 @@ read_ml_datasets <- function(
 				all_vars <- get_all_vars(formula = formu, data = thedata)
 				if(!all(complete.cases(all_vars))) {
 					missing <- paste(colnames(all_vars)[as.data.frame(which(is.na(all_vars), arr.ind=TRUE))$col %>% unique()], collapse = ", " )
-					warning(paste0('Missing data found in ', ml_datasets[i,]$name,
+					warning(paste0('Missing data found in ', ml_datasets[i,]$id,
                                                        ". It is recommend that missing data be handled in the data file.\n  Columns with missing data: ", missing))
 				}
 				if(use_cache) {
@@ -141,7 +140,7 @@ read_ml_datasets <- function(
 				}
 				rm(getdata)
 			}, error = function(e) {
-				warning(paste0('Error getting data ', ml_datasets[i,]$name))
+				warning(paste0('Error getting data ', ml_datasets[i,]$id))
 				print(e)
 				next;
 			})

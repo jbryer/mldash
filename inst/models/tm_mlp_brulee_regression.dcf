@@ -32,4 +32,4 @@ predict: function(model, newdata) {
 		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
 	}
 notes: More information here: https://parsnip.tidymodels.org/reference/mlp.html
-packages: parsnip, brulee, fastDummies
+packages: parsnip, brulee, fastDummies, torch

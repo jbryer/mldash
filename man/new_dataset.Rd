@@ -11,7 +11,6 @@ new_dataset(
   description = "Description of the dataset",
   source = "The source of the dataset.",
   reference = "APA reference for the dataset.",
-  url = "URL to download the dataset.",
   data = "function() {\\n\\t# This function should return a data.frame.\\n\\t}",
   model = "Y ~ X",
   note = "",

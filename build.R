@@ -13,6 +13,17 @@ devtools::check()
 # usethis::use_pkgdown()
 pkgdown::build_site()
 
+mldash::check_java()
+mldash::check_python()
+
+# Move these to check_python?
+torch::torch_is_installed()
+torch::install_torch()
+
+
+usethis::use_package('R.utils', type = 'Imports')
+
+
 # Test datasets and models from package source directory
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
@@ -209,6 +220,17 @@ save_model_run <- function(results,
 }
 
 save_model_run(ml_results)
+
+ml_results |>
+	dplyr::select(!c(fit, error)) |>
+	View()
+
+# This is a long running model with the psych_copay dataset
+model_name <- 'tm_svm_linear_kernlab_regression.dcf'
+dataset_name <- 'psych_copay'
+ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets') |> dplyr::filter(id == dataset_name)
+ml_models <- mldash::read_ml_models(dir = 'inst/models', pattern = model_name)
+test_results <- mldash::run_models(ml_datasets, ml_models, print_errors = TRUE)
 
 # Run only classification models/datasets
 ml_datasets <- ml_datasets %>% filter(type == 'classification')

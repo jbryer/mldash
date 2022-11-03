@@ -4,8 +4,7 @@ description: The problem is to predict the current contraceptive
        method choice (no use, long-term methods, or short-term
        methods) of a woman based on her demographic and
        socio-economic characteristics.
-source:
-       https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice
+source: https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice
 reference: APA reference for the dataset.
 data: function ()
 	{

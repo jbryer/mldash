@@ -1,4 +1,4 @@
-name: randomForest_regression
+name: Random Forest Regression
 type: regression
 description: Random forest prediction model usign the randomForest R package.
 train: function (formula, data)

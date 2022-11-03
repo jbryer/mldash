@@ -26,12 +26,12 @@ then the data will be retrieved from the \code{data} function parameter.}
 \value{
 a data frame with the following fields:
 \itemize{
-\item{name*}{The name of the dataset.}
+\item{id}{The filename of the dataset.}
+\item{title*}{The name of the dataset from the dcf file.}
 \item{type*}{Whether this is for a regression or classification model.}
 \item{description}{Description of the dataset.}
 \item{source}{The source of the dataset.}
 \item{reference}{Reference for the dataset (APA format preferred).}
-\item{url}{URL to download the dataset.}
 \item{model*}{The model formula used for the predictive model.}
 \item{note}{Any additional information.}
 }
@@ -47,13 +47,12 @@ RMarkdown YAML (i.e. metadata).
 \details{
 \itemize{
 \item{name*}{The name of the dataset.}
-\item{type*}{Whether this is for a regression or classification model.}
+\item{type*}{Whether this is for a regression, classification, timeseries, or spatial model.}
 \item{description}{Description of the dataset.}
 \item{source}{The source of the dataset.}
 \item{reference}{Reference for the dataset (APA format preferred).}
-\item{url}{URL to download the dataset.}
 \item{data*}{An R function that returns a data.frame.}
-\item{model*}{The model formula used for the predictive model.}
+\item{model*}{The formula used for the predictive model.}
 \item{note}{Any additional information.}
 }
 \itemize{

@@ -22,6 +22,11 @@ Useful links:
 Other contributors:
 \itemize{
   \item Angela Lui \email{angela.lui@cuny.edu} [contributor]
+  \item Justin Williams [contributor]
+  \item David Simbandumwe [contributor]
+  \item Clifton Lee [contributor]
+  \item Shane Hylton [contributor]
+  \item Joseph Connolly [contributor]
 }
 
 }
