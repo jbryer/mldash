@@ -1,5 +1,6 @@
 #' Create a new data set metadata file.
 #'
+#' @param filename the name of the file that will be created. This will be the id for the model.
 #' @param name the  name of the model.
 #' @param dir the directory to store the model file.
 #' @param type type of model, either regression (quantitative dependent variables),
@@ -17,9 +18,10 @@
 #' @return a list with the metadata information.
 #' @export
 new_model <- function(
+		filename,
 		name,
+		type,
 		dir = './inst/models',
-		type = c('classification', 'regression')[1],
 		description = "Description of the dataset",
 		train_fun = 'function(formula, data) {\n\t# Run predictive model.\n\t}',
 		predict_fun = 'function(model, newdata) {\n\t# Return predicted probabilities for classification or nemeric values for regression.\n\t}',
@@ -28,7 +30,10 @@ new_model <- function(
 		open = interactive(),
 		overwrite = FALSE
 ) {
-	file <- paste0(dir, '/', name, '.dcf')
+	if(missing(type)) {
+		error("type is a required parameter.")
+	}
+	file <- paste0(dir, '/', filename, '.dcf')
 	if(file.exists(file) & !overwrite) {
 		stop('File already exists')
 	}
@@ -50,5 +55,5 @@ new_model <- function(
 	if(open) {
 		file.edit(file)
 	}
-	invisible(read_ml_models(dir = dir, pattern = paste0(name, '.dcf')))
+	invisible(read_ml_models(dir = dir, pattern = paste0(filename, '.dcf')))
 }
