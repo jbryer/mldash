@@ -92,7 +92,7 @@ The `metrics` parameter to `run_models()` takes a list of metrics from the [`yar
 
 ```{r ml_datasets, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_datasets))) {
-	cat(paste0('* [', ml_datasets[i,]$name, '](inst/datasets/', row.names(ml_datasets)[i], ') - ', ml_datasets[i,]$description, '\n'))
+	cat(paste0('* [', ml_datasets[i,]$name, '](https://github.com/jbryer/mldash/blob/master/inst/datasets/', ml_datasets[i,]$id, '.dcf) - ', ml_datasets[i,]$description, '\n'))
 }
 ```
 
@@ -103,7 +103,7 @@ Each model is defined in a Debian Control File (DCF) format the details of which
 
 ```{r ml_models, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_models))) {
-	cat(paste0('* [', ml_models[i,]$name, '](inst/models/', row.names(ml_models)[i], ') - ', ml_models[i,]$description, '\n'))
+	cat(paste0('* [', ml_models[i,]$name, '](https://github.com/jbryer/mldash/blob/master/inst/models/', row.names(ml_models)[i], '.dcf) - ', ml_models[i,]$description, '\n'))
 }
 ```
 
