@@ -2,7 +2,9 @@ pandoc: '2.18'
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
+  creating_datasets: creating_datasets.html
+  creating_models: creating_models.html
   installation: installation.html
   mldash: mldash.html
-last_built: 2022-11-04T13:28Z
+last_built: 2022-11-04T13:53Z
 

@@ -1,0 +1,56 @@
+---
+title: "Creating New Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating New Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mldash)
+```
+
+```{r new_model, eval = FALSE}
+rf_model <- mldash::new_model(
+	name = 'randomForest_classification',
+	type = 'classification',
+	description = 'Random forest prediction model usign the randomForest R package.',
+	train_fun = function(formula, data) {
+		randomForest::randomForest(formula = formula, data = data, ntree = 1000)
+	},
+	predict_fun = function(model, newdata) {
+	    randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+	},
+	packages = "randomForest",
+	overwrite = TRUE
+)
+```
+
+Results in the following file:
+
+```
+name: randomForest_classification
+type: classification
+description: Random forest prediction model usign the randomForest R package.
+train: function (formula, data)
+	{
+	    randomForest::randomForest(formula = formula, data = data,
+	        ntree = 1000)
+	}
+predict: function (model, newdata)
+	{
+	    randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+	}
+packages: randomForest
+note:
+```
+
+Note that for classification models, the `run_models()` function will ensure that the dependent variable is coded as a factor. If the model assumes another data type (e.g. TRUE or FALSE) it will need to convert the variable. Otherwise, the data files (read in by the `read_data()` function) should ensure all independent variables a properly coded.

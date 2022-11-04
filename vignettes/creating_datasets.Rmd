@@ -1,0 +1,68 @@
+---
+title: "Creating New Datasets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Creating New Datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(mldash)
+```
+
+```{r new_dataset, eval = FALSE}
+adult_data <- mldash::new_dataset(
+	name = 'adult',
+	type = 'classification',
+	description = 'Prediction task is to determine whether a person makes over 50K a year.',
+	source = 'https://archive.ics.uci.edu/ml/datasets/Adult',
+	dir = 'inst/datasets',
+	data = function() {
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", destfile)
+		df <- read.csv(destfile, header = FALSE)
+		names(df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_status',
+					   'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'captial_loss',
+					   'hours_per_week', 'native_country', 'greater_than_50k')
+		df$greater_than_50k <- df$greater_than_50k == ' >50K'
+		return(df)
+	},
+	model = greater_than_50k ~ .,
+	overwrite = TRUE
+)
+```
+
+Results in creating the following file:
+
+```
+name: adult
+type: classification
+description: Prediction task is to determine whether a person makes over 50K a year.
+source: https://archive.ics.uci.edu/ml/datasets/Adult
+reference: APA reference for the dataset.
+data: function () 
+	{
+	    destfile <- tempfile()
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", 
+	        destfile)
+	    df <- read.csv(destfile, header = FALSE)
+	    names(df) <- c("age", "workclass", "fnlwgt", "education", 
+	        "education-num", "marital-status", "occupation", "relationship", 
+	        "race", "sex", "capital-gain", "captial-loss", "hours-per-week", 
+	        "native-country", "greater_than_50k")
+	    df$greater_than_50k <- df$greater_than_50k == " >50K"
+	    return(df)
+	}
+model: greater_than_50k ~ .
+note:
+```
+
+

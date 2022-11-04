@@ -5,7 +5,8 @@ usethis::use_tidy_description()
 usethis::use_spell_check()
 
 devtools::document()
-devtools::install(dependencies = FALSE) # Note, should set this to TRUE every so often
+devtools::install(dependencies = FALSE, build_vignettes = FALSE) # Note, should set this to TRUE every so often
+devtools::install(dependencies = FALSE, build_vignettes = TRUE) # Note, should set this to TRUE every so often
 devtools::build()
 devtools::check()
 

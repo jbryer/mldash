@@ -18,7 +18,7 @@ options(digits = 2)
 
 library(mldash)
 
-Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
+# Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 
 ```
 
@@ -45,54 +45,12 @@ You can install the development version of `mldash` using the `remotes` package 
 remotes::install_github('jbryer/mldash')
 ```
 
-### Python
+The `mldash` package makes use of predictive models implemented in R, Python, and Java. As a result, there are numerous system requirements necessary to run *all* the models. We have included instructions in the [`installation` vignette](https://jbryer.github.io/mldash/articles/installation.html):
 
-Many of the models will require Python which is executed using the `reticulate` package. I, personally, have found the installation and configuration of Python to be frustrating, especially on a Mac M1. However, as of this writing, the following works (on my system). First, install these packages from Github to ensure the latest version.
-
-```{r install_pythong_pkgs, eval=FALSE}
-remotes::install_github(sprintf("rstudio/%s", c("reticulate", "tensorflow", "keras", "torch")))
+```{r, eval=FALSE}
+vignette('installation', package = 'mldash')
 ```
 
-If you have previously installed Miniconda, it is helpful to start from a clean slate. 
-
-```{r miniconda_uninstall, eval=FALSE}
-reticulate::miniconda_uninstall()
-```
-
-We can then install Miniconda using the following command:
-
-```{r install_miniconda, eval=FALSE}
-reticulate::install_miniconda()
-```
-
-Once installed, we can create a conda environment:
-
-```{r conda_create, eval=FALSE}
-reticulate::conda_create("mldash")
-```
-
-And then make it active (note sure if it is necessary to do this for all three packages, but it doesn't hurt):
-
-```{r use_condaenv, eval=TRUE}
-reticulate::use_condaenv("mldash")
-tensorflow::use_condaenv("mldash")
-keras::use_condaenv("mldash")
-```
-
-Although there are utility functions to install `keras`, `tensorflow`, and `torch` from their respective packages, I found them to not always work as expected. The `conda_install` function will ensure the Python packages are installed into the correct environment. Note that as of this writing, `pytorch` still does not have a Mac M1 native version so some predictive models will not work on that platform.
-
-```{r conda_install, eval=FALSE}
-reticulate::conda_install("mldash", 
-						  c("jupyterlab", "pandas", "statsmodels",
-						    "scipy", "scikit-learn", "matplotlib",
-						    "seaborn", "numpy", "pytorch", "tensorflow"))
-```
-
-Lastly, ensure that `reticulate` uses the correct Python by setting the `RETICULATE_PYTHON` environment variable (this can also be put in your `.Renviron` file to be used across sessions, though I avoid doing that so I can use different Python paths for different projects).
-
-```{r RETICULATE_PYTHON, eval=FALSE}
-Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
-```
 
 ## Running Predictive Models
 
@@ -138,6 +96,7 @@ for(i in seq_len(nrow(ml_datasets))) {
 }
 ```
 
+
 ## Available Models
 
 Each model is defined in a Debian Control File (DCF) format the details of which are described below. Below is the list of models included in the `mldash` package. Note that models that begin with `tm_` are models implemented with the [`tidymodels`](https://www.tidymodels.org) R package; models that begin with `weka_` are models implemented with the the [`RWeka`](https://cran.r-project.org/web/packages/RWeka/index.html) which is a wrapper to the [Weka](https://www.cs.waikato.ac.nz/ml/weka/) collection of machine learning algorithms.
@@ -147,95 +106,6 @@ for(i in seq_len(nrow(ml_models))) {
 	cat(paste0('* [', ml_models[i,]$name, '](inst/models/', row.names(ml_models)[i], ') - ', ml_models[i,]$description, '\n'))
 }
 ```
-
-
-## Creating Datasets
-
-```{r new_dataset, eval = FALSE}
-adult_data <- mldash::new_dataset(
-	name = 'adult',
-	type = 'classification',
-	description = 'Prediction task is to determine whether a person makes over 50K a year.',
-	source = 'https://archive.ics.uci.edu/ml/datasets/Adult',
-	dir = 'inst/datasets',
-	data = function() {
-		destfile <- tempfile()
-		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", destfile)
-		df <- read.csv(destfile, header = FALSE)
-		names(df) <- c('age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_status',
-					   'occupation', 'relationship', 'race', 'sex', 'capital_gain', 'captial_loss',
-					   'hours_per_week', 'native_country', 'greater_than_50k')
-		df$greater_than_50k <- df$greater_than_50k == ' >50K'
-		return(df)
-	},
-	model = greater_than_50k ~ .,
-	overwrite = TRUE
-)
-```
-
-Results in creating the following file:
-
-```
-name: adult
-type: classification
-description: Prediction task is to determine whether a person makes over 50K a year.
-source: https://archive.ics.uci.edu/ml/datasets/Adult
-reference: APA reference for the dataset.
-data: function () 
-	{
-	    destfile <- tempfile()
-	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", 
-	        destfile)
-	    df <- read.csv(destfile, header = FALSE)
-	    names(df) <- c("age", "workclass", "fnlwgt", "education", 
-	        "education-num", "marital-status", "occupation", "relationship", 
-	        "race", "sex", "capital-gain", "captial-loss", "hours-per-week", 
-	        "native-country", "greater_than_50k")
-	    df$greater_than_50k <- df$greater_than_50k == " >50K"
-	    return(df)
-	}
-model: greater_than_50k ~ .
-note:
-```
-
-## Creating Models
-
-```{r new_model, eval = FALSE}
-rf_model <- mldash::new_model(
-	name = 'randomForest_classification',
-	type = 'classification',
-	description = 'Random forest prediction model usign the randomForest R package.',
-	train_fun = function(formula, data) {
-		randomForest::randomForest(formula = formula, data = data, ntree = 1000)
-	},
-	predict_fun = function(model, newdata) {
-	    randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
-	},
-	packages = "randomForest",
-	overwrite = TRUE
-)
-```
-
-Results in the following file:
-
-```
-name: randomForest_classification
-type: classification
-description: Random forest prediction model usign the randomForest R package.
-train: function (formula, data)
-	{
-	    randomForest::randomForest(formula = formula, data = data,
-	        ntree = 1000)
-	}
-predict: function (model, newdata)
-	{
-	    randomForest:::predict.randomForest(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
-	}
-packages: randomForest
-note:
-```
-
-Note that for classification models, the `run_models()` function will ensure that the dependent variable is coded as a factor. If the model assumes another data type (e.g. TRUE or FALSE) it will need to convert the variable. Otherwise, the data files (read in by the `read_data()` function) should ensure all independent variables a properly coded.
 
 
 ## Code of Conduct
