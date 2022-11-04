@@ -1,0 +1,11 @@
+name: Support Vector Machines with Linear Kernel
+type: classification
+description: Support Vector Machines with Linear Kernel from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "svmLinear2", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, e1071
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

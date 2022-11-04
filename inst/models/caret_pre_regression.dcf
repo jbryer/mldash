@@ -1,0 +1,11 @@
+name: Prediction Rule Ensembles
+type: regression
+description: Prediction Rule Ensembles from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "pre", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, pre
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

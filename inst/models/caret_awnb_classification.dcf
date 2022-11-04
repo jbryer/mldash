@@ -1,0 +1,11 @@
+name: Naive Bayes Classifier with Attribute Weighting
+type: classification
+description: Naive Bayes Classifier with Attribute Weighting from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "awnb", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, bnclassify
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

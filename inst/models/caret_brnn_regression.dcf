@@ -1,0 +1,11 @@
+name: Bayesian Regularized Neural Networks
+type: regression
+description: Bayesian Regularized Neural Networks from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "brnn", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, brnn
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

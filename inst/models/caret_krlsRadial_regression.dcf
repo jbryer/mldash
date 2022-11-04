@@ -1,0 +1,11 @@
+name: Radial Basis Function Kernel Regularized Least Squares
+type: regression
+description: Radial Basis Function Kernel Regularized Least Squares from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "krlsRadial", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, KRLS, kernlab
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

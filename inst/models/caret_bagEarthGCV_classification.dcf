@@ -1,0 +1,11 @@
+name: Bagged MARS using gCV Pruning
+type: classification
+description: Bagged MARS using gCV Pruning from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "bagEarthGCV", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, earth
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

@@ -1,0 +1,11 @@
+name: Independent Component Regression
+type: regression
+description: Independent Component Regression from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "icr", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, fastICA
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

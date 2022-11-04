@@ -1,0 +1,11 @@
+name: Random Ferns
+type: classification
+description: Random Ferns from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "rFerns", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, rFerns
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

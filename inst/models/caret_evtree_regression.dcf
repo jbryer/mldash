@@ -1,0 +1,11 @@
+name: Tree Models from Genetic Algorithms
+type: regression
+description: Tree Models from Genetic Algorithms from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "evtree", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, evtree
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

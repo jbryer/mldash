@@ -1,0 +1,11 @@
+name: Single Rule Classification
+type: classification
+description: Single Rule Classification from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "OneR", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, RWeka
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

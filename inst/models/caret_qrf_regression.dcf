@@ -1,0 +1,11 @@
+name: Quantile Random Forest
+type: regression
+description: Quantile Random Forest from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "qrf", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, quantregForest
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

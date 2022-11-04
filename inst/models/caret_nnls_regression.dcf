@@ -1,0 +1,11 @@
+name: Non-Negative Least Squares
+type: regression
+description: Non-Negative Least Squares from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "nnls", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, nnls
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

@@ -1,0 +1,11 @@
+name: Parallel Random Forest
+type: classification
+description: Parallel Random Forest from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "parRF", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, e1071, randomForest, foreach, import
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

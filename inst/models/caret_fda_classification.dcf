@@ -1,0 +1,11 @@
+name: Flexible Discriminant Analysis
+type: classification
+description: Flexible Discriminant Analysis from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "fda", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, earth, mda
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

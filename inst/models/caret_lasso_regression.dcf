@@ -1,0 +1,11 @@
+name: The lasso
+type: regression
+description: The lasso from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "lasso", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, elasticnet
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

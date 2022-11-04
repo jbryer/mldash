@@ -1,0 +1,11 @@
+name: Partial Least Squares
+type: classification
+description: Partial Least Squares from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "pls", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, pls
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

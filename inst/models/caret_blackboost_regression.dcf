@@ -1,0 +1,11 @@
+name: Boosted Tree
+type: regression
+description: Boosted Tree from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "blackboost", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, party, mboost, plyr, partykit
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

@@ -1,0 +1,11 @@
+name: Multi-Step Adaptive MCP-Net
+type: regression
+description: Multi-Step Adaptive MCP-Net from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "msaenet", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, msaenet
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

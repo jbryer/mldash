@@ -1,0 +1,11 @@
+name: High-Dimensional Regularized Discriminant Analysis
+type: classification
+description: High-Dimensional Regularized Discriminant Analysis from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "hdrda", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, sparsediscrim
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

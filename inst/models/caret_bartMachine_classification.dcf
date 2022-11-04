@@ -1,0 +1,11 @@
+name: Bayesian Additive Regression Trees
+type: classification
+description: Bayesian Additive Regression Trees from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "bartMachine", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, bartMachine
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

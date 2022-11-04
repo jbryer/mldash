@@ -1,0 +1,11 @@
+name: k-Nearest Neighbors
+type: regression
+description: k-Nearest Neighbors from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "knn", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

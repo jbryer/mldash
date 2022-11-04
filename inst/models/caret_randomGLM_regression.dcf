@@ -1,0 +1,11 @@
+name: Ensembles of Generalized Linear Models
+type: regression
+description: Ensembles of Generalized Linear Models from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "randomGLM", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, randomGLM
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

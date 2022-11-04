@@ -1,0 +1,11 @@
+name: Greedy Prototype Selection
+type: classification
+description: Greedy Prototype Selection from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "protoclass", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, proxy, protoclass
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

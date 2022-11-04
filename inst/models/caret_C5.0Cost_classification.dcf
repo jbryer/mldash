@@ -1,0 +1,11 @@
+name: Cost-Sensitive C5.0
+type: classification
+description: Cost-Sensitive C5.0 from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "C5.0Cost", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, C50, plyr
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

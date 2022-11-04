@@ -1,0 +1,11 @@
+name: Penalized Logistic Regression
+type: classification
+description: Penalized Logistic Regression from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "plr", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, stepPlr
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

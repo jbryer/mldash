@@ -1,0 +1,11 @@
+name: Negative Binomial Generalized Linear Model
+type: regression
+description: Negative Binomial Generalized Linear Model from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "glm.nb", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, MASS
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

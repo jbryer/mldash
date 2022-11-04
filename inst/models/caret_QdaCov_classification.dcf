@@ -1,0 +1,11 @@
+name: Robust Quadratic Discriminant Analysis
+type: classification
+description: Robust Quadratic Discriminant Analysis from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "QdaCov", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata, type = "prob")[,2,drop=TRUE]
+			}
+packages: caret, rrcov
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

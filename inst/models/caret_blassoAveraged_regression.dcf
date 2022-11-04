@@ -1,0 +1,11 @@
+name: Bayesian Ridge Regression (Model Averaged)
+type: regression
+description: Bayesian Ridge Regression (Model Averaged) from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "blassoAveraged", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, monomvn
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

@@ -1,0 +1,11 @@
+name: Penalized Linear Regression
+type: regression
+description: Penalized Linear Regression from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "penalized", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, penalized
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

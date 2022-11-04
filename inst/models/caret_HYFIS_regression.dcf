@@ -1,0 +1,11 @@
+name: Hybrid Neural Fuzzy Inference System
+type: regression
+description: Hybrid Neural Fuzzy Inference System from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "HYFIS", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, frbs
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

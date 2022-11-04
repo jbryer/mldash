@@ -1,0 +1,11 @@
+name: Generalized Additive Model using Splines
+type: regression
+description: Generalized Additive Model using Splines from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "gamSpline", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, gam
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

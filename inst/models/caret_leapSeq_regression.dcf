@@ -1,0 +1,11 @@
+name: Linear Regression with Stepwise Selection
+type: regression
+description: Linear Regression with Stepwise Selection from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "leapSeq", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, leaps
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html

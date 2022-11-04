@@ -1,0 +1,11 @@
+name: Regularized Random Forest
+type: regression
+description: Regularized Random Forest from the caret package.
+train: function(formula, data) {
+				caret::train(formula, data = data, method = "RRF", verbose = FALSE)
+			}
+predict: function(model, newdata) {
+				caret::predict.train(model, newdata = newdata)
+			}
+packages: caret, randomForest, RRF
+note: More info available here: https://topepo.github.io/caret/train-models-by-tag.html
