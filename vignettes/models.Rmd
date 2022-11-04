@@ -1,0 +1,33 @@
+---
+title: "Available Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Available Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(mldash)
+```
+
+```{r ml_datasets_dt, echo = FALSE, results = 'asis', message=FALSE, warning=FALSE, error=FALSE}
+mldash::read_ml_models() |>
+	dplyr::select(name, type, description, packages) |>
+	dplyr::mutate(type = factor(type)) |>
+	DT::datatable(
+		rownames = FALSE,
+		filter = 'top',
+		options = list( 
+			pageLength = 20,
+			autoWidth = TRUE
+		)
+	)
+```

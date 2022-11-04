@@ -1,5 +1,7 @@
 ---
-output: github_document
+output:
+  github_document:
+    html_preview: true
 always_allow_html: true
 editor_options: 
   chunk_output_type: console
@@ -17,6 +19,7 @@ knitr::opts_chunk$set(
 options(digits = 2)
 
 library(mldash)
+library(DT)
 
 # Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 
@@ -33,8 +36,6 @@ library(mldash)
 
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.
-
-**WARNING** This is very much an alpha project as I explore this approach to evaluating predictive models. Use at your own risk.
 
 
 ## Installation
@@ -59,7 +60,7 @@ To begin, we read in the datasets using the `read_ml_datasets()` function. There
 * `dir` is the directory containing the metadata files. The default is to look in the package's installation directory.
 * `cache_dir` is the directory where datasets can be stored locally.
 
-This lists the datasets currenlty included in the package (more to come soon).
+This lists the datasets currenlty included in the package.
 
 ```{r read_ml_datasets, eval = TRUE, message = FALSE, fig.show='hide'}
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets',
@@ -77,7 +78,9 @@ ml_models <- mldash::read_ml_models(dir = 'inst/models')
 Once the datasets and models have been loaded, the `run_models` will train and evaluate each model for each dataset as appropriate for the model type.
 
 ```{r run_models, eval = FALSE, warning=FALSE, message=FALSE, error=FALSE}
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, seed = 1234)
+ml_results <- mldash::run_models(datasets = ml_datasets, 
+								 models = ml_models, 
+								 seed = 2112)
 ```
 
 ```{r, eval=FALSE, echo=FALSE, results='asis'}
@@ -85,12 +88,18 @@ knitr::kable(ml_results[,c('dataset', 'model', 'type', 'time_elapsed', 'base_acc
 			 row.names = FALSE)
 ```
 
-The `metrics` parameter to `run_models()` takes a list of metrics from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metris is available here: https://yardstick.tidymodels.org/articles/metric-types.html
+The `metrics` parameter to `run_models()` takes a list of metrics from the [`yardstick`](https://yardstick.tidymodels.org/index.html) package (Kuhn & Vaughan, 2021). The full list of metrics are available here: https://yardstick.tidymodels.org/articles/metric-types.html
 
 
 ## Available Datasets
 
-```{r ml_datasets, echo = FALSE, results = 'asis'}
+There are `r nrow(ml_datasets)` included in the `mldash` package. You can view the packages in the [`datasets` vignette](https://jbryer.github.io/mldash/articles/datasets.html).
+
+```{r, eval=FALSE}
+vignette('datasets', package = 'mldash')
+```
+
+```{r ml_datasets, eval = FALSE, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_datasets))) {
 	cat(paste0('* [', ml_datasets[i,]$name, '](https://github.com/jbryer/mldash/blob/master/inst/datasets/', ml_datasets[i,]$id, '.dcf) - ', ml_datasets[i,]$description, '\n'))
 }
@@ -101,12 +110,17 @@ for(i in seq_len(nrow(ml_datasets))) {
 
 Each model is defined in a Debian Control File (DCF) format the details of which are described below. Below is the list of models included in the `mldash` package. Note that models that begin with `tm_` are models implemented with the [`tidymodels`](https://www.tidymodels.org) R package; models that begin with `weka_` are models implemented with the the [`RWeka`](https://cran.r-project.org/web/packages/RWeka/index.html) which is a wrapper to the [Weka](https://www.cs.waikato.ac.nz/ml/weka/) collection of machine learning algorithms.
 
-```{r ml_models, echo = FALSE, results = 'asis'}
+There are `r nrow(ml_models)` included in the `mldash` package. You can view the models in the [`models` vignette](https://jbryer.github.io/mldash/articles/models.html).
+
+```{r, eval=FALSE}
+vignette('models', package = 'mldash')
+```
+
+```{r ml_models, eval = FALSE, echo = FALSE, results = 'asis'}
 for(i in seq_len(nrow(ml_models))) {
 	cat(paste0('* [', ml_models[i,]$name, '](https://github.com/jbryer/mldash/blob/master/inst/models/', row.names(ml_models)[i], '.dcf) - ', ml_models[i,]$description, '\n'))
 }
 ```
-
 
 ## Code of Conduct
 
