@@ -28,7 +28,12 @@ usethis::use_package('R.utils', type = 'Imports')
 # Test datasets and models from package source directory
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
+ml_datasets <- ml_datasets |> dplyr::filter(id %in% c('titanic', 'PedalMe'))
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
+
+
+
+
 
 # Test core functions from package installation directory
 ml_datasets <- mldash::read_ml_datasets()

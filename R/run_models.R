@@ -126,7 +126,7 @@ run_models <- function(
 
 		for(m in seq_len(nrow(data_models))) {
 			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name,
-						   ' (', data_models[m,]$id, ') model...'))
+						   ' (', rownames(data_models)[m], ') model...'))
 			modelname <- row.names(data_models)[m]
 			tmp <- attr(data_models, 'functions')
 			train_fun <- tmp[[modelname]]$train
