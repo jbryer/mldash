@@ -5,9 +5,10 @@
 \title{Create a new data set metadata file.}
 \usage{
 new_model(
+  filename,
   name,
+  type,
   dir = "./inst/models",
-  type = c("classification", "regression")[1],
   description = "Description of the dataset",
   train_fun = "function(formula, data) {\\n\\t# Run predictive model.\\n\\t}",
   predict_fun =
@@ -19,12 +20,14 @@ new_model(
 )
 }
 \arguments{
-\item{name}{the  name of the model.}
+\item{filename}{the name of the file that will be created. This will be the id for the model.}
 
-\item{dir}{the directory to store the model file.}
+\item{name}{the  name of the model.}
 
 \item{type}{type of model, either regression (quantitative dependent variables),
 or classification (for qualitative dependent variables).}
+
+\item{dir}{the directory to store the model file.}
 
 \item{description}{brief description of the model.}
 

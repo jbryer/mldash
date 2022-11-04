@@ -6,7 +6,8 @@
 \usage{
 read_ml_models(
   dir = paste0(find.package("mldash"), "/models"),
-  pattern = "*.dcf"
+  pattern = "*.dcf",
+  check_for_missing_packages = interactive()
 )
 }
 \arguments{
@@ -15,6 +16,9 @@ read_ml_models(
 \item{pattern}{optional regular expression that is used when finding files
 to read in. It defaults to all dcf files in the \code{dir}, but could
 be a single filename to test a metadata file.}
+
+\item{check_for_missing_packages}{if TRUE you will be prompted to install
+missing packages.}
 }
 \value{
 a data frame with the following fields:

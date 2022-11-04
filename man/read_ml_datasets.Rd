@@ -8,7 +8,8 @@ read_ml_datasets(
   dir = c(paste0(find.package("mldash"), "/datasets")),
   cache_dir = dir,
   pattern = "*.dcf",
-  use_cache = TRUE
+  use_cache = TRUE,
+  check_for_missing_packages = interactive()
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ be a single filename to test a metadata file.}
 
 \item{use_cache}{whether to read data from the cache if available. If FALSE,
 then the data will be retrieved from the \code{data} function parameter.}
+
+\item{check_for_missing_packages}{if TRUE you will be prompted to install
+missing packages.}
 
 \item{data_cache}{directory where rds data files will be stored.}
 }

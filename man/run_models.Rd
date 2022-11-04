@@ -32,7 +32,8 @@ Errors will always be saved in the returned object.}
 See https://yardstick.tidymodels.org/articles/metric-types.html for more information.}
 
 \item{timeout}{the maximum amount of time (in seconds) a model is allowed to run
-before it is interrupted, can be \code{Inf} to never expire.}
+before it is interrupted, can be \code{Inf} to never expire. Note that not
+all models can be interrupted. See \code{\link[R.utils:withTimeout]{R.utils::withTimeout()}} for more information.}
 }
 \value{
 a data.frame with the results of all the models run against all the datasets.
