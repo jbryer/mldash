@@ -34,6 +34,29 @@ ml_datasets <- mldash::read_ml_datasets()
 ml_models <- mldash::read_ml_models()
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
 
+
+save_model_run <- function(results,
+						   dir = 'inst/model_runs') {
+	if(!'mldash_summary' %in% class(results)) {
+		stop('results needs to be the output of mldash::run_models.')
+	}
+	d <- attr(ml_results, 'start_time')
+	d <- gsub(' ', '_', d)
+	si <- Sys.info()
+	saveRDS(ml_results, file = paste0(dir, '/', unname(si['user']), '-', d, '.rds'))
+}
+
+save_model_run(ml_results)
+
+
+
+
+
+
+
+
+
+
 # Examine error messages
 names(attributes(ml_results))
 ml_errors <- attr(ml_results, 'errors')
@@ -230,7 +253,7 @@ model_name <- 'tm_svm_linear_kernlab_regression.dcf'
 dataset_name <- 'psych_copay'
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets') |> dplyr::filter(id == dataset_name)
 ml_models <- mldash::read_ml_models(dir = 'inst/models', pattern = model_name)
-test_results <- mldash::run_models(ml_datasets, ml_models, print_errors = TRUE)
+test_results <- mldash::run_models(ml_datasets, ml_models, print_errors = TRUE, timeout = 10)
 
 # Run only classification models/datasets
 ml_datasets <- ml_datasets %>% filter(type == 'classification')

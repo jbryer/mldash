@@ -22,16 +22,14 @@ Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 
 ```
 
-<img src="man/figures/mldash.png" align="right" width="120" />
-
-# `mldash`: Machine Learning Dashboard
+# `mldash`: Machine Learning Dashboard <img src="man/figures/mldash.png" align="right" width="120" align="right" />
 
 <!-- badges: start -->
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
-**Author: [Jason Bryer, Ph.D.](mailto:jason@bryer.org)**    
-**Website: https://github.com/jbryer/mldash**
+**Contact: [Jason Bryer, Ph.D.](mailto:jason.bryer@cuny.edu)**    
+**Website: https://jbryer.github.io/mldash/**
 
 
 The goal of `mldash` is to provide a framework for evaluating the performance of many predictive models across many datasets. The package includes common predictive modeling procedures and datasets. Details on how to contribute additional datasets and models is outlined below. Both datasets and models are defined in the Debian Control File (dcf) format. This provides a convenient format for storing both metadata about the datasets and models but also R code snippets for retrieving data, training models, and getting predictions. The `run_models` function handles executing each model for each dataset (appropriate to the predictive model type, i.e. classification or regression), splitting data into training and validation sets, and calculating the desired performance metrics utilizing the [`yardstick`](https://yardstick.tidymodels.org) package.

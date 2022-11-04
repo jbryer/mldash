@@ -1,4 +1,24 @@
 url: ~
 template:
   bootstrap: 5
+home:
+  title: Machine Learning Dashboard
+  description: >
+    Framework for evaluating predictive models across many
+    datasets. Datasets and models are defined in debian control files.
+    Data can be retrieved from many sources and the package will execute
+    and evaluate predictive models using a hold-out validation dataset
+    using common metrics defined in the yardstick package.
+  strip_header: false
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+authors:
+  footer:
+    roles: [cre, fnd]
+    text: "Created by"
+  sidebar:
+    roles: [aut, ctb]
+    before: ""
+    after: ""
+  before: ""
 

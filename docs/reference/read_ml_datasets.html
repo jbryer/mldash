@@ -67,7 +67,8 @@ RMarkdown YAML (i.e. metadata).</p>
 <span>  dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/find.package.html" class="external-link">find.package</a></span><span class="op">(</span><span class="st">"mldash"</span><span class="op">)</span>, <span class="st">"/datasets"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  cache_dir <span class="op">=</span> <span class="va">dir</span>,</span>
 <span>  pattern <span class="op">=</span> <span class="st">"*.dcf"</span>,</span>
-<span>  use_cache <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  use_cache <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  check_for_missing_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -88,6 +89,11 @@ be a single filename to test a metadata file.</p></dd>
 then the data will be retrieved from the <code>data</code> function parameter.</p></dd>
 
 
+<dt>check_for_missing_packages</dt>
+<dd><p>if TRUE you will be prompted to install
+missing packages.</p></dd>
+
+
 <dt>data_cache</dt>
 <dd><p>directory where rds data files will be stored.</p></dd>
 
@@ -96,12 +102,12 @@ then the data will be retrieved from the <code>data</code> function parameter.</
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>a data frame with the following fields:</p><ul><li><p>name*The name of the dataset.</p></li>
+<p>a data frame with the following fields:</p><ul><li><p>idThe filename of the dataset.</p></li>
+<li><p>title*The name of the dataset from the dcf file.</p></li>
 <li><p>type*Whether this is for a regression or classification model.</p></li>
 <li><p>descriptionDescription of the dataset.</p></li>
 <li><p>sourceThe source of the dataset.</p></li>
 <li><p>referenceReference for the dataset (APA format preferred).</p></li>
-<li><p>urlURL to download the dataset.</p></li>
 <li><p>model*The model formula used for the predictive model.</p></li>
 <li><p>noteAny additional information.</p></li>
 </ul><ul><li><p>denotes required fields.</p></li>
@@ -110,13 +116,12 @@ then the data will be retrieved from the <code>data</code> function parameter.</
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     
 <ul><li><p>name*The name of the dataset.</p></li>
-<li><p>type*Whether this is for a regression or classification model.</p></li>
+<li><p>type*Whether this is for a regression, classification, timeseries, or spatial model.</p></li>
 <li><p>descriptionDescription of the dataset.</p></li>
 <li><p>sourceThe source of the dataset.</p></li>
 <li><p>referenceReference for the dataset (APA format preferred).</p></li>
-<li><p>urlURL to download the dataset.</p></li>
 <li><p>data*An R function that returns a data.frame.</p></li>
-<li><p>model*The model formula used for the predictive model.</p></li>
+<li><p>model*The formula used for the predictive model.</p></li>
 <li><p>noteAny additional information.</p></li>
 </ul><ul><li><p>denotes required fields.</p></li>
 </ul></div>
@@ -126,7 +131,7 @@ then the data will be retrieved from the <code>data</code> function parameter.</
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Jason Bryer.</p>
+  <p></p><p>Created by Jason Bryer.</p>
 </div>
 
 <div class="pkgdown-footer-right">

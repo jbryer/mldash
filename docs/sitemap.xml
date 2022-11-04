@@ -25,6 +25,12 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/check_java.html</loc>
+  </url>
+  <url>
+    <loc>/reference/check_python.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_all_metrics.html</loc>
   </url>
   <url>
