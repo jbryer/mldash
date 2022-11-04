@@ -1,6 +1,7 @@
 url: ~
 template:
   bootstrap: 5
+  bootswatch: yeti
 home:
   title: Machine Learning Dashboard
   description: >
