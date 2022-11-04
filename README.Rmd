@@ -93,7 +93,7 @@ The `metrics` parameter to `run_models()` takes a list of metrics from the [`yar
 
 ## Available Datasets
 
-There are `r nrow(ml_datasets)` included in the `mldash` package. You can view the packages in the [`datasets` vignette](https://jbryer.github.io/mldash/articles/datasets.html).
+There are `r nrow(ml_datasets)` datasets included in the `mldash` package. You can view the packages in the [`datasets` vignette](https://jbryer.github.io/mldash/articles/datasets.html).
 
 ```{r, eval=FALSE}
 vignette('datasets', package = 'mldash')
@@ -110,7 +110,7 @@ for(i in seq_len(nrow(ml_datasets))) {
 
 Each model is defined in a Debian Control File (DCF) format the details of which are described below. Below is the list of models included in the `mldash` package. Note that models that begin with `tm_` are models implemented with the [`tidymodels`](https://www.tidymodels.org) R package; models that begin with `weka_` are models implemented with the the [`RWeka`](https://cran.r-project.org/web/packages/RWeka/index.html) which is a wrapper to the [Weka](https://www.cs.waikato.ac.nz/ml/weka/) collection of machine learning algorithms.
 
-There are `r nrow(ml_models)` included in the `mldash` package. You can view the models in the [`models` vignette](https://jbryer.github.io/mldash/articles/models.html).
+There are `r nrow(ml_models)` models included in the `mldash` package. You can view the models in the [`models` vignette](https://jbryer.github.io/mldash/articles/models.html).
 
 ```{r, eval=FALSE}
 vignette('models', package = 'mldash')
