@@ -10,7 +10,8 @@
 #' @param metrics list of model performance metrics from the `yardstick` package.
 #'        See https://yardstick.tidymodels.org/articles/metric-types.html for more information.
 #' @param timeout the maximum amount of time (in seconds) a model is allowed to run
-#'        before it is interrupted, can be `Inf` to never expire.
+#'        before it is interrupted, can be `Inf` to never expire. Note that not
+#'        all models can be interrupted. See [R.utils::withTimeout()] for more information.
 #' @return a data.frame with the results of all the models run against all the datasets.
 #' @export
 #' @import yardstick
@@ -124,7 +125,8 @@ run_models <- function(
 		}
 
 		for(m in seq_len(nrow(data_models))) {
-			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name, ' model...'))
+			message(paste0('   [', m, ' / ', nrow(data_models), '] Running ', data_models[m,]$name,
+						   ' (', data_models[m,]$id, ') model...'))
 			modelname <- row.names(data_models)[m]
 			tmp <- attr(data_models, 'functions')
 			train_fun <- tmp[[modelname]]$train
@@ -165,7 +167,10 @@ run_models <- function(
 								}
 							}
 							# output <- quiet_train_fun(formu, train_data)
-							# TODO: Should check to make sure the function can take the parameters
+							# setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
+							# on.exit({
+							# 	setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE)
+							# })
 							output <- R.utils::withTimeout(
 								{
 									do.call(quiet_train_fun, args)
@@ -349,8 +354,8 @@ run_models <- function(
 	attr(ml_summary, 'end_time') <- Sys.time()
 	attr(ml_summary, 'seed') <- seed
 	attr(ml_summary, 'training_size') <- training_size
-	attr(ml_summary, 'models') <- ml_models
-	attr(ml_summary, 'datasets') <- ml_datasets
+	attr(ml_summary, 'models') <- models
+	attr(ml_summary, 'datasets') <- datasets
 	attr(ml_summary, 'metrics') <- metrics
 	attr(ml_summary, 'session_info') <- sessioninfo::session_info()
 
