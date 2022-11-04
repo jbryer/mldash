@@ -26,6 +26,8 @@ required_dataset_fields <- c('name', 'type', 'data', 'model')
 #'        be a single filename to test a metadata file.
 #' @param use_cache whether to read data from the cache if available. If FALSE,
 #'        then the data will be retrieved from the `data` function parameter.
+#' @param check_for_missing_packages if TRUE you will be prompted to install
+#'        missing packages.
 #' @return a data frame with the following fields:
 #' \itemize{
 #'     \item{id}{The filename of the dataset.}
@@ -44,7 +46,8 @@ read_ml_datasets <- function(
 		dir = c(paste0(find.package('mldash'), '/datasets')),
 		cache_dir = dir,
 		pattern = "*.dcf",
-		use_cache = TRUE
+		use_cache = TRUE,
+		check_for_missing_packages = interactive()
 ) {
 	for(i in cache_dir) {
 		if(!dir.exists(i)) {
@@ -101,14 +104,21 @@ read_ml_datasets <- function(
 
 				not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
 				if(length(not_installed) > 0) {
-					msg <- paste0('The following package',
-								  ifelse(length(not_installed) > 1, 's are', 'is'),
-								  ' not installed but required by the models: ',
-								  paste0(not_installed, collapse = ', '),
-								  '\nDo you want to install these packages?')
-					ans <- utils::menu(c('Yes', 'No'), title = msg)
-					if(ans == 1) {
-						install.packages(not_installed)
+					if(check_for_missing_packages) {
+						msg <- paste0('The following package',
+									  ifelse(length(not_installed) > 1, 's are', 'is'),
+									  ' not installed but required by the models: ',
+									  paste0(not_installed, collapse = ', '),
+									  '\nDo you want to install these packages?')
+						ans <- utils::menu(c('Yes', 'No'), title = msg)
+						if(ans == 1) {
+							install.packages(not_installed)
+						}
+					} else {
+						warning('The following package',
+								ifelse(length(not_installed) > 1, 's are', 'is'),
+								' not installed but required by the models: ',
+								paste0(not_installed, collapse = ', '))
 					}
 				}
 			}

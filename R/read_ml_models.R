@@ -20,6 +20,8 @@ required_model_fields <- c('name', 'type', 'train', 'predict')
 #' @param pattern optional regular expression that is used when finding files
 #'        to read in. It defaults to all dcf files in the \code{dir}, but could
 #'        be a single filename to test a metadata file.
+#' @param check_for_missing_packages if TRUE you will be prompted to install
+#'        missing packages.
 #' @return a data frame with the following fields:
 #' \itemize{
 #'     \item{name}{The name of the dataset.}
@@ -31,7 +33,8 @@ required_model_fields <- c('name', 'type', 'train', 'predict')
 #' @export
 read_ml_models <- function(
 		dir = paste0(find.package('mldash'), '/models'),
-		pattern = "*.dcf"
+		pattern = "*.dcf",
+		check_for_missing_packages = interactive()
 ) {
 	modelfiles <- list.files(dir,
 							 pattern = pattern,
@@ -85,15 +88,22 @@ read_ml_models <- function(
 
 	not_installed <- pkgs[!pkgs %in% installed.packages()[,'Package']]
 	if(length(not_installed) > 0) {
-		msg <- paste0('The following package',
-					  ifelse(length(not_installed) > 1, 's are', 'is'),
-					  ' not installed but required by the models: ',
-					   paste0(not_installed, collapse = ', '),
-					  '\nDo you want to install these packages?')
-		ans <- menu(c('Yes', 'No'),
-					title = msg)
-		if(ans == 1) {
-			install.packages(not_installed)
+		if(check_for_missing_packages) {
+			msg <- paste0('The following package',
+						  ifelse(length(not_installed) > 1, 's are', 'is'),
+						  ' not installed but required by the models: ',
+						   paste0(not_installed, collapse = ', '),
+						  '\nDo you want to install these packages?')
+			ans <- menu(c('Yes', 'No'),
+						title = msg)
+			if(ans == 1) {
+				install.packages(not_installed)
+			}
+		} else {
+			warning(paste0('The following package',
+						   ifelse(length(not_installed) > 1, 's are', 'is'),
+						   ' not installed but required by the models: ',
+						   paste0(not_installed, collapse = ', ')))
 		}
 	}
 
