@@ -1,0 +1,14 @@
+name: tidymodels Multivariate Adaptive Regression Splines (MARS) C50 Classification
+type: classification
+description: Creates an collection of decision trees forming an ensemble. All trees in the ensemble are combined to produce a final prediction.
+train: function(formula, data) {
+	parsnip::bag_tree() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("C5.0") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/details_bag_tree_C5.0.html
+packages: parsnip, baguette

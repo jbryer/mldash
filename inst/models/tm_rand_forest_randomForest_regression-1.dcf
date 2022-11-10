@@ -1,0 +1,14 @@
+name: tidymodels Random Forest (randomForest) Regression
+type: regression
+description: Defines a model that creates a large number of decision trees, each independent of the others. The final prediction uses all predictions from the individual trees and combines them.
+train: function(formula, data) {
+	parsnip::rand_forest() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("randomForest") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/rand_forest.html
+packages: parsnip, randomForest

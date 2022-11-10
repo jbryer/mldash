@@ -29,7 +29,7 @@ usethis::use_package('R.utils', type = 'Imports')
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
 ml_datasets <- ml_datasets |> dplyr::filter(id %in% c('titanic', 'PedalMe'))
-ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models)
+ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, timeout = Inf)
 
 
 

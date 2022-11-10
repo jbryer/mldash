@@ -1,0 +1,14 @@
+name: tidymodels Logistic (stan) Classification
+type: classification
+description: Defines a generalized linear model for binary outcomes. A linear combination of the predictors is used to model the log odds of an event.
+train: function(formula, data) {
+	parsnip::logistic_reg() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("stan") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/logistic_reg.html
+packages: parsnip, rstanarm
