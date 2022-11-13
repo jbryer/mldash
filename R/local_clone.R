@@ -1,10 +1,6 @@
 #' Clones the upstream mldash project, saves a ml_results object and creates a pull request
 #' so others can see past results of run_ml_models().
 
-library(credentials)
-library(git2r)
-library(gh)
-
 upstream_owner <- "jbryer"
 upstream_repo <- "mldash"
 upstream_branch <- "master"
@@ -17,6 +13,8 @@ upstream_branch <- "master"
 
 branch_name <- "ml_results"
 
+#' local_clone
+#'
 #' Clone the mldash project to a temp directory
 #'
 #' @param repo_upstream the  name of the model.
@@ -29,7 +27,7 @@ local_clone <- function(
 
     if (is.null(repo_upstream)) {
         print("repo_upstream is required; this should be a Github fork of https://github.com/jbryer/mldash.git.")
-        return
+        return (NULL)
     }
 
     path_repo_1 <- tempfile(pattern="git2r-")
@@ -69,6 +67,9 @@ local_clone <- function(
     return (repo)
 }
 
+
+#' add_ml_results
+#'
 #' Saves a ml_results object to a RDS file and creates a pull request to a
 #' forked mldash project
 #'
