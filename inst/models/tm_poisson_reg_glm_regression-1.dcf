@@ -1,0 +1,14 @@
+name: tidymodels Poisson_Reg (glm) Regression
+type: regression
+description: Defines a generalized linear model for count data that follow a Poisson distribution.
+train: function(formula, data) {
+	parsnip::poisson_reg() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("glm") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/poisson_reg.html
+packages: parsnip, poissonreg

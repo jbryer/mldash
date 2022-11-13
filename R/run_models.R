@@ -166,18 +166,18 @@ run_models <- function(
 									args[[names(model_args)[i]]] <- model_args[[i]]
 								}
 							}
-							# output <- quiet_train_fun(formu, train_data)
+							output <- quiet_train_fun(formu, train_data)
 							# setTimeLimit(cpu = timeout, elapsed = timeout, transient = TRUE)
 							# on.exit({
 							# 	setTimeLimit(cpu = Inf, elapsed = Inf, transient = FALSE)
 							# })
-							output <- R.utils::withTimeout(
-								{
-									do.call(quiet_train_fun, args)
-								},
-								timeout = timeout,
-								onTimeout = 'error'
-							)
+							# output <- R.utils::withTimeout(
+							# 	{
+							# 		do.call(quiet_train_fun, args)
+							# 	},
+							# 	timeout = timeout,
+							# 	onTimeout = 'error'
+							# )
 						})
 						train <- output$result
 						if(save_model_fits) {

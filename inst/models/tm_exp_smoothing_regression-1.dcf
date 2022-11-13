@@ -1,0 +1,17 @@
+name: tidymodels Exponential Smoothing (ets) Regression
+type: regression
+description: exp_smoothing() is a way to generate a specification of an Exponential Smoothing model before fitting and allows the model to be created using different packages.
+train: function(formula, data) {
+	if(!any(c('POSIXct', 'POSIXlt', 'Date') %in% apply(get_all_vars(formula, data), 2, class))) {
+		return(NULL)
+	}
+	modeltime::exp_smoothing() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("ets") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/boost_tree.html
+packages: parsnip, forecast, modeltime

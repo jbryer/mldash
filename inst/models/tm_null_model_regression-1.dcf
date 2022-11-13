@@ -1,0 +1,14 @@
+name: tidymodels Null Model Regression
+type: regression
+description: Defines a simple, non-informative model.
+train: function(formula, data) {
+	parsnip::null_model() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("parsnip") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/null_model.html
+packages: parsnip

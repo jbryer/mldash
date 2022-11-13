@@ -1,0 +1,18 @@
+name: Weka Decision Stumps Classification
+type: classification
+description: Implements decision stumps (trees with a single split only), which are frequently used as base learners for meta learners such as Boosting.
+train: function (formula, data)	{
+		RWeka::DecisionStump(formula, data)
+	}
+predict: function (model, newdata) {
+		RWeka:::predict.Weka_classifier(model, newdata, type = 'probability')[,2,drop=TRUE]
+	}
+packages: RWeka
+note: For more information, see Ross Quinlan (1993). C4.5: Programs for Machine Learning. Morgan Kaufmann Publishers, San Mateo, CA.
+reference: @BOOK{Quinlan1993,
+    title = {C4.5: Programs for Machine Learning},
+    publisher = {Morgan Kaufmann Publishers},
+    author = {Ross Quinlan},
+    year = {1993},
+    address = {San Mateo, CA},
+  }

@@ -1,0 +1,14 @@
+name: tidymodel RPart Decision Tree Classification
+type: classification
+description: Ensembles of decision trees.
+train: function(formula, data) {
+	parsnip::bag_tree() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("rpart") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/bag_tree.html
+packages: parsnip, rpart

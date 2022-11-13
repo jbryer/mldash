@@ -1,0 +1,14 @@
+name: tidymodels Multivariate Adaptive Regression Splines (MARS) Classification
+type: classification
+description: Ensemble of generalized linear models that use artificial features for some predictors.
+train: function(formula, data) {
+	parsnip::bag_mars(num_terms = 7) |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("earth", times = 3) |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/bag_mars.html
+packages: parsnip, baguette

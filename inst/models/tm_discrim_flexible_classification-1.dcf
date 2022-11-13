@@ -1,0 +1,14 @@
+name: tidymodels Discrim_Flexible (earth) Classification
+type: classification
+description: Defines a model that fits a discriminant analysis model that can use nonlinear features created using multivariate adaptive regression splines (MARS).
+train: function(formula, data) {
+	parsnip::discrim_flexible() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("earth") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/discrim_flexible.html
+packages: parsnip, earth, mda, discrim

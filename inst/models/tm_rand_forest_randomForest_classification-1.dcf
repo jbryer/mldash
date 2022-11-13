@@ -1,0 +1,14 @@
+name: tidymodels Random Forest (randomForest) Classification
+type: classification
+description: Defines a model that creates a large number of decision trees, each independent of the others. The final prediction uses all predictions from the individual trees and combines them.
+train: function(formula, data) {
+	parsnip::rand_forest() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("randomForest") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/rand_forest.html
+packages: parsnip, randomForest

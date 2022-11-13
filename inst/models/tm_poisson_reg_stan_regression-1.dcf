@@ -1,0 +1,14 @@
+name: tm_poisson_reg_stan_regression tidymodels Poisson_Reg (stan) Regression
+type: regression
+description: Defines a generalized linear model for count data that follow a Poisson distribution.
+train: function(formula, data) {
+	parsnip::poisson_reg() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("stan") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/poisson_reg.html
+packages: parsnip, poissonreg, rstanarm

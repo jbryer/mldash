@@ -1,0 +1,14 @@
+name: tidymodels Support Vector Machines Kernlab Regression
+type: regression
+description: Defines a support vector machine model. For classification, the model tries to maximize the width of the margin between classes (using a linear class boundary). For regression, the model optimizes a robust loss function that is only affected by very large model residuals and uses a linear fit.
+train: function(formula, data) {
+	parsnip::svm_linear() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("kernlab") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/svm_linear.html
+packages: parsnip, kernlab

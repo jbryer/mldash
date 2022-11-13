@@ -1,0 +1,18 @@
+name: Weka Bagging Classification
+type: classification
+description: Bagging (Breiman, 1996)
+train: function (formula, data)	{
+		RWeka::Bagging(formula, data)
+	}
+predict: function (model, newdata) {
+		RWeka:::predict.Weka_classifier(model, newdata, type = 'probability')[,2,drop=TRUE]
+	}
+packages: RWeka
+note: For more information, see Ross Quinlan (1993). C4.5: Programs for Machine Learning. Morgan Kaufmann Publishers, San Mateo, CA.
+reference: @BOOK{Quinlan1993,
+    title = {C4.5: Programs for Machine Learning},
+    publisher = {Morgan Kaufmann Publishers},
+    author = {Ross Quinlan},
+    year = {1993},
+    address = {San Mateo, CA},
+  }

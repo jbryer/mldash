@@ -1,0 +1,14 @@
+name: tidymodels Multilayer Perceptron (nnet) Classification
+type: classification
+description: Defines a multilayer perceptron model (a.k.a. a single layer, feed-forward neural network).
+train: function(formula, data) {
+	parsnip::mlp() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("nnet") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/mlp.html
+packages: parsnip, nnet

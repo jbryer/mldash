@@ -1,0 +1,14 @@
+name: tidymodels Gen_Additive_Mod (mgcv) Classification
+type: classification
+description: gen_additive_mod() defines a model that can use smoothed functions of numeric predictors in a generalized linear model.
+train: function(formula, data) {
+	parsnip::gen_additive_mod() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("mgcv") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/gen_additive_mod.html
+packages: parsnip, mgcv

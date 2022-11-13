@@ -1,0 +1,14 @@
+name: tidymodels Nearest Neighbor Classification
+type: classification
+description: Model that uses the K most similar data points from the training set to predict new samples.
+train: function(formula, data) {
+	parsnip::nearest_neighbor() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("kknn") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/nearest_neighbor.html
+packages: parsnip, kknn

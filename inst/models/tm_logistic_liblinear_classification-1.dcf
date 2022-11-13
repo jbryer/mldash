@@ -1,0 +1,29 @@
+name: tidymodels Logistic (LiblineaR) Classification
+type: classification
+description: Defines a generalized linear model for binary outcomes. A linear combination of the predictors is used to model the log odds of an event.
+train: function(formula, data) {
+	y_var <- all.vars(formula)[1]
+	data <- cbind(
+		y_var = data[,y_var],
+		fastDummies::dummy_columns(data[,!names(data) %in% y_var],
+								   remove_most_frequent_dummy = TRUE,
+								   remove_selected_columns = TRUE) )
+	names(data)[1] <- y_var
+	formula <- as.formula(paste0(y_var, ' ~ ', paste0(names(data)[2:ncol(data)], collapse = ' + ')))
+	parsnip::logistic_reg() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("LiblineaR") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		y_var <- model$preproc$y_var
+		newdata <- cbind(
+			y_var = newdata[,y_var],
+			fastDummies::dummy_columns(newdata[,!names(newdata) %in% y_var],
+								   remove_most_frequent_dummy = TRUE,
+								   remove_selected_columns = TRUE) )
+		names(newdata)[1] <- y_var
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/logistic_reg.html
+packages: parsnip, LiblineaR, fastDummies

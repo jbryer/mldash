@@ -1,0 +1,14 @@
+name: tidymodels Discrim_Linear (mda) Classification
+type: classification
+description: Defines a model that estimates a multivariate distribution for the predictors separately for the data in each class (usually Gaussian with a common covariance matrix). Bayes' theorem is used to compute the probability of each class, given the predictor values.
+train: function(formula, data) {
+	parsnip::discrim_linear() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("mda") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/discrim_linear.html
+packages: parsnip, mda, discrim

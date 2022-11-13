@@ -1,0 +1,20 @@
+name: Weka J48 Classification
+type: classification
+description: Class for generating a pruned or unpruned C4.5 decision tree.
+train: function (formula, data)	{
+		#J48 <- make_Weka_classifier("weka/classifiers/trees/J48", c("bar", "Weka_tree"))
+		#J48(formula, data = data)
+		RWeka::J48(formula, data)
+	}
+predict: function (model, newdata) {
+		RWeka:::predict.Weka_classifier(model, newdata, type = 'probability')[,2,drop=TRUE]
+	}
+packages: RWeka
+note: For more information, see Ross Quinlan (1993). C4.5: Programs for Machine Learning. Morgan Kaufmann Publishers, San Mateo, CA.
+reference: @BOOK{Quinlan1993,
+    title = {C4.5: Programs for Machine Learning},
+    publisher = {Morgan Kaufmann Publishers},
+    author = {Ross Quinlan},
+    year = {1993},
+    address = {San Mateo, CA},
+  }

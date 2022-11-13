@@ -1,0 +1,14 @@
+name: tidymodels Decision Tree RPart Regression
+type: regression
+description: Defines a model as a set of if/then statements that creates a tree-based structure.
+train: function(formula, data) {
+	parsnip::decision_tree() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("rpart") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/decision_tree.html
+packages: parsnip, rpart

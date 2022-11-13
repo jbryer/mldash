@@ -1,0 +1,14 @@
+name: tidymodels Multivariate Adaptive Regression Splines (earth) Classification
+type: classification
+description: Defines a generalized linear model that uses artificial features for some predictors. These features resemble hinge functions and the result is a model that is a segmented regression in small dimensions.
+train: function(formula, data) {
+	parsnip::mars() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("earth") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/mars.html
+packages: parsnip, earth

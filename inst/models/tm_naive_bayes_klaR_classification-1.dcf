@@ -1,0 +1,14 @@
+name: tidymodels Naive Bayes (klaR)
+type: classification
+description: Model that uses Bayes' theorem to compute the probability of each class, given the predictor values.
+train: function(formula, data) {
+	parsnip::naive_Bayes() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("klaR") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/naive_Bayes.html
+packages: parsnip, discrim, klaR

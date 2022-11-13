@@ -1,0 +1,14 @@
+name: tidymodel RPart Decision Tree Regression
+type: regression
+description: Ensembles of decision trees.
+train: function(formula, data) {
+	parsnip::bag_tree() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("rpart") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/bag_tree.html
+packages: parsnip, rpart

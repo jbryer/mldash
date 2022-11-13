@@ -1,0 +1,14 @@
+name: tidymodels Bayesian Analysis Regression
+type: regression
+description: Defines a tree ensemble model that uses Bayesian analysis to assemble the ensemble. This function can fit classification and regression models.
+train: function(formula, data) {
+	parsnip::bart() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("dbarts") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/bart.html
+packages: parsnip, dbarts

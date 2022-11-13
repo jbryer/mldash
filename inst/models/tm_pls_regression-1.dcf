@@ -1,0 +1,14 @@
+name: tidymodels Partial Least Squares Regression
+type: regression
+description: Defines a partial least squares model that uses latent variables to model the data. It is similar to a supervised version of principal component.
+train: function(formula, data) {
+	parsnip::pls() |>
+		parsnip::set_mode("regression") |>
+		parsnip::set_engine("mixOmics") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata)[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/pls.html Need to install the mixOmics package with the following command: remotes::install_bioc("mixOmics")
+packages: parsnip, plsmod, mixOmics

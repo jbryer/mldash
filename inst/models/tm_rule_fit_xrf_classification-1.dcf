@@ -1,0 +1,14 @@
+name: tm_rule_fit_xrf_classification tidymodels Rule Fit (XRF) Classification
+type: classification
+description: Defines a model that derives simple feature rules from a tree ensemble and uses them as features in a regularized model.
+train: function(formula, data) {
+	parsnip::rule_fit() |>
+		parsnip::set_mode("classification") |>
+		parsnip::set_engine("xrf") |>
+		parsnip::fit(formula, data = data)
+	}
+predict: function(model, newdata) {
+		predict.model_fit(model, new_data = newdata, type = "prob")[,1,drop=TRUE]
+	}
+notes: More information here: https://parsnip.tidymodels.org/reference/rule_fit.html
+packages: parsnip, rules, xrf
