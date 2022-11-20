@@ -14,70 +14,78 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(mldash)
+
+## Introduction
+
+Configuring a workstation to run mldash requires installing a few major components: R; Python; Java. Of course, mldash runs tidymodels natively in R. However, mldash will also run Python (e.g. Prophet) & Java (Weka) models so this guide will outline steps on how to build a working environment.
+
+Depending on your operating system, you can use various system tools or package managers to ease the installation process.
+
+At the end of this guide, you should have a workstation meets the following goals:
+
+* Runs R and R Studio
+* Has all the required R library dependencies installed
+* R pointing to a functioning Python environment with dependencies
+* R pointing to a functioning Java run time environment
+
+**Note:** these directions have been tested on macOS 12.6 (Monterey on a M1 MacBook, ARM processor) and Red Hat Enterprise Linux (RHEL) 9. These steps have not been tested on other platforms.
+
+
+***
+
+## Installing R & RStudio
+
+You can download and install the R binary from the [Crane Project home page](https://cran.r-project.org). Next you'll need to install [RStudio](https://posit.co), as your integrated development environment.
+
+### macOS
+
+In an RStudio session, you can install required libraries in the console window:
+
+```{r m1_dependencies, eval=FALSE}
+install.packages("glmnet")
+install.packages("brulee")
+install.packages("fastDummies")
+install.packages("kknn")
+install.packages("plsmod")
+install.packages("remotes")
+install.packages("baguette")
+install.packages("libcoin")
+install.packages("earth")
+install.packages("dbarts")
+install.packages("xgboost")
+install.packages("forecast")
+install.packages("modeltime")
+```
+
+#### Installing the mix0mics Library
+
+To install the mix0mics library, you need to install the [BiocManager package](http://www.bioconductor.org/packages/release/bioc/html/mixOmics.html).
+
+```{r mix0mics_dependency, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("mixOmics")
 ```
 
 
-# Introduction
 
-Configuring a workstation to run mldash requires installing and supporting a few major components: R; Python; Java. Of course, R runs mldash and many R-native models. However, mldash will also run Python & Java models so this guide will give steps on how to building a working environment.
+### Red Hat Enterprise Linux
 
-Depending on your particular operating system, you can use various system tools, package managers to ease the installation process.
+Installing R dependencies is very similar:
 
-At the end of this guide, you should have a workstation meets the following goals:
- * Runs R and R Studio
- * Has all the required R library dependencies installed
- * R pointing to a working Python installation
- * R pointing to a working Java 8 installation
-
-# Installing R & RStudio
-
-Aside from R and RStudio, you'll need to install many model dependencies.
-
-### M1 Mac
-
-### Red Hat Linux
-[ install.packages(c("baguette","libcoin","earth","dbarts","xgboost","forecast","modeltime","glmnet","brulee","fastDummies","kknn","plsmod"))
+```{r rhel_dependencies, eval=FALSE}
+install.packages(c("baguette","libcoin","earth","dbarts","xgboost","forecast","modeltime","glmnet","brulee","fastDummies","kknn","plsmod"))
 
 install.packages(c("BiocManager"),type="binary")
 
 install.packages(c("poissonreg","pscl","ranger","kernlab","mda","discrim","sda","sparsediscrim","klaR","LiblineaR","naivebayes","rules","MASS","baguette"),type="binary")
 
-,"dbarts","discrim","earth","fastDummies","glmnet","keras","kernlab","kknn","klaR","mda","mgcv","mixOmics","naivebayes","nnet","parsnip",
+
+install.packages(c("dbarts","discrim","earth","fastDummies","glmnet","keras","kernlab","kknn","klaR","mda","mgcv","mixOmics","naivebayes","nnet","parsnip",
 "plsmod","poissonreg","randomForest","ranger","rpart","rstanarm","rules","sda","sparsediscrim","stats","xgboost","xrf"),type="binary")
-]
-
-
-### Windows
-
-
-# Installing Python
-
-
-## System level installation
-
-### Windows
-
-```{bash, eval=FALSE}
 ```
 
-```{python, eval=FALSE}
-```
-
-### Mac
-
-[M1 - Install Mambaforge from https://mamba.readthedocs.io/]
-
-
-### Ubuntu
-
-### Red Hat Linux
-[Install from https://conda-forge.org]
-
-## Using Reticulate
-
-### Python
+## Installing Python - Method #1 with Miniconda
 
 Many of the models will require Python which is executed using the `reticulate` package. I, personally, have found the installation and configuration of Python to be frustrating, especially on a Mac M1. However, as of this writing, the following works (on my system). First, install these packages from Github to ensure the latest version.
 
@@ -105,7 +113,7 @@ reticulate::conda_create("mldash")
 
 And then make it active (note sure if it is necessary to do this for all three packages, but it doesn't hurt):
 
-```{r use_condaenv, eval=TRUE}
+```{r use_condaenv, eval=FALSE}
 reticulate::use_condaenv("mldash")
 tensorflow::use_condaenv("mldash")
 keras::use_condaenv("mldash")
@@ -115,9 +123,9 @@ Although there are utility functions to install `keras`, `tensorflow`, and `torc
 
 ```{r conda_install, eval=FALSE}
 reticulate::conda_install("mldash", 
-						  c("jupyterlab", "pandas", "statsmodels",
-						    "scipy", "scikit-learn", "matplotlib",
-						    "seaborn", "numpy", "pytorch", "tensorflow"))
+			  c("jupyterlab", "pandas", "statsmodels",
+			    "scipy", "scikit-learn", "matplotlib",
+			    "seaborn", "numpy", "pytorch", "tensorflow"))
 ```
 
 Lastly, ensure that `reticulate` uses the correct Python by setting the `RETICULATE_PYTHON` environment variable (this can also be put in your `.Renviron` file to be used across sessions, though I avoid doing that so I can use different Python paths for different projects).
@@ -127,15 +135,55 @@ Sys.setenv("RETICULATE_PYTHON" = "~/miniforge3/envs/mldash/bin/python")
 ```
 
 
+## Installing Python - Method #2 with Mambaforge
+
+On both macOS and RHEL, Python 3.x is pre-installed (either as python or python3) but you'll really need a lot of Python modules. You can get the Mambaforge installer from (Mambaforge's Github page)[https://github.com/conda-forge/miniforge#mambaforge].
+
+Now you can use it to install the many model library dependencies.
+
+```{sh mac_mamba, eval=FALSE}
+mamba activate mldash
+mamba install -y jupyterlab
+mamba install -y pandas
+mamba install -y statsmodels 
+mamba install -y scipy
+mamba install -y scikit-learn
+mamba install -y matplotlib 
+mamba install -y seaborn
+mamba install -y numpy
+mamba install -y pytorch
+mamba install -y tensorflow
+```
+
+As in the previous method, set an environment variable for your Mamba-Python binary:
+
+```{r RETICULATE_PYTHON_MAMBA, eval=FALSE}
+Sys.setenv("RETICULATE_PYTHON" = "~/mambaforge/envs/mldash/bin/python")
+```
 
 
-# Installing Java
 
-### M1 Mac
-[install Azul j8 jdk]
+## Installing Java (macOS)
 
-### Red Hat Linux
-[sudo yum install -y java-1.8.0-openjdk]
+You will need to install a Java version 8 development kit compiled for an ARM processor. One that I found to work is from [Azul](https://www.azul.com/downloads/?package=jdk#download-openjdk).
+
+Follow the install directions and explicitly set an environment variable for JAVA_HOME, otherwise R will try to use the system's default pre-installed Java virtual machine.
+
+```{r JAVA, eval=FALSE}
+Sys.setenv(JAVA_HOME='/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/jre/')
+```
 
 
+## Installing Java (RHEL)
 
+In Linux, you can use the regular yum package manager and install OpenJDK version 8 on the command line.
+
+```{r java_rhel, eval=FALSE}
+$ sudo yum install -y java-1.8.0-openjdk
+```
+Unlike with macOS, you shouldn't need to set a JAVA_HOME since Java is normally part of the system $PATH variable and normally linked to the correct version. Of course, if you have multiple Java versions, then go ahead and specify JAVA_HOME for safety.
+
+
+## Next Steps
+
+Now that you have R, Python and Java installed can start [Running Predictive Models](https://jbryer.github.io/mldash/#running-predictive-models).
