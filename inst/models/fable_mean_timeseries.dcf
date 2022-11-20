@@ -1,9 +1,9 @@
-name: fable_tslm_timeseries
+name: Fable Mean Timeseries
 type: timeseries
 description: The R package fable provides a collection of commonly used univariate and multivariate time series forecasting models.
 train: function(formula, data, ...) {
 		tb <- data |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
-		tb |> fabletools::model(tslm = fable::TSLM(y ~  trend() + season()))
+		tb |> fabletools::model(mean = fable::MEAN(y))
 	}
 predict: function(model, newdata, ...) {
 		tb <- newdata |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
