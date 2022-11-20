@@ -1,0 +1,22 @@
+name: canadian_gas
+type: timeseries
+description: Dataset from Forecasting: Principles and Practice
+source: https://github.com/robjhyndman/fpp3package/blob/master/data/canadian_gas.rda
+reference: APA reference for the dataset.
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://github.com/robjhyndman/fpp3package/blob/master/data/canadian_gas.rda?raw=true",destfile)
+		load(file=destfile)
+		df <- canadian_gas
+		df$ds <- df$Month
+		df$y <- df$Volume
+		tb <- df |> dplyr::select( ds, y) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
+		df <- data.frame(tb)
+		return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr
+model_params: list(freq = 'months')

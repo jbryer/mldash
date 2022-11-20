@@ -10,11 +10,12 @@ data: function ()
 		df <-  readr::read_csv(destfile, skip = 17, col_names = FALSE)
 		names(df) <- c('date','open','high','low','close','volume')
 		df$ds <- df$date
+		df$ds <- lubridate::ymd(df$ds)
 		df$y <- df$close
 		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds))
 		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
-		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
 		df <- data.frame(tb)
 	    return(df)
 	}

@@ -8,13 +8,16 @@ data: function ()
 		destfile <- tempfile()
 		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz",destfile)
 		df <- readr::read_csv(destfile, show_col_types = FALSE)
-		df$ds <- df$date_time
+		df$ds <- lubridate::ymd_hms(df$date_time)
 		df$y <- df$traffic_volume
 		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2018-08-01"))
+		tb <- df |> dplyr::select( ds, y) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
+		df <- data.frame(tb)
 		return(df)
 	}
 model: y ~ ds
 note:
-packages: tidyr,dplyr,lubridate
+packages: tidyr,dplyr,lubridate,tsibble
 model_params: list(freq = 'hours')
