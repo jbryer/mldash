@@ -9,15 +9,16 @@ data: function ()
 		download.file("https://datahub.io/core/natural-gas/r/daily.csv",destfile)
 		df <-  readr::read_csv(destfile)
 		df$ds <- df$Date
+		df$ds <- lubridate::ymd(df$ds)
 		df$y <- df$Price
-		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::select(ds,y) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2016-05-01"))
-		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
-		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		tb <- df |> dplyr::select( ds, y) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
 		df <- data.frame(tb)
 		return(df)
 	}
 model: y ~ ds
 note:
-packages: tidyr,dplyr,readr
+packages: tidyr,dplyr,readr,lubridate
 model_params: list(freq = 'day')

@@ -9,15 +9,16 @@ data: function ()
 		download.file("https://datahub.io/core/s-and-p-500/r/data.csv",destfile)
 		df <-  readr::read_csv(destfile)
 		df$ds <- df$Date
+		df$ds <- tsibble::yearmonth(df$ds)
 		df$y <- df$SP500
 		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds))
 		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
-		tb <- tsibble::fill_gaps(tb, .full = TRUE)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
 		df <- data.frame(tb)
 	    return(df)
 	}
 model: y ~ ds
 note:
 packages: tidyr,dplyr,lubridate
-model_params: list(freq = 'months')
+model_params: list(freq = 'month')

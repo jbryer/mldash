@@ -9,6 +9,7 @@ data: function ()
 		download.file("https://raw.githubusercontent.com/vega/vega/main/docs/data/seattle-weather.csv",destfile)
 		df <-  readr::read_csv(destfile)
 		df$ds <- df$date
+		df$ds <- lubridate::ymd(df$ds)
 		df$y <- df$temp_max
 		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds))

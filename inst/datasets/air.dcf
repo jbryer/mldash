@@ -10,10 +10,14 @@ data: function ()
 		df <- read.csv(unz(destfile, "AirQualityUCI.csv"), sep = ";" ,header = TRUE)
 		df$ds <- lubridate::as_datetime(as.POSIXct(paste(df$Date, df$Time), format = "%d/%m/%Y%H.%M.%S"))
 		df$y <- as.numeric(gsub(",", ".", df$CO.GT.))
-		df <- df |> tidyr::drop_na(c(ds,y))
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::select(ds,y) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2005-01-01"))
-		df$y[df$y == -200] <- NA
-	    return(df)
+		df <- df |> dplyr::filter(!y < 0)
+		df$ds <- lubridate::ymd_hms(df$ds)
+		tb <- df |> dplyr::select( ds, y) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
+		df <- data.frame(tb)
+		return(df)
 	}
 model: y ~ ds
 note:
