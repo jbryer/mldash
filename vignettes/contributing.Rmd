@@ -1,0 +1,110 @@
+---
+title: "Contributing To The Project"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Contributing To The Project}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+You can contribute to this project by adding any one (or all) of three components:  datasets; models; model runs. By adding these components, other testers will be able to run, validate, compare and build upon your contributions.
+
+Contributing requires the following steps:
+ * Creating a Github fork of the mldash project (under your own username)
+ * Locally git-cloning your fork
+ * Creating a new file for your dataset, model or model-run
+ * Git-adding and git-commiting your new file
+ * Pushing your changes back to your Github fork
+ * Creating a pull request to the original mldash project
+
+To see examples of each component, you can go to the mldash/inst folder.
+
+### Prerequisites
+
+You will need to complete typical Github pre-tasks: registration; creating an personal access token; creating a fork; and finally, creating a clone of your Github fork on your local workstation.
+
+After creating a Github account, go to your profile settings and select 'Developer Settings' and then 'Personal Access Tokens' and 'Tokens (classic).' After following the on screen directions to generate a new token, be sure to save your token in a safe place; you will need it later.
+
+Next, create your own fork of the mldash project at https://github.com/jbryer/mldash and click on the 'fork' button so you can keep a downstream copy of the project. While on the page of your forked repository, retrieve SSH URL link of your project.
+
+In your local workstation, perform a git clone with the URL link from the previous step.  If you issue a 'git remote show origin' command in a command line terminal, you should see something similar to the following:
+
+```
+$ git remote show origin
+* remote origin
+  Fetch URL: https://github.com/cliftonleesps/mldash
+  Push  URL: https://github.com/cliftonleesps/mldash
+  HEAD branch: master
+  Remote branches:
+    master     tracked
+    ml_results tracked
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local ref configured for 'git push':
+    master pushes to master (fast-forwardable)
+```
+
+
+
+### Contributing a New Dataset
+
+To add a dataset, simply define it in Debian Control Format as described [here](creating_datasets.html).  After creating a new *.dcf file, use git to add, commit and push your new file to Github (substitute NEW_DATASET with the name of your particular file):
+
+```
+$ git add inst/datasets/NEW_DATASET.dcf
+$ git commit -m "Adding new dataset" inst/datasets/NEW_DATASET.dcf
+$ git push
+```
+
+
+
+After a successful git push action, go to Github and confirm your new dataset appears in your forked repository.
+
+Your last task is to click on the 'Pull requests' tab and then "New pull request" and "Create pull request" button.
+
+At this point, a project maintainer in the upstream mldash project will review your new *.dcf file and approved of the merge.
+
+### Contributing a New Model
+
+Similarly, you can go to the [Creating New Models page](creating_models.html) for details on creating a new model. Once you have a new model DCF file, you follow the same steps when adding a new dataset file (substitute NEW_MODEL with your model's name):
+
+```
+$ git add inst/models/NEW_MODEL.dcf
+$ git commit -m "Adding new model" inst/models/NEW_MODEL.dcf
+$ git push
+
+
+```
+As with adding a new dataset, you then go to Github and create a pull request against the https://github.com/jbryer/mldash project.
+
+
+### Contributing a Model Run
+
+After running models mldash::run_models() and saving the results in a dataframe (see below), you can save your results to a file in /inst/results file (substitute RESULTS_FILE with your filename), inside of your R session:
+
+```
+ml_results <- mldash::run_models(datasets = ml_datasets, 
+                                 models = ml_models, 
+                                 seed = 2112)
+
+saveRDS(ml_results, file.path("inst","results","RESULTS_FILE.rds"))
+
+```
+
+You now have a new results file in your mldash/inst/results directory and in your terminal, you can now commit and push it to Github:
+
+```
+git add inst/results/RESULTS_FILE.rds
+git commit -m "Contributing a model run" inst/results/RESULTS_FILE.rds
+git push
+
+```
+
+Again, the last step is going to Github and creating a pull request against the https://github.com/jbryer/mldash project.
