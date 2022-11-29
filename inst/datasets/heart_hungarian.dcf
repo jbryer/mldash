@@ -1,0 +1,18 @@
+name: heart_hungarian
+type: classification
+description: 
+source: https://archive.ics.uci.edu/ml/datasets/heart+disease
+reference: 
+data: function ()
+	{
+	    destfile <- tempfile()
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.hungarian.data",  destfile)
+	    df <- read.csv(destfile, header = FALSE,na.strings=c("?"))
+	    names(df) <- c("age","sex","cp","trestbps","chol","fbs","restecg","thalach","exang","oldpeak","slope","ca","thal","num")
+	    df <- subset(df, select=-c(ca, thal, slope))
+	    df <- na.omit(df)
+	    df$num <- df$num > 0
+	    return(df)
+	}
+model: num~.
+note: [tbd]

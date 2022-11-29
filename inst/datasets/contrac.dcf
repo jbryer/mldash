@@ -1,0 +1,23 @@
+name: contrac
+type: classification
+description: 
+source: https://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice
+reference: 
+data: function ()
+	{
+	    destfile <- tempfile()
+	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/cmc/cmc.data",  destfile)
+	    df <- read.csv(destfile, header = FALSE)
+	    names(df) <- c("wife_age","wife_education","husband_education","num_children","wife_religion","wife_working","husband_occupation","standard_of_living","media_exposure","contraceptive_method")
+	    df$wife_education <- as.factor(df$wife_education)
+	    df$husband_education <- as.factor(df$husband_education)	
+	    df$wife_religion <- df$wife_religion == 1	
+	    df$wife_working <- df$wife_working == 0
+	    df$husband_occupation <- as.factor(df$husband_occupation)	
+	    df$standard_of_living <- as.factor(df$standard_of_living)	
+	    df$media_exposure <- as.factor(df$media_exposure)	
+	    df$contraceptive_method <- df$contraceptive_method > 1
+	    return(df)
+	}
+model: contraceptive_method~.
+note: [tbd]
