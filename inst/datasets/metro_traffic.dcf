@@ -1,0 +1,16 @@
+name: metro_traffic
+type: regression
+description: Predict Traffic Volume in Minneapolis-Saint Paul Metro Area based on 8 predictors.
+source: https://archive.ics.uci.edu/ml/datasets/Metro+Interstate+Traffic+Volume
+reference: John Hogue, john.d.hogue '@' live.com, Social Data Science & General Mills
+url: https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz
+data: function() {
+  destfile <- tempfile()
+  download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz", destfile)
+  metro_traffic <- read.csv(destfile,skip = 1, header = FALSE)
+  colnames(metro_traffic) <- c('holiday','temp','rain_1h','snow_1h','clouds_all','weather_main','weather_description','date_time','traffic_volume')
+  return(metro_traffic)
+	}
+model: traffic_volume ~ holiday + temp + rain_1h + snow_1h + clouds_all + weather_main + weather_description + date_time
+packages:
+notes:  # Skip was added to remove problematic header row. Categorical variables need to be dummy coded. 
