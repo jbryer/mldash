@@ -1,0 +1,13 @@
+name: e1071_svm_linear_classification
+type: classification
+description: Support vector machine with the radial kernel
+train: function(formula, data) {
+				e1071::svm(formula,data=data, type='C-classification', kernel='linear',
+				decision.values=TRUE, probability=TRUE)
+			}
+predict: function(model, newdata) {
+	 		 	  pred <- stats::predict(model, newdata=newdata, probability=TRUE)
+				  return(as.vector(attr(pred,'probabilities')[,2]))
+			}
+packages: e1071
+note:
