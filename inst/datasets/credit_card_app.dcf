@@ -8,9 +8,13 @@ data: function ()
 	    destfile <- tempfile()
 	    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data",
 	        destfile)
-	    df <- read.csv(destfile, header=FALSE)
+	    df <- read.csv(destfile, header=FALSE,na.strings=c("?"))
 	    names(df) <- c('A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15','A16')
+            formu <- A16 ~ A2 + A3 + A8 + A11 + A14
+            df <- get_all_vars(formu, df)
+            df <- df[complete.cases(df),]
+	    df$A16 <- as.factor(df$A16 == '+')
 	    return(df)
 	}
-model: A16 ~ .
+model: A16 ~ A2 + A3 + A8 + A11 + A14
 note: All attribute names and values have been changed to meaningless symbols to protect confidentiality of the data.

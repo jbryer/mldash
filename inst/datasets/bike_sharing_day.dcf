@@ -18,6 +18,8 @@ data: function ()
 	        "holiday", "weekday", "workingday", "weathersit", "temp",
 	        "atemp", "hum", "windspeed", "casual", "registered",
 	        "cnt")
+            formu <- cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered
+            df <- get_all_vars(formu, df)
 	    return(df)
 	}
 model: cnt ~ season + yr + mnth + holiday + weekday + workingday + weathersit + temp + atemp + hum + windspeed + casual + registered
