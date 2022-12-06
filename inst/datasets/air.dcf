@@ -21,5 +21,5 @@ data: function ()
 	}
 model: y ~ ds
 note:
-packages: tidyr,dplyr,lubridate
+packages: tidyr,dplyr,lubridate,tsibble
 model_params: list(freq = 'hours')
