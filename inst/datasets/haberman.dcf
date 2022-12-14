@@ -1,0 +1,19 @@
+name: haberman
+type: classification
+description: The dataset contains cases from a study that was conducted between 1958 and 1970 at the University of Chicago's Billings Hospital on the survival of patients who had undergone surgery for breast cancer.
+source: https://archive.ics.uci.edu/ml/datasets/Haberman%27s+Survival
+reference: Haberman’s Survival Data Set. (1999). [Dataset; Https://archive.ics.uci.edu/ml/datasets/Haberman%27s+Survival]. Tjen-Sien Lim. https://archive.ics.uci.edu/ml/datasets/Haberman%27s+Survival
+data: function(){
+		destfile <- tempfile()
+		download.file('http://archive.ics.uci.edu/ml/machine-learning-databases//haberman/haberman.data', destfile)
+		df <- readr::read_csv(file = destfile,
+							  col_names = c("Age", "Operation_Year", "Number_Pos_Nodes", "Survival")) |>
+			na.omit() |>
+			dplyr::mutate(Survival = ifelse(Survival == 2, 0, 1),
+						  Survival = factor(Survival))
+
+	return(df)
+}
+
+model: Survival~.
+packages: readr, dplyr

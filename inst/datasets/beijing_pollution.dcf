@@ -1,0 +1,17 @@
+name: beijing_pollution
+type: regression
+decription: his hourly data set contains the PM2.5 data of US Embassy in Beijing. Meanwhile, meteorological data from Beijing Capital International Airport are also included.
+source: http://archive.ics.uci.edu/ml/datasets/Beijing+PM2.5+Data
+reference: Chen, S. & Guanghua School of Management, Center for Statistical Science, Peking University. (2017). Beijing PM2.5 Data Data Set [Dataset]. Guanghua School of Management, Center for Statistical Science, Peking University. http://archive.ics.uci.edu/ml/datasets/Beijing+PM2.5+Data
+data: formula(){
+			destfile <- tempfile()
+			download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00381/PRSA_data_2010.1.1-2014.12.31.csv", destfile)
+			df <- read.csv(destfile, header = TRUE)
+			df[,1:5] <- NULL
+			df$cbwd <- NULL
+			df <- na.omit(df)
+			dim(df)v
+
+		return(df)
+}
+formula: pm2.5~.

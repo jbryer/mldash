@@ -1,0 +1,18 @@
+name: party prediction
+type: classification
+description: Predicting political party from 2019 Portuguese election
+source: http://archive.ics.uci.edu/ml/datasets/Real-time+Election+Results%3A+Portugal+2019
+reference: Moniz, N. & Sciences College, University of Porto. (2019). Real-time Election Results: Portugal 2019 Data Set [Dataset]. Science College, University of Porto. http://archive.ics.uci.edu/ml/datasets/Real-time+Election+Results%3A+Portugal+2019
+data: function(){
+			destfile <- tempfile()
+			download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00513/ElectionData2019.zip", destfile)
+			df <- unz(description = destfile, filename = "GoesGold/ElectionData.csv")
+			df <- read.csv(df)
+			df$TimeElapsed <- NULL
+			df$time <- NULL
+			df$territoryName <- NULL
+			df$Party <- as.factor(df$Party)
+
+		return(df)
+}
+model: Party~.

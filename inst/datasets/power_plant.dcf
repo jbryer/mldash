@@ -1,0 +1,16 @@
+name: power plant
+type: regression
+description: The dataset contains 9568 data points collected from a Combined Cycle Power Plant over 6 years (2006-2011), when the power plant was set to work with full load. Features consist of hourly average ambient variables Temperature (T), Ambient Pressure (AP), Relative Humidity (RH) and Exhaust Vacuum (V) to predict the net hourly electrical energy output (EP) of the plant.
+source: "http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant"
+reference: Tufecki, P., Kaya, H., Çorlu Faculty of Engineering, Namık Kemal University, & Department of Computer Engineering, Boğaziçi University. (2014). Combined Cycle Power Plant Data Set [Dataset]. http://archive.ics.uci.edu/ml/datasets/Combined+Cycle+Power+Plant
+data: function(){
+		destfile <- tempfile()
+		download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00294/CCPP.zip", destfile)
+		f <- grep("\\.xlsx$", unzip(destfile, list = TRUE)$Name, ignore.case = TRUE, value = TRUE)
+		f <- unzip(destfile, files = f)
+		df <- xlsx::read.xlsx(f, sheetIndex = 1)
+		na.omit(df)
+	return(df)
+}
+model: PE~.
+packages: xlsx

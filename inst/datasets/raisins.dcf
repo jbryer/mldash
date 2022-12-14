@@ -1,0 +1,16 @@
+name: raisins
+type: classification
+description: Images of Kecimen and Besni raisin varieties grown in Turkey were obtained with CVS. A total of 900 raisin grains were used, including 450 pieces from both varieties. These images were subjected to various stages of pre-processing and 7 morphological features were extracted. These features have been classified using three different artificial intelligence techniques.
+source: http://archive.ics.uci.edu/ml/datasets/Raisin+Dataset
+reference: Cinar, Koklu, Tasdemir, & Faculty of Technology, Selcuk University. (2021). Raisin Dataset [Dataset]. Faculty of Technology, Selcuk University, Konya, TURKEY. http://archive.ics.uci.edu/ml/datasets/Raisin+Dataset
+data: function()
+		{
+			destfile <- tempfile()
+			download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00617/Raisin_Dataset.zip", destfile)
+			f <- grep("\\.xlsx$", unzip(destfile, list = TRUE)$Name, ignore.case = TRUE, value = TRUE)
+			f <- unzip(destfile, files = f)
+			df <- xlsx::read.xlsx(f, sheetIndex = 1)
+			df$Class <- as.factor(df$Class)
+		return(df)
+		}
+model: Class~.
