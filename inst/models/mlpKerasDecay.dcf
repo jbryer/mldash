@@ -1,0 +1,15 @@
+name: mlpKerasDecay
+type: classification
+description: mlpKerasDecay model implemented with keras and tensorflow
+train: function(formula, data) {
+	reticulate::use_condaenv('r-reticulate', required = TRUE)
+	doParalell::registerDoParallel(cores = 4)
+	set.seed(1)
+	mlpKerasDecay <- caret::train(formula, data = data, method = "mlpKerasDecay", epochs = 2, tuneLength =2)
+	}
+
+predict: function(model, newdata) {
+	caret::predict.train(mlpKerasDecay, newdata = test, type = "prob")[,1,drop =TRUE]
+	}
+notes: single layer MLP decay neural net model
+packages: doParalell, keras, tensorflow, caret, reticulate

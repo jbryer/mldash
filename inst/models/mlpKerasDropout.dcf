@@ -1,0 +1,15 @@
+name: mlpKerasDropout
+type: classification
+description: mlpKerasDropout model implemented with keras and tensorflow
+train: function(formula, data) {
+	reticulate::use_condaenv('r-reticulate', required = TRUE)
+	doParalell::registerDoParallel(cores = 4)
+	set.seed(1)
+	mlpKerasDropout <- caret::train(formula, data = data, method = "mlpKerasDropout", epochs = 2, tuneLength =2)
+	}
+
+predict: function(model, newdata) {
+	caret::predict.train(mlpKerasDropout, newdata = test, type = "prob")[,1,drop =TRUE]
+	}
+notes: single layer MLP Dropout Model
+packages: doParalell, keras, tensorflow, caret, reticulate
