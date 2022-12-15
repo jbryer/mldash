@@ -14,3 +14,4 @@ data: function() {
 model: traffic_volume ~ holiday + temp + rain_1h + snow_1h + clouds_all + weather_main + weather_description + date_time
 packages:
 notes:  # Skip was added to remove problematic header row. Categorical variables need to be dummy coded. 
+
