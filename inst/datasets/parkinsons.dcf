@@ -1,0 +1,19 @@
+name: parkinsons
+type: regression
+description: Audio Statistics from Recorded Vocal Measurements from Parkinsons Patients
+source: https://archive.ics.uci.edu/ml/datasets/Parkinsons+Telemonitoring
+reference: Athanasios Tsanas, Max A. Little, Patrick E. McSharry, Lorraine O. Ramig (2009), 'Accurate telemonitoring of Parkinson’s disease progression by non-invasive speech tests', IEEE Transactions on Biomedical Engineering (to appear). 
+data: function ()
+	{
+	    destfile <- tempfile()
+      download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/parkinsons/telemonitoring/parkinsons_updrs.data", destfile)
+      parkinsons <- read.csv(destfile,skip = 1, header = FALSE)
+      colnames(parkinsons) <- c('subject','age','sex','test_time','motor_UPDRS','total_UPDRS','Jitter(%)','Jitter(Abs)','Jitter:RAP',
+      'Jitter:PPQ5','Jitter:DDP','Shimmer','Shimmer(dB)',
+      'Shimmer:APQ3','Shimmer:APQ5','Shimmer:APQ11','Shimmer:DDA','NHR','HNR','RPDE','DFA','PPE')
+	    return(parkinsons)
+	}
+model: motor_UPDRS ~.
+note: # total_UPDRS is also an output variable that can be predicted.
+
+
