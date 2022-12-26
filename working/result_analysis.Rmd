@@ -1,0 +1,144 @@
+---
+title: "Results Analysis"
+author: "David Simbandumwe"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+#rm(list=ls())
+
+```
+
+
+```{r libraries, include=FALSE}
+
+library(prophet)
+library(forecast)
+library(lubridate)
+library(archive)
+library(readr)
+library(tidyr)
+library(dplyr)
+
+
+library(kableExtra)
+library(ggpubr)
+library(ggplot2)
+library(tidyverse)
+
+
+
+library(lubridate)
+
+library(ggcorrplot) 
+
+
+library(fable)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(tseries)
+
+library(stringr)  
+library(modeltime)
+library(yardstick)
+
+
+```
+
+
+
+
+
+
+```{r}
+
+w_flag = FALSE
+if (w_flag) {
+	final_results <- ml_results %>% dplyr::select('dataset','model','type','time_user','time_system','time_elapsed'
+												  ,'mae', 'mape', 'mase', 'mpe', 'rmse', 'rsq')
+	write.csv(final_results,file='inst/results/final_results-21.csv')
+}
+
+
+
+```
+
+
+
+```{r}
+
+final_results <- read_csv('inst/results/final_results-20.csv') %>% select(!type) %>% mutate_if(is.numeric, round, digits=3)
+result_df <- final_results %>% pivot_longer(!c('dataset','model') ,names_to = "metric", values_to = "value")
+
+result_df$model <- str_remove(result_df$model,'_timeseries.dcf')
+result_df$value_round <- round(result_df$value,3)
+
+```
+# model performance
+
+
+## RMSE
+
+
+
+```{r}
+
+result_df %>% dplyr::filter(metric %in% c('rmse')) %>%
+ggplot(aes(x=model, y=value, fill=model)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(dataset),scales = "free", ncol = 3) +
+	coord_flip() +
+	ggtitle("Model Performance (RMSE)")
+
+result_df %>% dplyr::filter(metric == 'rmse') %>%
+	ggplot(aes(x=model, y=dataset, fill=value_round, label=value)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=3) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (RMSE)")
+
+```
+
+
+## Elapsed Time
+
+```{r}
+
+result_df %>% dplyr::filter(metric %in% c('time_elapsed')) %>%
+ggplot(aes(x=model, y=value, fill=metric)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(dataset),scales = "free", ncol = 3) +
+	coord_flip() +
+	ggtitle("Model Performance (time_elapsed)")
+
+result_df %>% dplyr::filter(metric == 'time_elapsed') %>%
+	ggplot(aes(x=model, y=dataset, fill=value_round, label=value)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=3) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (time_elapsed)")
+
+
+```
+
+
+
+
+
+
+
+
+

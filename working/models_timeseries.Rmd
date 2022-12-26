@@ -1,0 +1,721 @@
+---
+title: "Models Time Series"
+author: "David Simbandumwe"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+#rm(list=ls())
+
+```
+
+
+```{r libraries, include=FALSE}
+
+
+library(lubridate)
+library(archive)
+library(readr)
+library(tidyr)
+library(dplyr)
+library(stringr)  
+
+library(kableExtra)
+library(ggpubr)
+library(ggplot2)
+library(ggcorrplot) 
+library(patchwork)
+
+library(prophet)
+library(forecast)
+library(tidyverse)
+library(fable)
+#library(fabletools)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(tseries)
+library(modeltime)
+library(yardstick)
+
+
+```
+
+
+
+```{r}
+
+# Load Data Shared Functions
+source('./working/timeseries_functions.R', local = knitr::knit_global())
+
+```
+
+
+```{r functions}
+
+mergeResults <- function(data_df, m0, modelName){
+	
+	multi_metric <- metric_set(rmse, rsq, msd, mae, mpe, mape, smape, mase)
+	m1 <- data_df %>% multi_metric(truth=actual, estimate=predict)
+	
+	m <- merge(x = m0, y = m1, by = ".metric", all = TRUE)
+	m
+	
+	# write final results
+	m0 <- m0 %>% dplyr::rename(metric = .metric,
+					 model = .model,
+			         value = fable)
+	m0$type <- 'fable'
+	final_m_df <- rbind(final_m_df,m0 %>% dplyr::select(model,metric,type,value))
+	
+	
+	m1 <- m1 %>% dplyr::rename(metric = .metric,
+			         value = .estimate)
+	m1$model <- modelName
+	m1$type <- 'yardstick'
+	final_m_df <- rbind(final_m_df,m1 %>% dplyr::select(model,metric,type,value))
+	
+	return(final_m_df)
+}
+
+
+plotGraph <- function(tb, data_df, graphName) {
+	
+plt <- ggplot() + geom_line(data = tb, aes(y=y, x=ds), color="darkgray") +
+		geom_line(data = data_df, aes(y=predict, x=month), 
+				  color="steelblue", linetype="twodash") +
+		ggtitle(graphName)
+show(plt)
+
+plt <- ggplot(data_df, aes(x=month)) +
+				geom_line(aes(y=actual), color="darkgray") +
+				geom_line(aes(y=predict), color="steelblue", linetype="twodash") +
+				ggtitle(graphName)
+show(plt)
+
+return(plt)
+	
+	
+	
+}
+
+
+
+```
+
+
+
+
+# Dataset
+
+
+```{r}
+
+# Data Set ID
+dataSetKey <- 11
+lag.length = 12
+freq <- 'months'
+df <- data.frame()
+tb <-as.tibble(df)
+
+
+
+if ( dataSetKey == 1) {
+	freq = 'hours'
+	tb <- airQuality()
+} else if ( dataSetKey == 2 ) {
+	freq = 'days'
+	tb <- bankCalls()
+} else if ( dataSetKey == 3 ) {
+	freq <- 'months'
+	tb <- canadianGas()
+} else if ( dataSetKey == 4 ) {
+	freq <- 'months'
+	tb <- energy()
+} else if ( dataSetKey == 5 ) {
+	freq <- 'months'
+	tb <- insurance()
+} else if ( dataSetKey == 6 ) {
+	freq = 'days'
+	tb <- marsData()
+} else if ( dataSetKey == 7 ) {
+	freq = 'hours'
+	tb <- sales()
+} else if ( dataSetKey == 8 ) {
+	freq <- 'months'
+	tb <- tesla()
+} else if ( dataSetKey == 9 ) {
+	freq <- 'months'
+	tb <- flights()	
+} else if ( dataSetKey == 10 ) {	
+	freq = 'months'
+	tb <- sp500()
+} else if ( dataSetKey == 11 ) {
+	freq = 'months'
+	tb <- inflationUK()
+} else {
+	# nnet error out
+	freq = 'hours'
+	tb <- traffic()
+}
+
+df <- data.frame(tb)
+
+lambda <- tb %>%
+  features(y, features = guerrero) %>%
+  pull(lambda_guerrero)
+
+```
+
+
+
+
+
+
+
+
+# Data Analysis
+
+
+
+```{r}
+
+# plot
+tb %>% autoplot(y)
+
+	tryCatch( {tb %>% gg_season(y, period=freq)},
+		  error=function(e) { message(e)})
+
+tb %>% features(y, features = feature_set(tags = "autocorrelation"))
+tb %>% ACF(y) %>% autoplot()
+
+```
+
+
+
+## Prep Data
+
+
+```{r}
+
+
+# unitroot_nsdiffs
+ # u <- unitroot_ndiffs(a_tb$y,
+ #  alpha = 0.05,
+ #  unitroot_fn = ~unitroot_kpss(.)["kpss_pvalue"],
+ #  .period = 1)
+
+
+a_tb <- tb %>% drop_na()
+
+
+# Ljung-Box test for independence (a non-stationary signal will have a low p-value)
+print('=====')
+#bt_test <- Box.test(a_tb$y, lag=lag.length, type="Ljung-Box")
+bt_test <- Box.test(a_tb$y, lag=1, type="Ljung-Box")
+bt_test
+print(paste0('- Ljung-Box test (stationary): ', bt_test$p.value > 0.05, ' at a p-value of ', round(bt_test$p.value,4)) )
+
+# Augmented Dickey–Fuller (ADF) t-statistic test for unit root (a series with a trend line will have a unit root and result in a large p-value)
+#H0 - The time series is non-stationary.
+#HA - The time series is stationary.
+print('')
+print('=====')
+adf_test <- adf.test(x=a_tb$y)
+adf_test
+#acf(a_tb$y,lag.max = length(a_tb$y),xlab = "lag #", ylab = 'ACF',main=' ')
+print(paste0('- Dickey–Fuller (ADF) (stationary): ', adf_test$p.value < 0.05, ' at a p-value of ', round(adf_test$p.value,4)) )
+
+# Kwiatkowski-Phillips-Schmidt-Shin (KPSS) for level or trend stationarity (a low p-value will indicate a signal that is not trend stationary, has a unit root)
+print('')
+print('=====')
+kpss_test <- kpss.test(a_tb$y, null="Trend")
+kpss_test
+print(paste0('- Kwiatkowski-Phillips-Schmidt-Shin (KPSS) (trend stationary): ', kpss_test$p.value < 0.05, ' at a p-value of ', round(kpss_test$p.value,4)) )
+
+a_tb %>% autoplot(y)
+
+```
+
+
+## decomposition
+
+```{r}
+
+tb %>% select(ds,y) %>%
+	model(classical = classical_decomposition(y, type = "additive")) %>%
+	components() %>%
+	pivot_longer(cols = y:random,
+	               names_to = "component", values_to = "y") %>%
+	  mutate(component = factor(component, 
+	                            levels = c("y", "trend", "seasonal", "random"))) %>%
+	  ggplot(aes(x = ds, y = y)) +
+	  geom_line(na.rm = TRUE, color = "darkgray") +
+	  theme_light() +
+	  facet_grid(vars(component), scales = "free_y") 
+
+
+```
+
+
+
+
+
+# Models
+
+
+```{r}
+
+# setup train and validate tsibbles
+data_n <- nrow(tb)
+train_n <- floor(data_n * 0.7)
+valid_n <- data_n - train_n
+
+train_data <- tb |> slice(1:train_n)
+valid_data <- tb |> slice(train_n+1:data_n)
+new_data <- valid_data %>% select(ds,y) %>% as_tsibble(index = ds)
+
+# view trainging data
+ggplot(train_data, aes(x=ds)) +
+			geom_line(aes(y=train_data$y), color="darkgray") 
+
+
+
+# setup results dataframe
+final_m_df <- dplyr::data_frame(model=character(), 
+								metric=character(), 
+								type=character(),
+								value=numeric())
+
+
+
+
+
+
+#plot <- NULL
+
+```
+
+
+
+## Prophet
+
+```{r}
+
+p_mdl <- prophet(train_data)
+future <- make_future_dataframe(p_mdl, periods = valid_n, freq = freq)
+
+forecast <- predict(p_mdl, future)
+tail(forecast[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+prophet_plot_components(p_mdl, forecast)
+
+
+predict_data <- forecast |> slice(train_n+1:data_n) 
+p_data <- predict_data |> select(yhat)
+v_data <- valid_data |> select(y)
+
+data_df <- data.frame(
+	predict =p_data$yhat,
+	actual = v_data$y,
+	month = predict_data$ds
+)
+
+
+prophet_plt <- plotGraph(tb, data_df, "Prophet Forecast")
+
+
+multi_metric <- metric_set(rmse, rsq, msd, mae, mpe, mape, smape, mase)
+m <- data_df %>% multi_metric(truth=actual, estimate=predict)
+
+
+# write final results
+m <- m %>% dplyr::rename(metric = .metric,
+		         value = .estimate)
+
+m$type <- 'yardstick'
+m$model <- 'prophet'
+
+final_m_df <- rbind(final_m_df,m %>% dplyr::select(model,metric,type,value))
+
+```
+
+
+## Fable Prophet
+
+
+```{r}
+
+fit <- train_data %>%
+  model(fprophet = fable.prophet::prophet(y))
+
+fit %>% report()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+
+fprophet_plt <- plotGraph(tb, data_df, "Fable Prophet Forecast")
+final_m_df <- mergeResults(data_df, m0, 'fprophet')
+
+```
+
+
+
+
+## Fable ARIMA
+
+
+```{r}
+
+# train model
+fit <- NULL
+if (dataSetKey %in% c(11)) {
+	fit <- train_data %>% model(arima = ARIMA(y ~ trend() + season()))	
+} else {
+	fit <- train_data %>% model(arima = ARIMA(y))
+}
+
+
+
+tryCatch( {gg_arma(fit %>% select(arima))},
+		  error=function(e) { message(e)})
+
+fit %>% report()
+
+#components(fit) %>% autoplot()
+
+
+#H0: The residuals are independently distributed.
+#HA: The residuals are not independently distributed; they exhibit serial correlation.
+Box.test(resid(fit)$.resid,type="Ljung",lag=12,fitdf=1)
+#t <- resid(fit)$.resid
+
+
+
+
+	tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+	
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+# test model
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+fc %>% autoplot(train_data)
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+arima_plt <- plotGraph(tb, data_df, "Arima Forecast")
+final_m_df <- mergeResults(data_df, m0, 'arima')
+
+
+
+```
+
+
+## Fable TSLM
+
+
+```{r}
+
+fit <- train_data %>%
+  model(tslm = TSLM(y ~  trend() + season()))
+
+fit %>% report()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+tslm_plt <- plotGraph(tb, data_df, "TSLM Forecast")
+final_m_df <- mergeResults(data_df, m0, 'tslm')
+
+
+```
+
+
+
+
+
+
+## Fable ETS
+
+
+```{r}
+
+
+fit <- NULL
+if (dataSetKey %in% c(11)) {
+	fit <- train_data %>% model(ets = ETS(y ~ trend('A') + season('A') + error()))
+} else if ( dataSetKey %in% c(10)) {
+	fit <- train_data %>% model(ets = ETS(box_cox(y, lambda) ~  trend('M') + season('M')))
+} else {
+	fit <- train_data %>% model(ets = ETS(y ~ trend() + season()))
+}
+
+fit %>% report()
+
+components(fit) %>% autoplot()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+
+ets_plt <- plotGraph(tb, data_df, "ETS Forecast")
+final_m_df <- mergeResults(data_df, m0, 'ets')
+
+
+
+
+```
+
+
+
+
+
+
+## Fable NNETAR
+
+
+```{r}
+
+fit <- train_data %>%
+  model(nnet = NNETAR(y ~ trend() + season() + AR()))
+
+fit %>% report()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data, times=10)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+
+nnet_plt <- plotGraph(tb, data_df, "NNETAR Forecast")
+if (!is.na(fc$.mean[1])) {
+	final_m_df <- mergeResults(data_df, m0, 'nnet')
+}
+
+
+```
+
+
+## Fable naive
+
+```{r}
+
+
+fit <- train_data %>%
+  model(naive = fable::NAIVE(y))
+
+fit %>% report()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data, times=10)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+
+naive_plt <- plotGraph(tb, data_df, "Naive Forecast")
+final_m_df <- mergeResults(data_df, m0, 'naive')
+
+
+
+```
+
+
+
+
+## Fable mean
+
+```{r}
+
+fit <- train_data %>%
+  model(mean = fable::MEAN(y))
+
+fit %>% report()
+
+tryCatch( {fit %>% gg_tsresiduals()},
+		  error=function(e) { message(e)})
+
+m0 <- fabletools::accuracy(fit)
+m0 <- m0 %>% pivot_longer(!c('.model','.type') ,names_to = ".metric", values_to = "fable")
+m0$.metric <- tolower(m0$.metric)
+
+fc <- fit %>% fabletools::forecast(new_data = new_data, times=10)
+fc %>% autoplot(train_data)
+
+
+data_df <- data.frame(
+	predict =fc$.mean,
+	actual = valid_data$y,
+	month = valid_data$ds
+)
+
+
+mean_plt <- plotGraph(tb, data_df, "Mean Forecast")
+final_m_df <- mergeResults(data_df, m0, 'mean')
+
+
+```
+
+
+
+# Display Results
+
+
+
+```{r}
+
+final_m_df$value_round <- round(final_m_df$value,3)
+
+```
+
+
+```{r}
+
+prophet_plt + fprophet_plt + arima_plt + tslm_plt +  ets_plt + 
+	nnet_plt + naive_plt + mean_plt + plot_layout(ncol = 3)
+
+```
+
+
+
+
+
+
+
+```{r}
+
+final_m_df %>% dplyr::filter(metric %in% c('mape','rsq','acf1','mase','rmse')) %>%
+ggplot(aes(x=model, y=value, fill=metric)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(metric,type),scales = "free") +
+	ggtitle("Model Performance")
+
+
+```
+
+
+
+
+```{r}
+
+yard_plt <- final_m_df %>% 
+	dplyr::filter(type=='yardstick' & metric %in% c('mape','rsq','acf1','mase','rmse')) %>%
+	ggplot(aes(x=model, y=metric, fill=value_round, label=value_round)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=3) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (Yardstick)")
+
+
+fable_plt <- final_m_df %>% 
+	dplyr::filter(type=='fable' & metric %in% c('mape','rsq','acf1','mase','rmse')) %>%
+	ggplot(aes(x=model, y=metric, fill=value_round, label=value_round)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=3) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (Fable)")
+
+
+yard_plt + fable_plt + plot_layout(ncol = 1) &
+  theme(legend.position='right')
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
