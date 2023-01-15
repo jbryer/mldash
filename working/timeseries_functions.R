@@ -264,8 +264,7 @@ sales <- function() {
     download.file('https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx',destfile)
     df <- readxl::read_excel(destfile)
     df <- df |> timetk::summarise_by_time(.date_var = InvoiceDate,.by = "hour",value = sum(Quantity*UnitPrice))
-    df$ds <- df$InvoiceDate
-    df$ds <- lubridate::ymd_hms(df$ds)
+    df$ds <- lubridate::ymd_hms(df$InvoiceDate)
     df$y <- df$value
     df <- df |> dplyr::filter(!y < 0)
     df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
@@ -292,7 +291,7 @@ flights <- function() {
 	download.file('https://download2.exploratory.io/downloads/data/2007_flights.csv',destfile)
 	df1 <- readr::read_csv(destfile, show_col_types = FALSE)
 	df <- rbind(df,df1)
-	df$ds <- df$year_month
+	df$ds <- yearmonth(df$year_month)
 	df$y <- df$count
 
 	tb <- df |> dplyr::select(ds,y) |> tsibble::as_tsibble(index = ds)
@@ -357,4 +356,111 @@ inflationUK <- function() {
 
 
 
+## Covid Data
+# freq = 'days'
+covidStats <- function() {
+
+	destfile <- tempfile()
+	download.file("https://github.com/dsimband/rts/raw/main/data/population_by_country_2020.csv",destfile)
+	pop_df <-  readr::read_csv(destfile)
+	pop_df$CountryMap <- pop_df$"Country (or dependency)"
+	pop_df[pop_df$CountryMap == "United States",]$CountryMap = "US"
+	pop_df[pop_df$CountryMap == "China",]$CountryMap = "Mainland China"
+	pop_df[pop_df$CountryMap == "United Kingdom",]$CountryMap = "UK"
+	pop_df <- pop_df %>% dplyr::select(CountryMap,"Population (2020)")
+	names(pop_df) <- c("Country","Population")
+
+
+
+	destfile <- tempfile()
+	download.file("https://github.com/dsimband/rts/raw/main/data/covid_19_data.csv",destfile)
+	df <-  readr::read_csv(destfile)
+
+	df$ds <- as.POSIXct(df$ObservationDate, format = "%m/%d/%Y")
+	df$ds <- lubridate::ymd(df$ds)
+	df$Country <- df$'Country/Region'
+
+	countryNames <- df %>% dplyr::group_by(Country) %>%
+		dplyr::summarise(
+			Deaths = sum(Deaths),
+			Confirmed = sum(Confirmed),
+			Recovered = sum(Recovered),
+		) %>%
+		dplyr::arrange(desc(Confirmed), n=10) %>%
+		dplyr::select(Country) %>% head(10)
+
+	#countryNames <- countryNames$Country
+	countryNames <- c('US')
+
+	df <- df %>% dplyr::group_by(ds,Country) %>%
+		dplyr::filter(Country %in% countryNames) %>%
+		dplyr::summarise(
+			Deaths = sum(Deaths),
+			Confirmed = sum(Confirmed),
+			Recovered = sum(Recovered),
+		) %>%
+		dplyr::select(ds, Country, Deaths, Confirmed, Recovered)
+
+	df <- merge(df, pop_df, by.x = "Country", by.y = "Country")
+	df <- df %>% dplyr::mutate(
+							Active = Confirmed - Recovered -Deaths,
+							Active_percent = Active / Population,
+							y = Active_percent)
+
+	#df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
+	df <- df |> dplyr::filter(!is.na(ds))
+
+	tb <- df |> dplyr::select(ds, Country,y, Active, Confirmed, Recovered, Deaths) |>
+		tsibble::as_tsibble(index = ds)
+	tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
+
+	return(tb)
+
+
+}
+
+
+
+
+
+
+## Covid Data
+# freq = 'days'
+covidDeaths <- function() {
+
+
+library(mosaicData)
+
+
+
+
+	destfile <- tempfile()
+	download.file("https://zenodo.org/record/5129091/files/temperature_rain_dataset_without_missing_values.zip?download=1",destfile)
+	#df <- readr::read_tsv(destfile)
+	df <-  readr::read_csv(destfile, skip=15, col_names=FALSE)
+
+
+	df <- mosaicData::Births
+
+	df <- mosaicData::Weather %>% dplyr::filter(city =='Chicago')
+	df <- mosaicData::Weather %>% dplyr::filter(city =='San Diego')
+
+
+
+	library(tsdl)
+	#t <- subset(tsdl,"Sport").as_tibble()
+	t <- subset(tsdl,"Sport")
+	t[[2]]
+	t <- as_tsibble(t[[2]])
+
+	m <- subset(tsdl,"Macroeconomic")
+	m[4]
+	m[[4]]
+
+
+
+	library(Mcomp)
+	d <- subset(M1, "INDUST", "monthly")
+
+}
 
