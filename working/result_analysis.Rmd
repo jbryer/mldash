@@ -68,7 +68,7 @@ w_flag = FALSE
 if (w_flag) {
 	final_results <- ml_results %>% dplyr::select('dataset','model','type','time_user','time_system','time_elapsed'
 												  ,'mae', 'mape', 'mase', 'mpe', 'rmse', 'rsq')
-	write.csv(final_results,file='inst/results/final_results-23.csv')
+	write.csv(final_results,file='inst/results/final_results-24.csv')
 }
 
 

@@ -3,7 +3,7 @@ type: timeseries
 description: The R package fable provides a collection of commonly used univariate and multivariate time series forecasting models.
 train: function(formula, data, ...) {
 		tb <- data |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
-		tb |> fabletools::model(ets = fable::ETS(y ~ trend() + season()))
+		tb |> fabletools::model(ets = fable::ETS(y))
 	}
 predict: function(model, newdata, ...) {
 		tb <- newdata |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
