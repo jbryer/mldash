@@ -28,12 +28,25 @@ usethis::use_package('R.utils', type = 'Imports')
 # Test datasets and models from package source directory
 ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
 ml_models <- mldash::read_ml_models(dir = 'inst/models')
+# ml_models <- ml_models['lm',]
 ml_datasets <- ml_datasets |> dplyr::filter(id %in% c('titanic', 'PedalMe'))
 ml_results <- mldash::run_models(datasets = ml_datasets, models = ml_models, timeout = Inf)
 
 
-
-
+titanic <- mldash::get_data('titanic')
+xgboost.train <- xgboost::xgboost(
+	data = data.matrix(titanic[,-1]),
+	label = titanic$survived,
+	eta = 0.1,
+	max_depth = 15,
+	nround=25,
+	subsample = 0.5,
+	colsample_bytree = 0.5,
+	eval_metric = "merror",
+	objective = "multi:softprob",
+	num_class = 12,
+	nthread = 3)
+summary(xgboost.train)
 
 # Test core functions from package installation directory
 ml_datasets <- mldash::read_ml_datasets()
