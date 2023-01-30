@@ -1,12 +1,13 @@
-pandoc: '2.18'
-pkgdown: 2.0.6
+pandoc: 2.19.2
+pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
+  contributing: contributing.html
   creating_datasets: creating_datasets.html
   creating_models: creating_models.html
   datasets: datasets.html
   installation: installation.html
   mldash: mldash.html
   models: models.html
-last_built: 2022-11-04T15:03Z
+last_built: 2023-01-30T21:09Z
 

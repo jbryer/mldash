@@ -12,6 +12,7 @@ devtools::check()
 
 # Build pkgdown site
 # usethis::use_pkgdown()
+knitr::knit('README.Rmd')
 pkgdown::build_site()
 
 mldash::check_java()

@@ -10,6 +10,9 @@
     <loc>/LICENSE.html</loc>
   </url>
   <url>
+    <loc>/articles/contributing.html</loc>
+  </url>
+  <url>
     <loc>/articles/creating_datasets.html</loc>
   </url>
   <url>
@@ -37,6 +40,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/add_ml_results.html</loc>
+  </url>
+  <url>
     <loc>/reference/check_java.html</loc>
   </url>
   <url>
@@ -49,7 +55,13 @@
     <loc>/reference/get_data.html</loc>
   </url>
   <url>
+    <loc>/reference/get_timeseries_metrics.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/local_clone.html</loc>
   </url>
   <url>
     <loc>/reference/mldash-package.html</loc>
@@ -77,5 +89,8 @@
   </url>
   <url>
     <loc>/reference/shiny_ui.html</loc>
+  </url>
+  <url>
+    <loc>/reference/upstream_owner.html</loc>
   </url>
 </urlset>
