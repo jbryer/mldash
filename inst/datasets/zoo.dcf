@@ -2,7 +2,7 @@ name: zoo
 type: classification
 description: Predicting the class of zoo animals from various observations
 source: https://archive.ics.uci.edu/ml/datasets/Zoo
-reference: Forsyth, Richard. “Zoo Data Set.” UCI Machine Learning Repository: Zoo Data Set, 15 May 1990, https://archive.ics.uci.edu/ml/datasets/Zoo. 
+reference: Forsyth, Richard. “Zoo Data Set.” UCI Machine Learning Repository: Zoo Data Set, 15 May 1990, https://archive.ics.uci.edu/ml/datasets/Zoo.
 data: function() {
 		destfile <- tempfile()
     download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/zoo/zoo.data", destfile)
@@ -12,14 +12,12 @@ data: function() {
 	}
 model: label ~ .
 packages:
-notes: 
-
-#Label Meanings: 
-#1: Mammalia (Mammals)
-#2: Aves (Birds)
-#3: Reptillia (Reptiles)
-#4: Teleostei (Fish)
-#5: Amphibia (Amphibians)
-#6: Insecta (Insects)
-#7: Cephalopoda (Cephalopods) NOTE: Scorpion is in the same class with Octopus, not insects.
-#Scorpions are arachnids, which fall under the class Arachnida (NOT Insects)
+notes: #Label Meanings:
+	#1: Mammalia (Mammals)
+	#2: Aves (Birds)
+	#3: Reptillia (Reptiles)
+	#4: Teleostei (Fish)
+	#5: Amphibia (Amphibians)
+	#6: Insecta (Insects)
+	#7: Cephalopoda (Cephalopods) NOTE: Scorpion is in the same class with Octopus, not insects.
+	#Scorpions are arachnids, which fall under the class Arachnida (NOT Insects)

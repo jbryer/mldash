@@ -3,27 +3,22 @@ type: classification
 description: 100 volunteers provide a semen sample analyzed according to the WHO 2010 criteria. Sperm concentration are related to socio-demographic data, environmental factors, health status, and life habits
 source: http://archive.ics.uci.edu/ml/datasets/Fertility#
 reference: Gil, D., Girela, J., & Departments of Computer Technology and Biotechnology, University of Alicante. (2013). Fertility Data Set [Dataset]. University of Alicante. http://archive.ics.uci.edu/ml/datasets/Fertility#
-data: function(){
-		destfile = tempfile()
+data: function() {
+		destfile <- tempfile()
 		url <- "http://archive.ics.uci.edu/ml/machine-learning-databases/00244/fertility_Diagnosis.txt"
 		download.file(url, destfile)
-
 		df <- as.data.frame(read.delim(destfile, header = FALSE, sep = ","))
-
-		names(df)[1] = "season"
-		names(df)[2] = "age"
-		names(df)[3] = "diseases"
-		names(df)[4] = "trauma"
-		names(df)[5] = "surgery"
-		names(df)[6] = "recent_fever"
-		names(df)[7] = "alcohol"
-		names(df)[8] = "smoking"
-		names(df)[9] = "hours_sat"
-		names(df)[10] = "diagnosis"
-
+		names(df)[1] <- "season"
+		names(df)[2] <- "age"
+		names(df)[3] <- "diseases"
+		names(df)[4] <- "trauma"
+		names(df)[5] <- "surgery"
+		names(df)[6] <- "recent_fever"
+		names(df)[7] <- "alcohol"
+		names(df)[8] <- "smoking"
+		names(df)[9] <- "hours_sat"
+		names(df)[10] <- "diagnosis"
 		df$diagnosis <- as.factor(unlist(df$diagnosis))
-
-	return(df)
-}
-
-model: diagnosis~.
+		return(df)
+	}
+model: diagnosis ~ .

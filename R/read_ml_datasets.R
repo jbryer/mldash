@@ -83,6 +83,7 @@ read_ml_datasets <- function(
 	)
 
 	for(i in seq_len(nrow(ml_datasets))) {
+		message(paste0('Reading ', ml_datasets[i,]$file, '...'))
 		tmp <- as.data.frame(read.dcf(ml_datasets[i,]$file))
 
 		if(nrow(tmp) != 1) {

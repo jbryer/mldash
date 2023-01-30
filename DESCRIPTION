@@ -5,11 +5,11 @@ Authors@R: c(
     person("Jason", "Bryer", , "jason@bryer.org", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2454-0402")),
     person("Angela", "Lui", , "angela.lui@cuny.edu", role = "ctb"),
-    person("Justin", "Williams", , "", role = "ctb"),
-    person("David", "Simbandumwe", , "", role = "ctb"),
-    person("Clifton", "Lee", , "", role = "ctb"),
-    person("Shane", "Hylton", , "", role = "ctb"),
-    person("Joseph", "Connolly", , "", role = "ctb")
+    person("Justin", "Williams", role = "ctb"),
+    person("David", "Simbandumwe", role = "ctb"),
+    person("Clifton", "Lee", role = "ctb"),
+    person("Shane", "Hylton", role = "ctb"),
+    person("Joseph", "Connolly", role = "ctb")
   )
 Maintainer: Jason Bryer <jason.bryer@cuny.edu>
 Description: Framework for evaluating predictive models across many

@@ -3,8 +3,7 @@ type: timeseries
 description: Time series of major Natural Gas Prices including US Henry Hub. Data comes from U.S. Energy Information Administration EIA.
 source: https://datahub.io/core/natural-gas#data
 reference: APA reference for the dataset.
-data: function ()
-	{
+data: function () {
 		destfile <- tempfile()
 		download.file("https://datahub.io/core/natural-gas/r/daily.csv",destfile)
 		df <-  readr::read_csv(destfile)

@@ -1,9 +1,9 @@
-name: electrical grid stability
+name: electrical_grid
 type: classification
 description: The analysis is performed for different sets of input values using the methodology similar to that described in [SchÃ¤fer, Benjamin, et al. 'Taming instabilities in power grid networks by decentralized control.' The European Physical Journal Special Topics 225.3 (2016): 569-582.]. Several input values are kept the same: averaging time: 2 s; coupling strength: 8 s^-2; damping: 0.1 s^-1
 source: http://archive.ics.uci.edu/ml/datasets/Electrical+Grid+Stability+Simulated+Data+#
 reference: Arzamasov, V. & Department of computer science, Karlsruhe Institute of Technology. (2018). Electrical Grid Stability Simulated Data Data Set [Dataset]. Department of computer science, Karlsruhe Institute of Technology. http://archive.ics.uci.edu/ml/datasets/Electrical+Grid+Stability+Simulated+Data+#
-data: function(){
+data: function() {
 		destfile <- tempfile()
 		download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00471/Data_for_UCI_named.csv", destfile)
 		df <- readr::read_csv(file = destfile,
@@ -15,8 +15,8 @@ data: function(){
 		cols2Numeric <- c("tau1", "tau2",	"tau3",	"tau4",	"p1",
 						  "p2",	"p3", "p4",	"g1", "g2", "g3", "g4",
 						  "stab")
-		df[cols2Numeric] <- sapply(df[cols2Numeric], as.numeric)
-	return(df)
-}
-model: stabf~.
+		df[,cols2Numeric] <- apply(df[,cols2Numeric], 2, FUN = function(x) { as.numeric(x) })
+		return(df)
+	}
+model: stabf ~ .
 packages: readr

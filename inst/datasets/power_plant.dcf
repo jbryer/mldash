@@ -10,7 +10,7 @@ data: function(){
 		f <- unzip(destfile, files = f)
 		df <- xlsx::read.xlsx(f, sheetIndex = 1)
 		na.omit(df)
-	return(df)
-}
+		return(df)
+	}
 model: PE~.
 packages: xlsx
