@@ -1,0 +1,17 @@
+name: steel
+type: timeseries
+description: Time Series of Steel Industry Energy Consumption: DAEWOO Steel Co. South Korea
+source: https://archive.ics.uci.edu/ml/datasets/Steel+Industry+Energy+Consumption+Dataset
+reference: Sathishkumar V E, Department of Information and Communication Engineering, Sunchon National University, Suncheon. Republic of Korea. 
+data: function () {
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00618/Steel_industry_data.csv",destfile)
+    steel <- read.csv(destfile, header = TRUE)
+    steel$date <- lubridate::dmy_hm(steel$date)
+    st <- tsibble::as_tsibble(steel)
+    steel <- data.frame(st)
+		return(steel)
+	}
+model: Usage_kWh ~ .
+note:
+packages: lubridate,tsibble
