@@ -1,0 +1,13 @@
+name: amphibians
+type: classification
+description: The dataset is a multilabel classification problem. The goal is to predict the presence of amphibians species near the water reservoirs based on features obtained from GIS systems and satellite images.
+source: https://archive.ics.uci.edu/ml/datasets/Amphibians
+reference: StruzyÅ„ski, W. Ë™ Inventory of Occurrence of Amphibians and Reptiles, Including Their Migratory Routes in the Vicinity of the Planned Highway A-1, Section: The Northern Boundary of the Silesian Voivodeshipâ€”Pyrzowice; Warsaw Univ. of Life Sci.: Warsaw, Poland, 2010.
+data: function() {
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00528/dataset.csv", destfile)
+		amphibians <- read.csv(destfile, header = TRUE,sep = ";",skip=1)
+		return(amphibians)
+	}
+model: Green.frogs + Brown.frogs + Common.toad + Fire.bellied.toad + Tree.frog + Common.newt + Great.crested.newt ~ .
+notes:
