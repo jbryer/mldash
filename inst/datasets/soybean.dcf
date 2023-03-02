@@ -1,0 +1,15 @@
+name: soybean
+type: classification
+description: Predicting class of soybean diseases
+source: https://archive.ics.uci.edu/ml/machine-learning-databases/soybean/soybean-large.data
+reference: R.S. Michalski and R.L. Chilausky. "Learning by Being Told and Learning from Examples: An Experimental Comparison of the Two Methods of Knowledge Acquisition in the Context of Developing an Expert System for Soybean Disease Diagnosis", International Journal of Policy Analysis and Information Systems, Vol. 4, No. 2, 1980, https://archive.ics.uci.edu/ml/datasets/Soybean+%28Large%29.
+data: function() {
+		destfile <- tempfile()
+    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/soybean/soybean-large.data", destfile)
+    soybean <- read.csv(destfile, header = FALSE)
+    colnames(soybean) <- c('class','date','plant_stand','precip','temp','hail','crop_hist','area_damaged','severity','seed_tmt','germination','plant_growth','leaves','leafspots_halo','leafspots_marg','leafspot_size','leaf_shread','leaf_malf','leaf_mild','stem','lodging','stem_cankers','canker_lesion','fruiting_bodies','external_decay','mycelium','int_discolor','sclerotia','fruit_pods','fruit_spots','seed','mold_growth','seed_discolor','seed_size','shriveling','roots')
+		return(soybean)
+	}
+model: class ~ .
+packages:
+notes:
