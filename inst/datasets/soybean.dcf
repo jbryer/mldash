@@ -8,7 +8,7 @@ data: function() {
     download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/soybean/soybean-large.data", destfile)
     soybean <- read.csv(destfile, header = FALSE)
     colnames(soybean) <- c('class','date','plant_stand','precip','temp','hail','crop_hist','area_damaged','severity','seed_tmt','germination','plant_growth','leaves','leafspots_halo','leafspots_marg','leafspot_size','leaf_shread','leaf_malf','leaf_mild','stem','lodging','stem_cankers','canker_lesion','fruiting_bodies','external_decay','mycelium','int_discolor','sclerotia','fruit_pods','fruit_spots','seed','mold_growth','seed_discolor','seed_size','shriveling','roots')
-		return(soybean)
+    return(soybean)
 	}
 model: class ~ .
 packages:
