@@ -1,0 +1,15 @@
+name: mammographic_mass
+type: classification
+description: Predicting the severity of mammographic mass lesions
+source: https://archive.ics.uci.edu/ml/datasets/Mammographic+Mass
+reference: Matthias Elter. Fraunhofer Institute for Integrated Circuits (IIS). Image Processing and Medical Engineering Department (BMT). Am Wolfsmantel 33, 91058 Erlangen, Germany. 
+data: function() {
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/mammographic-masses/mammographic_masses.data", destfile)
+		mammographic_mass <- read.csv(destfile, header = FALSE)
+		names(mammographic_mass) <- c("BI_RADS_Assessment","Age","Shape","Margin","Density","Severity")
+		return(mammographic_mass)
+	}
+model: Severity ~ .
+packages:
+notes: Severity is predicted by the BI-RADS assessment, three characteristics, and the patient's age.
