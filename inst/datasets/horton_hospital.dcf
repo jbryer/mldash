@@ -1,0 +1,24 @@
+name: horton_hospital
+type: timeseries
+description: Time Series Data of Arrest Events at Horton General Hospital in Banbury, UK
+source: https://archive.ics.uci.edu/ml/datasets/Horton+General+Hospital
+reference: Gill, Richard D. (2020). From killer nurses to quantum entanglement, and back (Part 1). 1-16. https://www.math.leidenuniv.nl/~gill/Untitled_extended.pdf.
+data: function () {
+    destfile <- tempfile()
+    download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00549/HortonGeneralHospital.csv", destfile)
+    horton_hospital <- read.csv(destfile, header = TRUE,sep = ",")
+    
+    horton_hospital$month_year <- paste(horton_hospital$year,",",horton_hospital$month)
+    
+    horton_hospital$month_year <- lubridate::ym(horton_hospital$month_year)
+    horton_hospital <- horton_hospital[-c(1,6,7)]
+    
+    horton_hospital <- tsibble::as_tsibble(horton_hospital)
+    
+    horton_hospital <- data.frame(horton_hospital)
+    
+    return(horton_hospital)
+	}
+model: Cardio + Resp + Hypo ~ month_year
+note:
+packages: lubridate,tsibble
