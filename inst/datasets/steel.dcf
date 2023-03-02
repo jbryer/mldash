@@ -10,7 +10,7 @@ data: function () {
     steel$date <- lubridate::dmy_hm(steel$date)
     st <- tsibble::as_tsibble(steel)
     steel <- data.frame(st)
-		return(steel)
+    return(steel)
 	}
 model: Usage_kWh ~ .
 note:
