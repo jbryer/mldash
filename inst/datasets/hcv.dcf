@@ -1,0 +1,15 @@
+name: hcv
+type: classification
+description: The data set contains laboratory values of blood donors and Hepatitis C patients and demographic values like age.
+source: https://archive.ics.uci.edu/ml/datasets/HCV+data
+reference: Lichtinghagen R et al. J Hepatol 2013; 59: 236-42. Hoffmann G et al. Using machine learning techniques to generate laboratory diagnostic pathways â€“ a case study. J Lab Precis Med 2018; 3: 58-67.
+data: function() {
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00571/hcvdat0.csv", destfile)
+		hcv <- read.csv(destfile, header = TRUE)
+    
+    return(hcv)
+	}
+model: Category ~ .
+notes:
+packages:
