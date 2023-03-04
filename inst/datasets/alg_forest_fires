@@ -1,0 +1,17 @@
+name: alg_forest_fires
+type: classification
+description: Forest Fire statistics for Sidi-Bel Abbes Region in Algeria, June 2012-September 2012
+source: https://archive.ics.uci.edu/ml/datasets/Algerian+Forest+Fires+Dataset++
+reference: Faroudja ABID et al. , Predicting Forest Fire in Algeria using Data Mining Techniques: Case Study of the Decision Tree Algorithm, International Conference on Advanced Intelligent Systems for Sustainable Development (AI2SD 2019) , 08 - 11 July , 2019, Marrakech, Morocco.
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00547/Algerian_forest_fires_dataset_UPDATE.csv", destfile)
+		alg_forest_fires <- read.csv(destfile, skip = 1)
+    alg_forest_fires <- alg_forest_fires[125:246,]
+    rownames(alg_forest_fires) <- NULL
+    
+    return(alg_forest_fires)
+	}
+model: Classes ~ .
+notes:
