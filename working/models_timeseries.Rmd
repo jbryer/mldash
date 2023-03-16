@@ -1,0 +1,658 @@
+---
+title: "Models Time Series"
+author: "David Simbandumwe"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+
+```
+
+
+```{r libraries, include=FALSE}
+
+
+library(lubridate)
+library(archive)
+library(readr)
+library(tidyr)
+library(dplyr)
+library(stringr)  
+
+library(kableExtra)
+library(ggpubr)
+library(ggplot2)
+library(ggcorrplot) 
+library(patchwork)
+
+library(prophet)
+library(forecast)
+library(tidyverse)
+library(fable)
+#library(fabletools)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(tseries)
+library(modeltime)
+library(yardstick)
+
+
+```
+
+
+
+```{r}
+
+# Load Data Shared Functions
+source('./working/timeseries_functions.R', local = knitr::knit_global())
+
+```
+
+
+
+# Dataset
+
+
+```{r}
+
+# Data Set ID
+dataSetKey <- 10
+lag.length = 12
+freq <- 'months'
+df <- data.frame()
+tb <-as.tibble(df)
+
+
+
+if ( dataSetKey == 1) {
+	freq = 'hours'
+	tb <- airQuality()
+} else if ( dataSetKey == 2 ) {
+	freq = 'days'
+	tb <- bankCalls()
+} else if ( dataSetKey == 3 ) {
+	freq <- 'months'
+	tb <- canadianGas()
+} else if ( dataSetKey == 4 ) {
+	freq <- 'months'
+	tb <- energy()
+} else if ( dataSetKey == 5 ) {
+	freq <- 'months'
+	tb <- insurance()
+} else if ( dataSetKey == 6 ) {
+	freq = 'days'
+	tb <- marsData()
+} else if ( dataSetKey == 7 ) {
+	freq = 'hours'
+	tb <- sales()
+} else if ( dataSetKey == 8 ) {
+	freq <- 'months'
+	tb <- tesla()
+} else if ( dataSetKey == 9 ) {
+	freq <- 'months'
+	tb <- flights()	
+} else if ( dataSetKey == 10 ) {	
+	freq = 'months'
+	tb <- sp500()
+} else if ( dataSetKey == 11 ) {
+	freq = 'months'
+	tb <- inflationUK()
+} else if ( dataSetKey == 12 ) {
+	freq = 'days'
+	tb <- covid()
+} else {
+	# nnet error out
+	freq = 'hours'
+	tb <- traffic()
+}
+
+df <- data.frame(tb)
+
+
+```
+
+
+
+
+
+
+
+
+# Data Analysis
+
+
+
+```{r}
+
+# plot
+tb %>% autoplot(y) #+ scale_x_datetime(breaks = "1 week", minor_breaks = "1 day")
+
+	tryCatch( {tb %>% gg_season(y, period=freq)},
+		  error=function(e) { message(e)})
+
+tb %>% features(y, features = feature_set(tags = "autocorrelation"))
+tb %>% ACF(y) %>% autoplot()
+
+```
+
+
+
+## Prep Data
+
+
+```{r}
+
+
+a_tb <- tb %>% drop_na() %>% dplyr::select(ds,y)
+
+
+# Ljung-Box test for independence (a non-stationary signal will have a low p-value)
+print('=====')
+#bt_test <- Box.test(a_tb$y, lag=lag.length, type="Ljung-Box")
+bt_test <- Box.test(as.ts(a_tb), lag=1, type="Ljung-Box")
+bt_test
+print(paste0('- Ljung-Box test (stationary): ', bt_test$p.value > 0.05, ' at a p-value of ', round(bt_test$p.value,4)) )
+
+# Augmented Dickey–Fuller (ADF) t-statistic test for unit root (a series with a trend line will have a unit root and result in a large p-value)
+#H0 - The time series is non-stationary.
+#HA - The time series is stationary.
+print('')
+print('=====')
+adf_test <- adf.test(x=as.ts(a_tb))
+adf_test
+#acf(a_tb$y,lag.max = length(a_tb$y),xlab = "lag #", ylab = 'ACF',main=' ')
+print(paste0('- Dickey–Fuller (ADF) (stationary): ', adf_test$p.value < 0.05, ' at a p-value of ', round(adf_test$p.value,4)) )
+
+
+
+# Kwiatkowski-Phillips-Schmidt-Shin (KPSS) for level or trend stationarity (a low p-value will indicate a signal that is not trend stationary, has a unit root)
+print('')
+print('=====')
+kpss_test <- kpss.test(as.ts(a_tb), null="Trend")
+kpss_test
+print(paste0('- Kwiatkowski-Phillips-Schmidt-Shin (KPSS) (trend stationary): ', kpss_test$p.value < 0.05, ' at a p-value of ', round(kpss_test$p.value,4)) )
+
+a_tb %>% autoplot(y)
+
+```
+
+
+```{r}
+# Augmented Dickey-Fuller test in the urca package gives us a bit more information on and control over the test.
+#H0 - The time series is non-stationary.
+#HA - The time series is stationary.
+print('')
+print('=====')
+ur_test <- urca::ur.df(as.ts(a_tb), type = "trend", lags = 0)
+urca::summary(ur_test)
+pval <- 1-pf(ur_test@testreg$fstatistic[['value']],ur_test@testreg$fstatistic[['numdf']],ur_test@testreg$fstatistic[['dendf']])
+print(paste0('- Augmented Dickey-Fuller Test Unit Root Test (stationary): ', pval < 0.05, ' at a p-value of ', sprintf("%.6f",pval)) )
+
+```
+
+
+
+## decomposition
+
+```{r}
+
+tb %>% select(ds,y) %>%
+	model(classical = classical_decomposition(y, type = "additive")) %>%
+	components() %>%
+	pivot_longer(cols = y:random,
+	               names_to = "component", values_to = "y") %>%
+	  mutate(component = factor(component, 
+	                            levels = c("y", "trend", "seasonal", "random"))) %>%
+	  ggplot(aes(x = ds, y = y)) +
+	  geom_line(na.rm = TRUE, color = "darkgray") +
+	  theme_light() +
+	  facet_grid(vars(component), scales = "free_y") 
+
+
+```
+
+
+
+
+
+# Models
+
+
+```{r}
+
+# setup train and validate tsibbles
+data_n <- nrow(tb)
+train_n <- floor(data_n * 0.7)
+valid_n <- data_n - train_n
+
+train_data <- tb |> slice(1:train_n)
+valid_data <- tb |> slice(train_n+1:data_n)
+new_data <- valid_data %>% select(ds,y)
+
+# view trainging data
+ggplot(train_data, aes(x=ds)) +
+			geom_line(aes(y=train_data$y), color="darkgray") 
+
+
+
+# setup results dataframe
+final_m_df <- data.frame(model=character(), 
+								metric=character(), 
+								type=character(),
+								value=numeric())
+
+
+```
+
+
+
+## Prophet
+
+```{r}
+# Prophet requires more than 100 records
+if (nrow(train_data) > 99) {
+
+	p_mdl <- NULL
+	p_mdl <- prophet()
+	p_mdl <- add_country_holidays(p_mdl, country_name = 'US')
+	p_mdl <- fit.prophet(p_mdl, train_data)
+
+	future <- make_future_dataframe(p_mdl, periods = valid_n, freq = freq)
+	
+	forecast <- predict(p_mdl, future)
+	tail(forecast[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+	prophet_plot_components(p_mdl, forecast)
+	
+	
+	predict_data <- forecast |> slice(train_n+1:data_n) 
+	p_data <- predict_data |> select(yhat)
+	v_data <- valid_data |> select(y)
+	
+	data_df <- data.frame(
+		predict =p_data$yhat,
+		actual = v_data$y,
+		#ds = as.Date(predict_data$ds)
+		ds = predict_data$ds
+	)
+	
+	
+	multi_metric <- metric_set(rmse, rsq, msd, mae, mpe, mape, smape, mase)
+	m <- data_df %>% multi_metric(truth=actual, estimate=predict)
+	
+	
+	# write final results
+	m <- m %>% dplyr::rename(metric = .metric,
+			         value = .estimate)
+	
+	m$type <- 'yardstick'
+	m$model <- 'prophet'
+	
+	
+	plt <- ggplot() + geom_line(data = train_data, aes(y=y, x=ds), color="darkgray") +
+			geom_line(data = data_df, aes(y=actual, x=ds), color="darkgray") + 
+			geom_line(data = data_df, aes(y=predict, x=ds), color="steelblue", linetype="twodash") +
+			ggtitle('Prediction')
+	show(plt)
+	
+	plt <- ggplot() + geom_line(data = data_df, aes(y=actual, x=ds), color="darkgray") + 
+		geom_line(data = data_df, aes(y=predict, x=ds), color="steelblue", linetype="twodash") +
+		ggtitle('Predictions')
+	show(plt)
+	
+}
+
+```
+
+
+
+
+
+
+## Combinded Model Base
+
+```{r}
+
+
+fit <- train_data %>%
+  model(
+  	arima = ARIMA(y),
+  	ets = ETS(y),
+	tslm = TSLM(y),
+	fprophet = fable.prophet::prophet(y),
+	#nnet = NNETAR(y ~ trend() + season() + AR()),
+	snaive = fable::SNAIVE(y),
+	mean = fable::MEAN(y)
+  ) 
+
+glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
+
+
+# test model
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+
+
+# Plot Results
+ggplot(train_data, aes(x=ds)) +
+			geom_line(aes(y=train_data$y), color="darkgray") 
+fc %>% autoplot(train_data) + facet_wrap(vars(.model),scales = "free")
+fc %>% autoplot(valid_data) + facet_wrap(vars(.model),scales = "free")
+
+
+ggplot() + geom_line(data = valid_data, aes(y=y, x=ds), color="darkgray") + 
+	geom_line(data = fc, aes(y=.mean, x=ds, color=.model)) +
+	ggtitle('Predictions') + facet_wrap(vars(.model),scales = "free")
+
+
+
+```
+
+
+
+## Combinded Model
+
+```{r}
+
+
+fit <- NULL
+
+
+if (dataSetKey %in% c(7)) {
+	fit <- train_data %>%
+	  model(
+	  	arima = ARIMA(y ~ season("day") ),
+	  	ets = ETS(y),
+		tslm = TSLM(y),
+		tslm1 = TSLM(y ~  trend() + season()),
+		fprophet = fable.prophet::prophet(y),
+		#nnet = NNETAR(y ~ trend() + season() + AR()),
+		snaive = fable::SNAIVE(y ~ lag("day")),
+		mean = fable::MEAN(y)
+	  ) 
+} else if (dataSetKey %in% c(10)) {
+	fit <- train_data %>%
+	  model(
+	  	arima = ARIMA(y ~ trend() + fourier(K = 6)),
+	  	ets = ETS(y ~ error("A") + trend("M") + season("M")),
+		tslm = TSLM(y ~  trend() + season()),
+		fprophet = fable.prophet::prophet(y ~ growth("linear") + 
+										  	season("year", 14 ,type = "multiplicative")),
+		nnet = NNETAR(y ~ trend() + season() + AR()),
+		snaive = fable::SNAIVE(y ~ lag(12)),
+		mean = fable::MEAN(y)
+	  )
+ } else if (dataSetKey %in% c(11)) {
+	fit <- train_data %>%
+	  model(
+	  	arima = ARIMA(y),
+	  	ets = ETS(y ~ trend() + season()),
+		tslm = TSLM(y ~  trend() + season()),
+		fprophet = fable.prophet::prophet(y),
+		#fprophet = fable.prophet::prophet(y ~ growth("linear") + season("daily", type = "multiplicative")),
+		nnet = NNETAR(y ~ trend() + season() + AR()),
+		snaive = fable::SNAIVE(y ~ lag(10)),
+		mean = fable::MEAN(y)
+  ) 
+} else {
+	fit <- train_data %>%
+	  model(
+	  	arima = ARIMA(y),
+	  	ets = ETS(y ~ trend() + season()),
+		tslm = TSLM(y ~  trend() + season()),
+		fprophet = fable.prophet::prophet(y),
+		nnet = NNETAR(y ~ trend() + season() + AR()),
+		snaive = fable::SNAIVE(y ~ lag(10)),
+		mean = fable::MEAN(y)
+	  ) 
+}
+
+
+
+
+#glance(fit) %>% arrange(AICc) %>% select(.model:BIC)
+
+
+# test model
+fc <- fit %>% fabletools::forecast(new_data = new_data)
+
+
+# Plot Results
+ggplot(train_data, aes(x=ds)) +
+			geom_line(aes(y=train_data$y), color="darkgray") 
+fc %>% autoplot(train_data) + facet_wrap(vars(.model),scales = "free")
+fc %>% autoplot(valid_data) + facet_wrap(vars(.model),scales = "free")
+
+
+ggplot() + geom_line(data = valid_data, aes(y=y, x=ds), color="darkgray") + 
+	geom_line(data = fc, aes(y=.mean, x=ds, color=.model)) +
+	ggtitle('Predictions') + facet_wrap(vars(.model),scales = "free")
+
+
+
+```
+
+
+
+
+
+## Residual - Stationarity Test
+
+
+```{r}
+
+# Augmented Dickey-Fuller test in the urca package gives us a bit more information on and control over the test.
+#H0 - The time series is non-stationary.
+#HA - The time series is stationary.
+print('')
+print('=====')
+ur_test <- urca::ur.df(resid(fit['arima'])$.resid, type = "trend", lags = 0)
+urca::summary(ur_test)
+pval <- 1-pf(ur_test@testreg$fstatistic[['value']],ur_test@testreg$fstatistic[['numdf']],ur_test@testreg$fstatistic[['dendf']])
+print(paste0('- Augmented Dickey-Fuller Test Unit Root Test (stationary): ', pval < 0.05, ' at a p-value of ', sprintf("%.6f",pval)) )
+
+```
+
+
+
+
+
+
+
+```{r}
+
+# Hypotheses
+# The Ljung-Box test uses the following hypotheses:
+# H0: The residuals are independently distributed.
+# HA: The residuals are not independently distributed; they exhibit serial correlation.
+
+# Ideally, we would like to fail to reject the null hypothesis. That is, we would like to see the p-value of the test be greater than 0.05 because this means the residuals for our time series model are independent, which is often an assumption we make when creating a model.
+
+# A portmanteau test returns a large p-value, also suggesting that the residuals are white noise.
+# recommended using h=10 for non-seasonal data and h=2m for seasonal data, where m is the period of seasonality
+
+lj_box <- augment(fit) %>%
+	features(.innov, ljung_box, lag = 14)
+	#features(.innov, ljung_box, lag = 14, dof = 3)
+	#features(.innov, ljung_box)
+lj_box$resid_wn <- lj_box$lb_pvalue > 0.05
+lj_box
+
+
+```
+
+
+
+```{r}
+
+# measures of accuracy
+acc_fable <- fabletools::accuracy(fit)
+acc_fable <- acc_fable %>% pivot_longer(!c('.model','.type') ,
+										names_to = ".metric", 
+										values_to = "fable")
+acc_fable$.metric <- tolower(acc_fable$.metric)
+
+
+# unique(acc_fable$.metric)
+acc_fable %>% dplyr::filter(.metric %in% c('acf1','rmse','rmsse','mape','mase','mpe') &
+							 	!(.model %in% c('naive','mean'))) %>%
+ggplot(aes(x=.model, y=fable, fill=.metric)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(.metric),scales = "free") +
+	ggtitle("Model Performance")
+
+
+# graph residuals
+for (m in names(fit)) {
+	tryCatch( {
+		print(fit[m] %>% gg_tsresiduals() + ggtitle(m)) },
+		error=function(e) { message(e)})
+}
+
+```
+
+
+
+## Forcast Plots
+
+
+```{r}
+
+plt <- ggplot() + geom_line(data = train_data, aes(y=y, x=ds), color="darkgray") +
+		geom_line(data = valid_data, aes(y=y, x=ds), color="darkgray") + 
+		geom_line(data = fc, aes(y=.mean, x=ds, color=.model)) +
+		ggtitle('Predictions')
+show(plt)
+
+
+plt <- ggplot() + geom_line(data = valid_data, aes(y=y, x=ds), color="darkgray") + 
+		geom_line(data = fc, aes(y=.mean, x=ds, color=.model)) +
+		ggtitle('Predictions')
+show(plt)
+
+
+
+ggplot() + geom_line(data = valid_data, aes(y=y, x=ds), color="darkgray") + 
+	geom_line(data = fc, aes(y=.mean, x=ds, color=.model)) +
+	ggtitle('Predictions') + facet_wrap(vars(.model),scales = "free")
+
+```
+
+
+
+## Accuracy Metrics
+
+
+```{r}
+
+acc_fable$value_round <- round(acc_fable$fable,3)
+
+acc_fable %>% 
+	dplyr::filter(.metric %in% c('acf1','rmse','rmsse','mape','mase','mpe') & 
+				  	!(.model %in% c('naive','mean'))) %>%
+	ggplot(aes(x=.model, y=.metric, fill=value_round, label=value_round)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=3) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (Fable)")
+
+
+```
+
+
+```{r}
+
+m_df <- merge(fc, new_data, by = c('ds','ds'), all.x = TRUE)
+m_df <- m_df %>% dplyr::rename(actual = y.y)
+
+
+final_m_df <- dplyr::data_frame(.metric=character(), 
+							.estimator=character(),
+							.model=character(),
+							.estimate=numeric())
+
+multi_metric <- metric_set(rmse, rsq, msd, mae, mpe, mape, smape, mase)
+for (m in names(fit)) {
+	tryCatch( {
+		m0 <- m_df %>% filter(.model == m) %>%  multi_metric(truth=actual, estimate=.mean)
+		m0$.model <- m
+		final_m_df <- rbind(final_m_df,m0)
+	},
+	error=function(e) { message(e)})
+}
+
+final_m_df$value_round <- round(final_m_df$.estimate,3)
+
+
+
+
+final_m_df %>% 
+	dplyr::filter(!.model %in% c('naive','mean') & 
+				  	.metric %in% c('mape','rsq','acf1','mase','rmse','mae')) %>%
+	ggplot(aes(x=.model, y=.metric, fill=value_round, label=value_round)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=5) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (Yardstick)")	
+	
+	
+
+```
+
+
+
+
+
+
+```{r}
+
+m_df <- merge(fc, new_data, by = c('ds','ds'), all.x = TRUE)
+m_df <- m_df %>% dplyr::rename(actual = y.y)
+
+
+final_m_df <- dplyr::data_frame(.metric=character(), 
+							.estimator=character(),
+							.model=character(),
+							.estimate=numeric())
+	
+multi_metric <- metric_set(rmse, rsq, msd, mae, mpe, mape, smape, mase)
+for (m in names(fit)) {
+	tryCatch( {
+		m0 <- m_df %>% filter(.model == m) %>%  multi_metric(truth=actual, estimate=.mean)
+		m0$.model <- m
+		final_m_df <- rbind(final_m_df,m0)
+	},
+	error=function(e) { message(e)})
+}
+
+	
+	
+final_m_df$value_round <- round(final_m_df$.estimate,3)
+
+final_m_df %>% 
+	dplyr::filter(!.model %in% c('naive','mean') & 
+				  	.metric %in% c('mape','rsq','acf1','mase','rmse','mae')) %>%
+	ggplot(aes(x=.model, y=.metric, fill=value_round, label=value_round)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=5) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (Yardstick)")	
+
+
+```
+
+
+

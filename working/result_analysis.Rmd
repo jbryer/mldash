@@ -1,0 +1,251 @@
+---
+title: "Results Analysis"
+author: "David Simbandumwe"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+#rm(list=ls())
+
+```
+
+
+```{r libraries, include=FALSE}
+
+library(prophet)
+library(forecast)
+library(lubridate)
+library(archive)
+library(readr)
+library(tidyr)
+library(dplyr)
+
+
+library(kableExtra)
+library(ggpubr)
+library(ggplot2)
+library(tidyverse)
+
+
+
+library(lubridate)
+
+library(ggcorrplot) 
+
+
+library(fable)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(tseries)
+
+library(stringr)  
+library(modeltime)
+library(yardstick)
+
+
+```
+
+
+
+
+
+
+```{r}
+
+w_flag = FALSE
+#w_flag = TRUE
+if (w_flag) {
+	final_results <- ml_results %>% dplyr::select('dataset','model','type','time_user','time_system','time_elapsed'
+												  ,'mae', 'mape', 'mase', 'mpe', 'rmse', 'rsq')
+	write.csv(final_results,file='inst/results/final_results-24.csv')
+}
+
+
+
+```
+
+
+
+```{r}
+
+final_results <- read_csv('inst/results/final_results-23.csv') %>% select(!type) %>% mutate_if(is.numeric, round, digits=3)
+result_df <- final_results %>% pivot_longer(!c('dataset','model') ,names_to = "metric", values_to = "value")
+
+result_df$model <- str_remove(result_df$model,'_timeseries.dcf')
+result_df$value_round <- round(result_df$value,3)
+
+```
+# model performance
+
+
+## MASE
+
+
+
+```{r}
+
+result_df %>% dplyr::filter(metric %in% c('mase')) %>%
+ggplot(aes(x=model, y=value, fill=model)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(dataset),scales = "free", ncol = 3) +
+	coord_flip() +
+	ggtitle("Model Performance (MASE)")
+
+result_df %>% dplyr::filter(metric %in% c('mase') ) %>% 
+	#drop_na() %>%
+	group_by(model,metric) %>%
+	summarise_at(vars(value), list(avg_value = mean)) %>%
+	ggplot(aes(x=model, y=avg_value, fill=model)) + 
+		geom_bar(stat = 'identity', position=position_dodge()) +
+		facet_wrap(vars(metric),scales = "free", ncol = 3) +
+		coord_flip() +
+		ggtitle("Model Performance (MASE Avg)")
+
+result_df %>% dplyr::filter(metric %in% c('mase') & !dataset %in% c('sp500') ) %>% 
+	#drop_na() %>%
+	group_by(model,metric) %>%
+	summarise_at(vars(value), list(avg_value = mean)) %>%
+	ggplot(aes(x=model, y=avg_value, fill=model)) + 
+		geom_bar(stat = 'identity', position=position_dodge()) +
+		facet_wrap(vars(metric),scales = "free", ncol = 3) +
+		coord_flip() +
+		ggtitle("Model Performance (MASE Avg - sp500)")
+
+result_df %>% dplyr::filter(metric == 'mase') %>%
+	ggplot(aes(x=model, y=dataset, fill=value_round, label=value)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=4) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (MASE)")
+
+```
+
+
+## Elapsed Time
+
+```{r}
+
+result_df %>% dplyr::filter(metric %in% c('time_elapsed')) %>%
+ggplot(aes(x=model, y=value, fill=metric)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	facet_wrap(vars(dataset),scales = "free", ncol = 3) +
+	coord_flip() +
+	ggtitle("Model Performance (time_elapsed)")
+
+result_df %>% dplyr::filter(metric %in% c('time_elapsed')) %>%
+		group_by(model,metric) %>%
+ggplot(aes(x=model, y=value, fill=metric)) + 
+	geom_bar(stat = 'identity', position=position_dodge()) +
+	#facet_wrap(vars(dataset),scales = "free", ncol = 3) +
+	coord_flip() +
+	ggtitle("Model Performance (Time Elapsed Avg)")
+
+result_df %>% dplyr::filter(metric == 'time_elapsed') %>%
+	ggplot(aes(x=model, y=dataset, fill=value_round, label=value)) + 
+	geom_tile() + theme_bw() + 
+	geom_text(aes(label=value_round, size=.6), color="black", size=4) +
+	scale_fill_gradient(low = "lightgray", high = "red") + 
+	theme_light() +
+	ggtitle("Model Performance (time_elapsed)")
+
+
+```
+
+
+
+
+
+
+# Data Set Summary Stats 
+
+
+```{r}
+
+ml_datasets <- mldash::read_ml_datasets(dir = 'inst/datasets')
+ml_datasets <- ml_datasets |> dplyr::filter(type == 'timeseries')
+
+
+```
+
+
+```{r}
+
+datasets <- ml_datasets
+cache_dir <- attr(datasets, 'cache_dir')
+
+
+
+ts_summary <- datasets %>% dplyr::select(id,name,type,description,nrow,ncol)
+ts_summary$freq <- NA
+ts_summary$ur.df_pval <- NA
+ts_summary$ur.df_stationary <- NA
+ts_summary$adf.test_pval <- NA
+ts_summary$adf.test_stationary <- NA
+
+
+for(d in seq_len(nrow(datasets))) {
+	datasetname <- datasets[d,]$id
+	message(paste0('[', d, ' / ', nrow(datasets), '] Loading ', datasetname, ' data...'))
+
+	
+	thedata <- readRDS(paste0(cache_dir[d], '/', datasetname, '.rds'))
+	formu <- as.formula(datasets[d,]$model)
+	type <- datasets[d,]$type
+	
+	
+	
+	ts_summary[d,]$freq <- eval(parse(text = datasets[d,]$model_params))$freq
+
+	#a_tb <- thedata %>% drop_na() %>% dplyr::select(ds,y)
+	a_tb <- thedata %>% drop_na() %>% 
+						dplyr::select(ds,y) %>%
+						tsibble::as_tsibble(index = ds)
+	
+	if(type == 'timeseries') {
+		
+		#ur_test <- urca::ur.df(as.ts(a_tb), type = "trend", lags = 0)
+		ur_test <- urca::ur.df(as.ts(a_tb))
+		urca::summary(ur_test)
+		pval <- 1-pf(ur_test@testreg$fstatistic[['value']],
+					 ur_test@testreg$fstatistic[['numdf']],
+					 ur_test@testreg$fstatistic[['dendf']])
+
+		ts_summary[d,]$ur.df_pval <- pval
+		ts_summary[d,]$ur.df_stationary <- pval < 0.05
+
+
+		adf_test <- adf.test(x=as.ts(a_tb))
+		ts_summary[d,]$adf.test_pval <- adf_test$p.value
+		ts_summary[d,]$adf.test_stationary <- adf_test$p.value < 0.05
+		
+	}
+	
+
+}
+
+
+ts_summary %>% dplyr::select(-c(id,type,description)) %>%
+kable(
+	  caption = 'Data Set Summary',
+	  col.names = c('Name', 'Rows','Columns', 'Frequency', 'ur.df', '-', 'adf.test','-')
+) %>%
+kable_paper(full_width = F)
+
+```
+
+
+
+
+

@@ -11,6 +11,7 @@ data: function ()
 		df$ds <- df$Date
 		df$ds <- tsibble::yearmonth(df$ds)
 		df$y <- df$SP500
+		df <- df |> dplyr::filter(ds > as.Date("2005-01-01"))
 		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::distinct(ds,y)
 		df <- df |> dplyr::filter(!is.na(ds))
 		tb <- df |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)

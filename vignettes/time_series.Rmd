@@ -1,0 +1,140 @@
+---
+title: "Time Series Models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Time Series Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+
+```{r setup}
+library(mldash)
+```
+
+
+
+## Introduction
+
+The mldash framework includes support for time series data sets and forecasting models. 
+
+
+
+
+
+
+## Time Series Data Sets
+
+Similar to other data sets in the mldash package the definition for a new time series dataset is created in dcf file. The data frame returned must conform to the structure and definition expected by the Prophet Framework and the Fable Frameworks respectively. The Prophet package will also require an explicit frequency parameter. This frequency is passed to the 'make_future_dataframe()' function to create the prediction data frame. 
+
+Required steps:
+
+ * download data
+ * define a returning data frame that includes 'ds - date as the explanatory variable' and 'y - numeric response variable'
+ * define the ds variable in the data frame to explicitly identify the frequency of the time series
+ * filter out null ds and y values
+ * coerce the df to a tsibble object
+ * fill all the data gaps in the tsibble object
+ * coerce the tsibble back to a data frame
+ * return the data frame
+
+
+```
+name: air
+type: timeseries
+description: Contains the responses of a gas multisensor device deployed on the field in an Italian city. Hourly responses averages are recorded along with gas concentrations references from a certified analyzer.
+source: https://archive.ics.uci.edu/ml/datasets/Air+Quality
+reference: APA reference for the dataset.
+data: function ()
+	{
+		destfile <- tempfile()
+		download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip",destfile)
+		df <- read.csv(unz(destfile, "AirQualityUCI.csv"), sep = ";" ,header = TRUE)
+		df$ds <- lubridate::as_datetime(as.POSIXct(paste(df$Date, df$Time), format = "%d/%m/%Y%H.%M.%S"))
+		df$y <- as.numeric(gsub(",", ".", df$CO.GT.))
+		df <- df |> tidyr::drop_na(c(ds,y)) |> dplyr::select(ds,y) |> dplyr::distinct(ds,y)
+		df <- df |> dplyr::filter(!is.na(ds)) |> dplyr::filter(ds > as.Date("2005-01-01"))
+		df <- df |> dplyr::filter(!y < 0)
+		df$ds <- lubridate::ymd_hms(df$ds)
+		tb <- df |> dplyr::select( ds, y) |> tsibble::as_tsibble(index = ds)
+		tb <- tsibble::fill_gaps(tb, .full = TRUE, y = dplyr::last(y))
+		df <- data.frame(tb)
+		return(df)
+	}
+model: y ~ ds
+note:
+packages: tidyr,dplyr,lubridate,tsibble
+model_params: list(freq = 'hours')
+
+```
+
+Note a time series data set is a data frame with 2 required columns ds of Data type and y of numeric type.
+
+
+
+
+## Time Series Models
+
+There are 2 types of models included in the mldash package. The Profit R interface and the tidy model-based Fable interface for ARIMA, ETS, TSLM, MEAN and SNAIVE models.
+
+
+Meta's Profit Time Series Model
+```
+name: prophet_timeseries
+type: timeseries
+description: Prophet is a forecasting procedure implemented in R and Python.
+train: function(formula, data, ...) {
+		formal_args <- formals(prophet::prophet)
+		prophet::prophet(data)
+	}
+predict: function(model, newdata, freq, ...) {
+		if(missing(freq)) {
+			warning('Dataset does not specify a freq parameter. Using daily as default.')
+			freq <- 'day'
+		}
+		future <- make_future_dataframe(model, periods = nrow(newdata), freq = freq, include_history = FALSE)
+		prophet:::predict.prophet(model, future)
+	}
+notes: More information here: https://facebook.github.io/prophet/
+packages: prophet
+
+```
+
+
+Time Series Model using the Fable Interface
+
+```
+name: Fable Arima Timeseries
+type: timeseries
+description: The R package fable provides a collection of commonly used univariate and multivariate time series forecasting models.
+train: function(formula, data, ...) {
+		tb <- data |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		tb |> fabletools::model(arima = fable::ARIMA(y))
+	}
+predict: function(model, newdata, ...) {
+		tb <- newdata |> dplyr::select(y, ds) |> tsibble::as_tsibble(index = ds)
+		fabletools::forecast(model, new_data = tb)
+	}
+notes: More information here: https://fable.tidyverts.org/
+packages: dplyr,tsibble,fable,fabletools
+
+```
+
+Note that even though the fable interface will allow you to identify multiple models and combination models the mldash package assumes one model per definition file
+
+
+
+
+
+
+
